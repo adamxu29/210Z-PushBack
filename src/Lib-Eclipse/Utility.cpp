@@ -96,6 +96,37 @@ double Utility::get_angular_error(double x, double y, bool robot_relative)
     return M_PI_2 - delta_theta; // convert to standard angle
 }
 
+double Utility::getAngleError(double target_x, double target_y, bool reverse) {
+    double x = target_x;
+    double y = target_y;
+  
+    x -= get_robot_x();
+    y -= get_robot_y();
+  
+    double delta_theta = atan2(y, x) - robot_theta;
+  
+    // if movement is reversed, calculate delta_theta using a 180 degree rotation
+    if (reverse) {
+      delta_theta = atan2(-y, -x) - robot_theta;
+    }
+  
+    while (fabs(delta_theta) > M_PI) {
+      delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta); // 360 * theta / abs(theta)
+    }
+  
+    return delta_theta;
+
+
+}
+
+double Utility::getDistanceError(double target_x, double target_y) {
+    double x = target_x;
+    double y = target_y;
+  
+    y -= get_robot_y();
+    x -= get_robot_x();
+    return sqrt(x * x + y * y);
+}
 double Utility::get_lateral_error(double x, double y)
 {
     double delta_x = x - util.get_robot_x();

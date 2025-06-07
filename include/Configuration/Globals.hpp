@@ -44,6 +44,7 @@ extern Eclipse::Curve_PID c_pid;
 extern Eclipse::PID m_pid;
 extern Eclipse::Odom odom;
 extern Eclipse::Drive drive;
+extern Eclipse::FeedbackControl mtp;
 // extern Eclipse::MonteCarloLocalization mcl;
 
 extern Eclipse::Autonomous_Paths auton;

@@ -15,10 +15,10 @@ void Eclipse::Drive::set_constants(const double t_kp, const double t_ki, const d
 }
 
 Eclipse::Drive::Drive(){
-    this->t_error_threshold = 0;
-    this->t_tolerance = 0;
+    this->t_error_threshold = 5;
+    this->t_tolerance = 4;
     this->r_error_threshold = 3;
-    this->r_tolerance = 0;
+    this->r_tolerance = 4;
 }
 
 void Eclipse::Drive::reset_variables(){
@@ -87,10 +87,8 @@ void Eclipse::Drive::turn_to_point(double x, double y, double time_out){
         }
         pros::delay(10);
     }
-    
-    
-    
 }
+
 
 void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool backwards, double time_out){
     this->reset_variables();
@@ -135,7 +133,7 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
             r_power = -max_rotation_speed;
         }
 
-        if(local_timer < 20 && turn_first){
+        if((local_timer < 20) && turn_first){
             t_power = 0;
         }
 

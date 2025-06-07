@@ -34,6 +34,8 @@ namespace Eclipse
             
             double get_angular_error(double x, double y, bool robot_relative);
             double get_lateral_error(double x, double y);
+            double getAngleError(double target_x, double target_y, bool reverse);
+            double getDistanceError(double target_x, double target_y);
             // sensors
             double get_position();
             void reset_position();

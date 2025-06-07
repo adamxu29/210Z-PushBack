@@ -77,6 +77,7 @@ extern "C"
 // autonomous
 #include "Lib-Eclipse/Chassis/Chassis_PID.hpp"
 #include "Lib-Eclipse/Chassis/Drive.hpp"
+#include "Lib-Eclipse/Chassis/FeedbackController.hpp"
 #include "Lib-Eclipse/Chassis/Odometry.hpp"
 #include "Lib-Eclipse/Chassis/MonteCarloLocalization.hpp"
 #include "Lib-Eclipse/PID.hpp"
