@@ -15,13 +15,14 @@ namespace Eclipse{
             void set_vertical_tracker_specs(double diameter, double offset);
 
             float get_horizontal_displacement();
+            float get_vertical_displacement();
             float get_left_displacement();
             float get_right_displacement();
 
             double x = 0;
             double y = 0;
 
-
             void update_position();
+            void update_position_single_vertical();
     };
 }

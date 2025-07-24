@@ -6,35 +6,27 @@ using namespace Eclipse;
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-pros::Motor_Group left_drive({19, -18, 20});
-pros::Motor_Group right_drive({-12, -11, 13});
+pros::Motor_Group left_drive({-11, -14, 15});
+pros::Motor_Group right_drive({12, 16, -13,});
 
-pros::Motor intake(14);
+pros::Motor intake(19);
+pros::Motor pusher(20);
 
-pros::Motor_Group wall_stake({10, -1});
+pros::Rotation vertical_tracking_wheel(3);
+pros::Rotation horizontal_tracking_wheel(10, true);
 
-pros::Rotation horizontal_rotation_sensor(16, true);
-pros::Rotation wall_stake_rotation_sensor(2);
+pros::ADIDigitalOut scoring_adjuster('h');
+pros::ADIDigitalOut match_loader('g');
 
-pros::Optical color(8);
+pros::IMU imu1(1);
+pros::IMU imu2(2);
 
-pros::ADIDigitalOut clamp('h');
-pros::ADIDigitalOut right_doinker('g');
-pros::ADIDigitalOut left_doinker('d');
-pros::ADIDigitalOut goal_rush_clamp('e');
-pros::ADIDigitalOut climb_release('f');
-pros::ADIDigitalOut climb_claw_pto('c');
-pros::ADIDigitalOut wall_stake_boost('b');
-
-pros::ADIDigitalIn limit('a');
-
-pros::IMU imu1(15);
-pros::IMU imu2(17);
+pros::Distance pusher_reset_sensor(21);
 
 // pros::Distance front_sensor(5);
 // pros::Distance left_sensor(6);
-// pros::Distance right_sensor(16);
-// pros::Distance back_sensor(7);
+pros::Distance right_sensor(18);
+pros::Distance back_sensor(7);
 
 Utility util;
 OPControl driver;
@@ -46,7 +38,6 @@ Curve_PID c_pid;
 PID m_pid;
 Odom odom;
 Drive drive;
-FeedbackControl mtp;
 // MonteCarloLocalization mcl;
 
 Autonomous_Paths auton;

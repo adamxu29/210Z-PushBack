@@ -80,13 +80,13 @@ void Eclipse::Utility::set_drive_constants(const double dt_wheel_diameter, const
     this->motor_cartridge = dt_motor_cartridge;
 }
 
-double Utility::get_angular_error(double x, double y, bool robot_relative)
+double Utility::get_angular_error(double x, double y)
 {   
     // angular error relative to robot
     double delta_x = x - util.get_robot_x();
     double delta_y = y - util.get_robot_y();
 
-    double delta_theta = atan2(delta_y, delta_x) - (robot_relative ? 90 + robot_theta : 0);
+    double delta_theta = atan2(delta_y, delta_x);
 
     // normalize angle to be between -pi and pi
     while(fabs(delta_theta) > M_PI){
@@ -96,37 +96,6 @@ double Utility::get_angular_error(double x, double y, bool robot_relative)
     return M_PI_2 - delta_theta; // convert to standard angle
 }
 
-double Utility::getAngleError(double target_x, double target_y, bool reverse) {
-    double x = target_x;
-    double y = target_y;
-  
-    x -= get_robot_x();
-    y -= get_robot_y();
-  
-    double delta_theta = atan2(y, x) - robot_theta;
-  
-    // if movement is reversed, calculate delta_theta using a 180 degree rotation
-    if (reverse) {
-      delta_theta = atan2(-y, -x) - robot_theta;
-    }
-  
-    while (fabs(delta_theta) > M_PI) {
-      delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta); // 360 * theta / abs(theta)
-    }
-  
-    return delta_theta;
-
-
-}
-
-double Utility::getDistanceError(double target_x, double target_y) {
-    double x = target_x;
-    double y = target_y;
-  
-    y -= get_robot_y();
-    x -= get_robot_x();
-    return sqrt(x * x + y * y);
-}
 double Utility::get_lateral_error(double x, double y)
 {
     double delta_x = x - util.get_robot_x();
@@ -163,8 +132,7 @@ void Utility::set_tpi(){
 //     return (left_position + right_position) / 2;
 // }
 
-double Utility::get_heading()
-{
+double Utility::get_heading(){   
     double heading = (imu1.get_rotation() + imu2.get_rotation()) / 2;
     // for (auto i : imus)
     // {
@@ -189,72 +157,6 @@ void Utility::reset_position()
 
     left_drive.set_zero_position(0);
     right_drive.set_zero_position(0);
-}
-// Sort blue rings on red side
-void Utility::sort_red(){
-    if(color.get_hue() > this->blue_min && color.get_hue() < this->blue_max){
-        char buffer[300];   
-        sprintf(buffer, "Hue: %.1f", color.get_hue());
-        lv_label_set_text(gui.debug_line_1, buffer);
-
-        sprintf(buffer, "Blue Detected");
-        lv_label_set_text(gui.debug_line_2, buffer);
-
-        pros::delay(sort_delay);
-        driver.color_sorting = true;
-
-        intake.move_voltage(-1000);
-        pros::delay(100);
-        intake.move_voltage(12000);
-
-        driver.color_sorting = false;
-        util.sorting = false;
-    }
-}
-// Sort red rings on blue side
-void Utility::sort_blue(){
-    if(color.get_hue() > this->red_min && color.get_hue() < this->red_max){
-        char buffer[300];
-        sprintf(buffer, "Hue: %.1f", color.get_hue());
-        lv_label_set_text(gui.debug_line_1, buffer);
-
-        sprintf(buffer, "Red Detected");
-        lv_label_set_text(gui.debug_line_2, buffer);
-
-        pros::delay(sort_delay);
-        driver.color_sorting = true;
-
-        intake.move_voltage(-1000);
-        pros::delay(100);
-        intake.move_voltage(12000);
-
-        driver.color_sorting = false;
-        util.sorting = false;
-    }
-}
-
-void Utility::stop_on_red(){
-    if(color.get_hue() > this->red_min && color.get_hue() < this->red_max){
-        char buffer[300];
-        sprintf(buffer, "Red Ring Stopped");
-        lv_label_set_text(gui.debug_line_4, buffer);
-        
-        intake.move_voltage(-1000);
-        pros::delay(150);
-        intake.brake();
-    }
-}
-
-void Utility::stop_on_blue(){
-    if((color.get_hue() > this->blue_min) && (color.get_hue() < this->blue_max)){
-        char buffer[300];
-        sprintf(buffer, "Blue Ring Stopped");
-        lv_label_set_text(gui.debug_line_4, buffer);
-
-        intake.move_voltage(-1000);
-        pros::delay(150);
-        intake.brake();
-    }
 }
 
 // misc

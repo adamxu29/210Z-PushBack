@@ -99,7 +99,6 @@ double Eclipse::Translation_PID::compute_t(double current_pos, double target)
     return power;
 }
 
-
 double Eclipse::Rotation_PID::compute_r(double current_pos, double theta)
 {
     r_pid.r_error = util.get_min_error(current_pos, theta);
@@ -165,7 +164,6 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
 
     while (true)
     {
-        odom.update_position();
         double current_position = util.get_position() * 3 / util.get_tpi();
  
         double voltage = t_pid.compute_t(current_position, target);
@@ -234,7 +232,6 @@ void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double 
 
     while (true)
     {
-        // odom.update_position();
         double current_position = util.get_heading();
         double voltage = r_pid.compute_r(current_position, theta);
 
@@ -298,8 +295,7 @@ void Eclipse::Curve_PID::curve_pid(double theta, double max_speed, double time_o
     c_turn_right = false;
 
     while (true)
-    {   
-        odom.update_position();
+    {
         double current_position = util.get_heading();
         double voltage = c_pid.compute_c(current_position, theta);
 

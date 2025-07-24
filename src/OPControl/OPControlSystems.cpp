@@ -50,150 +50,83 @@ void Eclipse::OPControl::drivetrain_control(){
     right_drive.move(right_power);
 }
 
-void Eclipse::OPControl::power_intake(int speed){ // speed in percent
+void Eclipse::OPControl::power_intake(float speed){ // speed in percent
     if(!driver.color_sorting){
-        if(controller.get_digital(this->skills ? pros::E_CONTROLLER_DIGITAL_L2 : pros::E_CONTROLLER_DIGITAL_R1 /**Skills: L2 */ )){
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
             intake.move_voltage(12000 * (speed / 100));
-            color.set_led_pwm(100);
         }
-        else if(controller.get_digital(this->skills ? pros::E_CONTROLLER_DIGITAL_L1 : pros::E_CONTROLLER_DIGITAL_R2 /**Skills: L2 */ )){
+        else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
             intake.move_voltage(-12000 * (speed / 100));
-            color.set_led_pwm(100);
         }
         else{
             intake.move_voltage(0);
-            color.set_led_pwm(0);
         }
     }
 }
-
-void Eclipse::OPControl::manual_wall_stake(){
-    // if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ wall_stake.move_voltage(12000 * speed / 100); }
-    // else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){ wall_stake.move_voltage(-12000 * speed / 100); }
-    // else{ wall_stake.move_velocity(0); }
-
-    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){ wall_stake.move_voltage(12000); }
-    else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ wall_stake.move_voltage(-12000); }
-    else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){ 
-        this->loading_lb = true;
+// make macro later
+void Eclipse::OPControl::manual_pusher(float speed){ // speed in percent
+    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+        pusher.move_voltage(12000 * (speed / 100));
     }
-    else{ wall_stake.move_velocity(0); }
-
-}
-
-void Eclipse::OPControl::activate_clamp(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-        this->clamping = !this->clamping;
-        clamp.set_value(this->clamping);
+    else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+        pusher.move_voltage(-12000 * (speed / 100));
+    }
+    else{
+        pusher.move_voltage(0);
     }
 }
 
-void Eclipse::OPControl::activate_right_doinker(){
-    if(controller.get_digital_new_press( this->skills ? pros::E_CONTROLLER_DIGITAL_RIGHT : pros::E_CONTROLLER_DIGITAL_B/**Skills: RIGHT */)){
-        this->right_doinker_down = !this->right_doinker_down;
-        right_doinker.set_value(this->right_doinker_down);
+void Eclipse::OPControl::pusher_control(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+        this->cycle_counter++;
     }
 }
 
-void Eclipse::OPControl::activate_left_doinker(){
-    if(controller.get_digital_new_press( this->skills ? pros::E_CONTROLLER_DIGITAL_UP : pros::E_CONTROLLER_DIGITAL_RIGHT/**Skills: RIGHT */)){
-        this->left_doinker_down = !this->left_doinker_down;
-        left_doinker.set_value(this->left_doinker_down);
+void Eclipse::OPControl::power_pusher(float speed){ // speed in percent
+    if(this->cycle_counter > 0){
+        m_pid.set_constants(2, 0, 4, 3, 100, 200, 5, this->pusher_speed);
+        m_pid.motor_pid(pusher, 2225);
+        this->cycle_counter--;
     }
 }
 
-void Eclipse::OPControl::activate_climb_claw_pto(){
+void Eclipse::OPControl::raise_shooter(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+        this->shooter_raised = !this->shooter_raised;
+        scoring_adjuster.set_value(this->shooter_raised);
+    }
+}
+
+void Eclipse::OPControl::activate_match_load(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
-        this->climb_clamping = !this->climb_clamping;
-        climb_claw_pto.set_value(this->climb_clamping);
+        this->match_loading = !this->match_loading;
+        match_loader.set_value(this->match_loading);
     }
 }
 
-void Eclipse::OPControl::activate_climb_release(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
-        climb_release.set_value(true);
-    }
-}
-
-void Eclipse::OPControl::activate_wall_stake_boost(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-        this->wall_stake_boost_activated = !this->wall_stake_boost_activated;
-        wall_stake_boost.set_value(this->wall_stake_boost_activated);
-    }
-}
-
-void Eclipse::OPControl::next_state() {
-    if(this-> current_state == 1){
-        this->color_sorting = true;
-
-        intake.move_voltage(-6000);
-        pros::delay(35);
-        intake.move_voltage(0);
-
-        this->color_sorting = false;
-    }
-    this->current_state++;
-    if (this->skills ? this->current_state > this->num_states - 2 : this->current_state > this->num_states - 1) {
-        this->current_state = 0;
-    }
-    this->target = states[this->current_state];
-}
-
-void Eclipse::OPControl::prev_state() {
-	this->current_state--;
-	if (this->current_state < 0) {
-		this->skills ? this->current_state = this->num_states - 2 : this->current_state = this->num_states - 1;
-	}
-	this->target = states[this->current_state];
-}
-
-void Eclipse::OPControl::power_wall_stake(){
-    // macro control
-    m_pid.set_constants(.78, 0.0, 0, 3, 1, 5, 200, 127); //0.8
-	m_pid.wall_stake_pid(wall_stake, wall_stake_rotation_sensor, this->target);
-
-    // manual control
-    // if(this->loading_lb){
-    //     m_pid.set_constants(4, 0.0, 35, 5, 1.5, 5, 200, 100);
-	//     m_pid.wall_stake_pid(wall_stake, wall_stake_rotation_sensor, -20);
-    //     this->loading_lb = false;
-    // }
-}
-
-void Eclipse::OPControl::control_wall_stake(){
-    if (controller.get_digital_new_press(this->skills ? pros::E_CONTROLLER_DIGITAL_R2 : pros::E_CONTROLLER_DIGITAL_L1)) {
-        driver.next_state();
-    } else if (controller.get_digital_new_press(this->skills ? pros::E_CONTROLLER_DIGITAL_R1 : pros::E_CONTROLLER_DIGITAL_L2)) {
-        driver.prev_state();
-    }
-}
-
-void Eclipse::OPControl::alliance_stake(){
-    this->current_state = this->num_states - 1;
-    this->target = -180;
-
-    m_pid.set_constants(4, 0.0, 15, 5, 1.5, 5, 200, 100);
-    m_pid.wall_stake_pid(wall_stake, wall_stake_rotation_sensor, -180);
-}
-
-
-void Eclipse::OPControl::score_alliance_stake(){
-    if(controller.get_digital_new_press(this->skills ? pros::E_CONTROLLER_DIGITAL_B : pros::E_CONTROLLER_DIGITAL_UP)){
-        driver.alliance_stake();
+void Eclipse::OPControl::change_pusher_speed(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+        if(this->pusher_speed == 127){
+            this->pusher_speed = 75;
+        }
+        else if(this->pusher_speed == 75){
+            this->pusher_speed = 127;
+        }
+        else{
+            this->pusher_speed = 127;
+        }
     }
 }
 
 void Eclipse::OPControl::driver_control(){
     odom.update_position();
     
-    this->skills ? driver.exponential_curve_accelerator() : driver.drivetrain_control();
+    driver.exponential_curve_accelerator();
     driver.power_intake(100);
-    driver.score_alliance_stake();
+    // driver.manual_pusher(this->pusher_speed);
+    driver.pusher_control();
+    driver.change_pusher_speed();
 
-    driver.activate_clamp();
-    driver.activate_right_doinker();
-    driver.activate_left_doinker();
-    driver.activate_climb_claw_pto();
-    driver.activate_climb_release();
-    driver.activate_wall_stake_boost();
+    driver.raise_shooter();
+    driver.activate_match_load();
 }

@@ -23,8 +23,7 @@ namespace Eclipse{
 
             double compute(double current_pos, double target);
 
-            void motor_pid(pros::Motor &motor, pros::Rotation &rotation, double target);
-
-            void wall_stake_pid(pros::Motor_Group &motor, pros::Rotation &rotation, double target);
+            void motor_pid(pros::Motor &motor, double target);
+            void motor_pid_with_rotation(pros::Motor &motor, pros::Rotation &rotation, double target);
     };
 }

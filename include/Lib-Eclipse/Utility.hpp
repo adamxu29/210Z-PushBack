@@ -9,13 +9,6 @@ namespace Eclipse
             double circumference = 0;
             double tpr = 0;
             double tpi = 0;
-
-            int red_max = 16;
-            int red_min = 10;
-            int blue_max = 215;
-            int blue_min = 210;
-            int sort_delay = 105;
-            
         public:
             // motion
             void move_left_drive(int voltage);
@@ -32,10 +25,8 @@ namespace Eclipse
             void set_robot_position(double x, double y);
             void set_drive_constants(const double dt_wheel_diameter, const double dt_gear_ratio, const double dt_motor_cartridge);
             
-            double get_angular_error(double x, double y, bool robot_relative);
+            double get_angular_error(double x, double y);
             double get_lateral_error(double x, double y);
-            double getAngleError(double target_x, double target_y, bool reverse);
-            double getDistanceError(double target_x, double target_y);
             // sensors
             double get_position();
             void reset_position();
@@ -46,16 +37,6 @@ namespace Eclipse
             double get_drive_temp();
             double get_wall_stake_position();
             double get_heading();
-            
-            // color sorting
-
-            bool sorting = true;
-            bool stop_on_color = false;
-
-            void sort_red();
-            void sort_blue();
-            void stop_on_red();
-            void stop_on_blue();
 
             // misc
             bool is_reversed(int port);

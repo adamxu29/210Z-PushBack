@@ -335,7 +335,7 @@ void GUI::initialize_objects() {
     gui.misc_sensors = lv_label_create(gui.sensor_screen, NULL);
         lv_label_set_style(gui.misc_sensors, &gui.style_text);
         lv_obj_align(gui.misc_sensors, NULL, LV_ALIGN_IN_TOP_LEFT, 30, 101);
-        lv_label_set_text(gui.misc_sensors, "Wall Stake: 0.0 Color Sensor: 0.0");
+        lv_label_set_text(gui.misc_sensors, "Right: 0.0mm Back: 0.0mm");
 
     gui.drivetrain_temp = lv_label_create(gui.sensor_screen, NULL);
         lv_label_set_style(gui.drivetrain_temp, &gui.style_text);
@@ -550,13 +550,13 @@ void GUI::update_sensors(){
     lv_label_set_text(gui.match_position_readings, buffer);
     lv_label_set_text(gui.debug_line_9, buffer);
 
-    sprintf(buffer, "FL: %.2f ML: %.2f BL: %.2f", left_drive.get_positions()[0], left_drive.get_positions()[1], left_drive.get_positions()[2]);
+    sprintf(buffer, "FL: %.2f ML: %.2f BL: %.2f", left_drive.get_positions()[0], left_drive.get_positions()[1], pusher.get_position());
     lv_label_set_text(gui.left_drivetrain_encoders, buffer);
 
     sprintf(buffer, "FR: %.2f MR: %.2f BR: %.2f", right_drive.get_positions()[0], right_drive.get_positions()[1], right_drive.get_positions()[2]);
     lv_label_set_text(gui.right_drivetrain_encoders, buffer);
 
-    sprintf(buffer, "LB Position: %.2f Color Sensor: %.2f", ((float)wall_stake_rotation_sensor.get_position()) / 100.0 , color.get_hue());
+    sprintf(buffer, "Right: %.2fcm Back: %.2fcm", (float)right_sensor.get() / 10, 0.0);
     lv_label_set_text(gui.misc_sensors, buffer);
 }
 
@@ -565,7 +565,7 @@ void GUI::update_temps(){
     sprintf(buffer, "Drivetrain Temperature: %.2f°C", util.get_drive_temp());
     lv_label_set_text(gui.drivetrain_temp, buffer);
 
-    sprintf(buffer, "Intake: %.2f°C LB: %.2f°C", intake.get_temperature(), (wall_stake.get_temperatures()[0] + wall_stake.get_temperatures()[1]) / 2);
+    sprintf(buffer, "Intake: %.2f°C Pusher: %.2f°C", intake.get_temperature(), pusher.get_temperature());
     lv_label_set_text(gui.motor_temp, buffer);
 }
 

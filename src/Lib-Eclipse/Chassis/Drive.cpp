@@ -38,7 +38,8 @@ void Eclipse::Drive::reset_variables(){
 }
 
 void Eclipse::Drive::turn_to_point(double x, double y, double time_out){
-    // this->reset_variables();
+    // Simple rotation pid wrapper for ttp
+    // acounts for the fact that the robot may not turn on its centre
     r_pid.reset_r_variables();
     r_pid.set_r_constants(this->r_kp, this->r_ki, this->r_kd);
 
@@ -46,9 +47,8 @@ void Eclipse::Drive::turn_to_point(double x, double y, double time_out){
     r_pid.r_max_speed = this->max_rotation_speed;
     
     while(true){
-        odom.update_position();
         double current_position = util.get_heading();
-        double theta = util.get_min_angle(util.get_angular_error(x, y, false)) * 180 / M_PI;
+        double theta = util.get_min_angle(util.get_angular_error(x, y)) * 180 / M_PI;
 
         double voltage = r_pid.compute_r(current_position, theta);
 
@@ -95,10 +95,10 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
     double local_timer = 0;
 
     while(true){
-        odom.update_position();
-        r_error = backwards ? util.get_min_angle(util.get_angular_error(-x, -y, false)) * 180 / M_PI : util.get_min_angle(util.get_angular_error(x, y, false)) * 180 / M_PI;
-        t_error = backwards ? -util.get_lateral_error(x, y) : util.get_lateral_error(x, y);
-
+        r_error = util.get_min_angle(util.get_angular_error(x, y)) * 180 / M_PI;
+        r_error -= util.get_heading() + (backwards ? M_PI : 0);
+        t_error = (backwards ? -util.get_lateral_error(x, y) : util.get_lateral_error(x, y));
+        
         if(fabs(t_error) < 5){
             t_counter++;
         } else {
@@ -133,7 +133,7 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
             r_power = -max_rotation_speed;
         }
 
-        if((local_timer < 20) && turn_first){
+        if(local_timer < 20 && turn_first){
             t_power = 0;
         }
 

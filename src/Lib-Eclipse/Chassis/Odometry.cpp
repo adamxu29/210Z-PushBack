@@ -20,7 +20,7 @@ void Odom::set_vertical_tracker_specs(double diameter, double offset){
 }
 
 float Odom::get_horizontal_displacement(){
-    return  (((float)horizontal_rotation_sensor.get_position() / 100) * odom.horizontal_wheel_diameter * M_PI / 360);
+    return  (((float)horizontal_tracking_wheel.get_position() / 100) * odom.horizontal_wheel_diameter * M_PI / 360);
 }
 
 float Odom::get_left_displacement(){
@@ -29,6 +29,10 @@ float Odom::get_left_displacement(){
 
 float Odom::get_right_displacement(){
     return (float) (right_drive.get_positions()[2] * odom.vertical_wheel_diameter * M_PI / 360);
+}
+
+float Odom::get_vertical_displacement(){
+    return  (((float)vertical_tracking_wheel.get_position() / 100) * odom.vertical_wheel_diameter * M_PI / 360);
 }
 
 double heading;
@@ -45,11 +49,12 @@ void Odom::update_position(){
     double delta_horizontal = horizontal_pos - prev_horizontal_displacement;
     double delta_vertical = vertical_pos - prev_vertical_displacement;
 
-    heading = -util.get_min_angle(util.get_heading()) * M_PI / 180.0; // convert to radians
+    heading = util.get_min_angle((90 - util.get_heading())) * M_PI / 180.0; // convert to radians
     double delta_heading = heading - prev_heading;
     
     prev_horizontal_displacement = horizontal_pos;
     prev_vertical_displacement = vertical_pos;
+    prev_heading = heading;
 
     double local_x;
     double local_y;
@@ -59,19 +64,37 @@ void Odom::update_position(){
         local_y = delta_vertical;
     }
     else{
-        local_x = (2 * sin(delta_heading / 2) * (delta_horizontal / delta_heading + horizontal_wheel_offset));
-        local_y = (2 * sin(delta_heading / 2) * (delta_vertical / delta_heading + vertical_wheel_offset));
+        local_x = (2 * sin(delta_heading / 2) * ((delta_horizontal / delta_heading) + horizontal_wheel_offset));
+        local_y = (2 * sin(delta_heading / 2) * ((delta_vertical / delta_heading) + vertical_wheel_offset));
     }
 
     double avg_heading = prev_heading + (delta_heading / 2);
-    prev_heading = heading;
 
-    odom.x += local_x * cos(avg_heading) - local_y * sin(avg_heading);
-    odom.y += local_x * sin(avg_heading) + local_y * cos(avg_heading);
+    odom.x += local_y * cos(avg_heading) + local_x * sin(avg_heading);
+    odom.y += local_y * sin(avg_heading) - local_x * cos(avg_heading);
 
     util.set_robot_position(odom.x, odom.y);
 
     robot_theta = heading;
+
+    gui.update_sensors();
+    gui.update_temps();
+    gui.update_match_checklist();
+}
+
+void Odom::update_position_single_vertical(){
+    double vertical_pos = get_vertical_displacement();
+    double delta_vertical = vertical_pos - prev_vertical_displacement;
+
+    prev_vertical_displacement = vertical_pos;
+
+    heading = util.get_min_angle(util.get_heading()) * M_PI / 180; // convert to radians
+    prev_heading = heading;
+
+    odom.x += delta_vertical * sin(heading);
+    odom.y += delta_vertical * cos(heading);
+
+    util.set_robot_position(odom.x, odom.y);
 
     gui.update_sensors();
     gui.update_temps();

@@ -53,7 +53,43 @@ double Eclipse::PID::compute(double current_pos, double target)
     return power;
 }
 
-void Eclipse::PID::motor_pid(pros::Motor &motor, pros::Rotation &rotation, double target){
+void Eclipse::PID::motor_pid(pros::Motor &motor, double target){
+    reset_variables();
+    motor.set_zero_position(0); // Reset motor position
+    double local_timer = 0;
+
+    while(true){
+        double current_position = motor.get_position();
+        double voltage = compute(current_position, target);
+        motor.move_voltage(voltage * (12000.0 / 127.0));
+        
+        if(fabs(this->error) < this->error_threshold){
+            this->counter++;
+        }
+        else{
+            this->counter = 0;
+        }
+
+        if(this->counter > this->tolerance){ 
+            motor.brake();
+            std::cout << "PID loop completed" << std::endl;
+            break;
+        }
+
+        if(fabs(this->derivative) < this->failsafe_threshold){
+            this->failsafe++;
+        }
+
+        if(this->failsafe > this->failsafe_tolerance){
+            motor.brake();
+            std::cout << "failsafe" << std::endl;
+            break;
+        }
+        pros::delay(10);
+    }
+}
+
+void Eclipse::PID::motor_pid_with_rotation(pros::Motor &motor, pros::Rotation &rotation, double target){
     reset_variables();
 
     double local_timer = 0;
@@ -76,7 +112,7 @@ void Eclipse::PID::motor_pid(pros::Motor &motor, pros::Rotation &rotation, doubl
             break;
         }
 
-        if(fabs(this->derivative) > this->failsafe_threshold){
+        if(fabs(this->derivative) < this->failsafe_threshold){
             this->failsafe++;
         }
 
@@ -86,35 +122,5 @@ void Eclipse::PID::motor_pid(pros::Motor &motor, pros::Rotation &rotation, doubl
             break;
         }
         pros::delay(10);
-    }
-}
-
-void Eclipse::PID::wall_stake_pid(pros::Motor_Group &motor, pros::Rotation &rotation, double target){
-    double current_position = wall_stake_rotation_sensor.get_position() / 100.0;
-    double voltage = this->compute(current_position, driver.target);
-    wall_stake.move_voltage(voltage * (12000.0 / 127.0));
-
-    // Check if the target has been reached
-    if (fabs(this->error) < this->error_threshold) {
-        this->counter++;
-    } else {
-        this->counter = 0;
-    }
-
-    // If the target is reached for the required tolerance duration
-    if (this->counter > this->tolerance) {
-        wall_stake.brake();
-        this->reset_variables();
-    }
-
-    // Handle failsafe logic
-    if (fabs(this->derivative) > this->failsafe_threshold) {
-        this->failsafe++;
-    }
-
-    if (this->failsafe > this->failsafe_tolerance) {
-        driver.current_state = 0;
-        driver.target = driver.states[driver.current_state];
-        this->reset_variables();
     }
 }

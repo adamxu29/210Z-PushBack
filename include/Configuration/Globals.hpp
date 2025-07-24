@@ -7,28 +7,18 @@ extern pros::Motor_Group left_drive;
 extern pros::Motor_Group right_drive;
 
 extern pros::Motor intake;
-extern pros::Motor_Group wall_stake;
+extern pros::Motor pusher;
 
-extern pros::Rotation horizontal_rotation_sensor;
-extern pros::Rotation wall_stake_rotation_sensor;
+extern pros::Rotation vertical_tracking_wheel;
+extern pros::Rotation horizontal_tracking_wheel;
 
-extern pros::Optical color;
-
-extern pros::ADIDigitalOut clamp;
-extern pros::ADIDigitalOut right_doinker;
-extern pros::ADIDigitalOut left_doinker;
-extern pros::ADIDigitalOut goal_rush_clamp;
-extern pros::ADIDigitalOut climb_release;
-extern pros::ADIDigitalOut climb_claw_pto;
-extern pros::ADIDigitalOut wall_stake_boost;
-
-extern pros::ADIDigitalIn limit;
-
-extern pros::ADIAnalogIn line;
+extern pros::ADIDigitalOut scoring_adjuster;
+extern pros::ADIDigitalOut match_loader;
 
 extern pros::IMU imu1;
 extern pros::IMU imu2;
 
+extern pros::Distance pusher_reset_sensor;
 extern pros::Distance front_sensor;
 extern pros::Distance left_sensor;
 extern pros::Distance right_sensor;
@@ -44,7 +34,6 @@ extern Eclipse::Curve_PID c_pid;
 extern Eclipse::PID m_pid;
 extern Eclipse::Odom odom;
 extern Eclipse::Drive drive;
-extern Eclipse::FeedbackControl mtp;
 // extern Eclipse::MonteCarloLocalization mcl;
 
 extern Eclipse::Autonomous_Paths auton;
