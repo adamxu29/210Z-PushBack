@@ -31,8 +31,8 @@ void Eclipse::Curve_PID::set_c_constants(const double kp, const double ki, const
 
 Eclipse::Translation_PID::Translation_PID()
 {
-    t_pid.t_tolerance = 4;
-    t_pid.t_error_threshold = 5;
+    t_pid.t_tolerance = 3;
+    t_pid.t_error_threshold = 15;
 }
 
 Eclipse::Rotation_PID::Rotation_PID()
@@ -83,7 +83,7 @@ double Eclipse::Translation_PID::compute_t(double current_pos, double target)
     t_pid.t_error = target - current_pos;
     t_pid.t_derivative = t_pid.t_error - t_pid.t_prev_error;
 
-    if (t_pid.t_ki != 0){ t_pid.t_integral += t_pid.t_error; }
+    if (t_pid.t_ki != 0){ t_pid.t_integral += ((t_pid.t_error + t_pid.t_prev_error) / 2); }
 
     if (util.sign(t_pid.t_error) != util.sign(t_pid.t_prev_error)){ t_pid.t_integral = 0; }
 
@@ -106,7 +106,7 @@ double Eclipse::Rotation_PID::compute_r(double current_pos, double theta)
 
     if (r_pid.r_ki != 0)
     {
-        r_pid.r_integral += r_pid.r_error;
+        r_pid.r_integral += ((r_pid.r_error + r_pid.r_prev_error) / 2);
     }
 
     if (util.sign(r_pid.r_error) != util.sign(r_pid.r_prev_error))
@@ -131,7 +131,7 @@ double Eclipse::Curve_PID::compute_c(double current_pos, double theta)
     c_pid.c_error = util.get_min_error(current_pos, theta);
     c_pid.c_derivative = c_pid.c_error - c_pid.c_prev_error;
 
-    if (c_pid.c_ki != 0){ c_pid.c_integral += c_pid.c_error; }
+    if (c_pid.c_ki != 0){ c_pid.c_integral += ((c_pid.c_error + c_pid.c_prev_error) / 2); }
 
     if (util.sign(c_pid.c_error) != util.sign(c_pid.c_prev_error)){ c_pid.c_integral = 0; }
 
@@ -158,20 +158,26 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
     t_pid.reset_t_variables();
 
     double theta = util.get_heading();
-    target = target *= 3;
+    target *= 2;
     t_pid.t_max_speed = max_speed;
     double local_timer = 0;
 
+    double starting_position = odom.get_vertical_displacement();
     while (true)
     {
-        double current_position = util.get_position() * 3 / util.get_tpi();
+        odom.update_position_single_vertical();
+        // motor encoder:
+        // double current_position = util.get_position() * 3 / util.get_tpi();
+
+        // tracking wheel:
+        double current_position = (odom.get_vertical_displacement() - starting_position) * 2;
  
         double voltage = t_pid.compute_t(current_position, target);
         double heading_correction = util.get_min_error(util.get_heading(), theta) * t_pid.t_heading_kp;
 
-        // std::cout << "average pos" << current_position << std::endl;
-        // std::cout << "output" << voltage << std::endl;
-        // std::cout << "error" << target - current_position << std::endl;
+        std::cout << "average pos" << current_position << std::endl;
+        std::cout << "output" << voltage << std::endl;
+        std::cout << "error" << target - current_position << std::endl;
 
         left_drive.move_voltage((voltage * (12000.0 / 127.0)) + heading_correction);
         right_drive.move_voltage((voltage * (12000.0 / 127.0)) - heading_correction);

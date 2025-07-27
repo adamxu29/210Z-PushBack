@@ -55,7 +55,6 @@ double Eclipse::PID::compute(double current_pos, double target)
 
 void Eclipse::PID::motor_pid(pros::Motor &motor, double target){
     reset_variables();
-    motor.set_zero_position(0); // Reset motor position
     double local_timer = 0;
 
     while(true){

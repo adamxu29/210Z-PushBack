@@ -121,7 +121,6 @@ double Utility::get_drive_temp(){
 
 void Utility::set_tpi(){
     this->circumference = this->wheel_diameter * M_PI;
-    
     this->tpi = 87.86 * (3600 / this->motor_cartridge) * this->gear_ratio / this->circumference;
 }
 

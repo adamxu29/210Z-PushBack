@@ -18,15 +18,10 @@ namespace Eclipse{
             int t_max_speed;
 
             Translation_PID();
-
             void set_t_constants(const double kp, const double ki, const double kd, const double heading_kp);
-
             void reset_t_variables();
 
             double compute_t(double current_pos, double target);
-
-            double get_min_angle(float angle1, float angle2);
-
             void translation_pid(double target, double maxSpeed, double timeOut);
     };
 
@@ -46,13 +41,10 @@ namespace Eclipse{
             int r_max_speed;
 
             Rotation_PID();
-
             void set_r_constants(const double kp, const double ki, const double kd);
-
             void reset_r_variables();
 
             double compute_r(double current_pos, double theta);
-
             void rotation_pid(double theta, double maxSpeed, double timeOut);
     };
 
@@ -73,13 +65,10 @@ namespace Eclipse{
             bool c_turn_right;
 
             Curve_PID();
-
             void set_c_constants(const double kp, const double ki, const double kd);
-
             void reset_c_variables();
 
             double compute_c(double current_pos, double theta);
-
             void curve_pid(double theta, double maxSpeed, double timeOut, double curve_damper, bool backwards);
     };
 }

@@ -51,19 +51,17 @@ void Eclipse::OPControl::drivetrain_control(){
 }
 
 void Eclipse::OPControl::power_intake(float speed){ // speed in percent
-    if(!driver.color_sorting){
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-            intake.move_voltage(12000 * (speed / 100));
-        }
-        else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-            intake.move_voltage(-12000 * (speed / 100));
-        }
-        else{
-            intake.move_voltage(0);
-        }
+    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+        intake.move_voltage(12000 * (speed / 100));
+    }
+    else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+        intake.move_voltage(-12000 * (speed / 100));
+    }
+    else{
+        intake.move_voltage(0);
     }
 }
-// make macro later
+
 void Eclipse::OPControl::manual_pusher(float speed){ // speed in percent
     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
         pusher.move_voltage(12000 * (speed / 100));
@@ -85,7 +83,7 @@ void Eclipse::OPControl::pusher_control(){
 void Eclipse::OPControl::power_pusher(float speed){ // speed in percent
     if(this->cycle_counter > 0){
         m_pid.set_constants(2, 0, 4, 3, 100, 200, 5, this->pusher_speed);
-        m_pid.motor_pid(pusher, 2225);
+        m_pid.motor_pid(pusher, pusher.get_position() + 2225);
         this->cycle_counter--;
     }
 }
@@ -119,7 +117,7 @@ void Eclipse::OPControl::change_pusher_speed(){
 }
 
 void Eclipse::OPControl::driver_control(){
-    odom.update_position();
+    odom.update_position_single_vertical();
     
     driver.exponential_curve_accelerator();
     driver.power_intake(100);

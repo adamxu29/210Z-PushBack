@@ -23,13 +23,14 @@ void initialize() {
     right_drive.set_zero_position(0);
 	pusher.set_zero_position(0);
 	pusher.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	
-	util.set_robot_position(0.0, 0.0);
 
 	pros::delay(3000);
 	controller.rumble(".");
-	
+
+	util.set_robot_position(0.0, 0.0);
+
 	pros::Task update_gui([]{
+		float starting_position = odom.get_vertical_displacement();
 		while(true){
 			gui.update_sensors();
 			gui.update_temps();
@@ -78,13 +79,11 @@ void autonomous(){
 
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
-	left_drive.set_zero_position(0);
-    right_drive.set_zero_position(0);
+
 	pusher.set_zero_position(0);
 
-	// Run auton selector for
-	// auton.skills();
-	gui.run_selected_auton();
+	// Run auton selector or skills (toggle in GUI)
+	driver.skills ? auton.skills() : gui.run_selected_auton();
 }
 
 /**
@@ -105,7 +104,6 @@ void opcontrol() {
 	int start_time = pros::millis();
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
-	intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	bool tuning = false;
 
 	while(true){

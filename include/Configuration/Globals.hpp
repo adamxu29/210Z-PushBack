@@ -34,12 +34,9 @@ extern Eclipse::Curve_PID c_pid;
 extern Eclipse::PID m_pid;
 extern Eclipse::Odom odom;
 extern Eclipse::Drive drive;
-// extern Eclipse::MonteCarloLocalization mcl;
 
 extern Eclipse::Autonomous_Paths auton;
 extern Eclipse::Autonomous_Paths::Red red;
 extern Eclipse::Autonomous_Paths::Blue blue;
 
 extern Eclipse::GUI gui;
-
-extern bool skills;

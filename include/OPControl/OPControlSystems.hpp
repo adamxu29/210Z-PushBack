@@ -6,7 +6,6 @@ namespace Eclipse{
             bool scoring = false;
             int cycle_counter = 0;
         public:
-            bool endgame = false;
             bool skills = false;
             bool color_sorting = false;
             float pusher_speed = 127;
@@ -17,7 +16,6 @@ namespace Eclipse{
             void manual_pusher(float speed);
             void power_pusher(float speed);
             void pusher_control();
-            // void macro_pusher(float speed);
 
             void change_pusher_speed();
 

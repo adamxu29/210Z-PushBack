@@ -7,19 +7,10 @@ namespace Eclipse
             double gear_ratio = 0;
             double motor_cartridge = 0;
             double circumference = 0;
-            double tpr = 0;
-            double tpi = 0;
+            double tpr = 0; // ticks per revolution
+            double tpi = 0; // ticks per inch
         public:
-            // motion
-            void move_left_drive(int voltage);
-            void move_right_drive(int voltage);
-            void move_intake(int voltage);
-            void move_wall_stake(int voltage);
-            void move_tilter();
-            void move_doinker();
-            void move_intake_lift();
-
-            // odom
+            // odometry
             double get_robot_x();
             double get_robot_y();
             void set_robot_position(double x, double y);
