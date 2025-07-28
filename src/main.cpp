@@ -29,37 +29,37 @@ void initialize() {
 
 	util.set_robot_position(0.0, 0.0);
 
-	// pros::Task update_gui([]{
-	// 	while(true){
-	// 		gui.update_sensors();
-	// 		gui.update_temps();
-	// 		gui.update_match_checklist();
-	// 		pros::delay(8);
-	// 	}
-	// });
+	pros::Task update_gui([]{
+		while(true){
+			gui.update_sensors();
+			gui.update_temps();
+			gui.update_match_checklist();
+			pros::delay(8);
+		}
+	});
 
-	// pros::Task update_odom([]{
-	// 	while(true){
-	// 		// Particle estimate = get_estimate();
-	// 		odom.update_position_single_vertical();
-	// 		// //predict();
-	// 		// run_localization_step();
-	// 		// pros::delay(10);
+	pros::Task update_odom([]{
+		while(true){
+			// Particle estimate = get_estimate();
+			odom.update_position_single_vertical();
+			// //predict();
+			// run_localization_step();
+			// pros::delay(10);
 
-	// 		// char buffer[300];
-	// 		// //sprintf(buffer, "Front: %.2f Back: %.2f Left: %.2f Right: %.2f", front_sensor.get(), back_sensor.get(), left_sensor.get(), right_sensor.get());
-	// 		// sprintf(buffer, "X: %.2f Y: %.2f Theta: %.2f", estimate.x, estimate.y, imu1.get_heading());
-	// 		// lv_label_set_text(gui.position_readings, buffer);
-	// 		pros::delay(8);
-	// 	}
-	// });
+			// char buffer[300];
+			// //sprintf(buffer, "Front: %.2f Back: %.2f Left: %.2f Right: %.2f", front_sensor.get(), back_sensor.get(), left_sensor.get(), right_sensor.get());
+			// sprintf(buffer, "X: %.2f Y: %.2f Theta: %.2f", estimate.x, estimate.y, imu1.get_heading());
+			// lv_label_set_text(gui.position_readings, buffer);
+			pros::delay(8);
+		}
+	});
 
-	// pros::Task power_pusher([]{
-	// 	while(true){
-	// 		driver.power_pusher(driver.pusher_speed);
-	// 		pros::delay(8);
-	// 	}
-	// });
+	pros::Task power_pusher([]{
+		while(true){
+			driver.power_pusher(driver.pusher_speed);
+			pros::delay(8);
+		}
+	});
 
 }
 

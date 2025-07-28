@@ -83,7 +83,7 @@ void Eclipse::OPControl::pusher_control(){
 void Eclipse::OPControl::power_pusher(float speed){ // speed in percent
     if(this->cycle_counter > 0){
         m_pid.set_constants(2, 0, 4, 3, 100, 200, 5, this->pusher_speed);
-        m_pid.motor_pid(pusher, pusher.get_position() + 2225);
+        m_pid.motor_pid(pusher, multiple * 2225);
         this->cycle_counter--;
     }
 }

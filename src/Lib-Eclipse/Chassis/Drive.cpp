@@ -48,7 +48,7 @@ void Eclipse::Drive::turn_to_point(double x, double y, double time_out){
     
     while(true){
         double current_position = util.get_heading();
-        double theta = util.get_min_angle(util.get_angular_error(x, y)) * 180 / M_PI;
+        double theta = util.get_min_angle(util.get_angular_error(x, y, false)) * 180 / M_PI;
 
         double voltage = r_pid.compute_r(current_position, theta);
 
@@ -97,10 +97,9 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
     while(true){
         odom.update_position_single_vertical();
         double r_current_position = util.get_heading();
-        r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y)) * 180 / M_PI);
-        r_error -= (backwards ? M_PI : 0);
+        r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI);
         std::cout << "r_error: " << r_error << std::endl;
-        t_error = (backwards ? -util.get_lateral_error(x, y) : util.get_lateral_error(x, y));
+        t_error = (backwards ? -util.get_lateral_error(x, y) : util.get_lateral_error(x, y)) * 3;
         std::cout << "t_error: " << t_error << std::endl;
 
         if(fabs(t_error) < 5){

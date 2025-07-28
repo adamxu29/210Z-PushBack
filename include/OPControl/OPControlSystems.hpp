@@ -4,8 +4,9 @@ namespace Eclipse{
             bool shooter_raised = false;
             bool match_loading = false;
             bool scoring = false;
-            int cycle_counter = 0;
         public:
+            int cycle_counter = 0;
+            int multiple = 1;
             bool skills = false;
             bool color_sorting = false;
             float pusher_speed = 127;
