@@ -550,7 +550,7 @@ void GUI::update_sensors(){
     lv_label_set_text(gui.match_position_readings, buffer);
     lv_label_set_text(gui.debug_line_9, buffer);
 
-    sprintf(buffer, "FL: %.2f ML: %.2f BL: %.2f", left_drive.get_positions()[0], left_drive.get_positions()[1], pusher.get_position());
+    sprintf(buffer, "FL: %.2f ML: %.2f BL: %.2f", left_drive.get_positions()[0], left_drive.get_positions()[1], left_drive.get_positions()[2]);
     lv_label_set_text(gui.left_drivetrain_encoders, buffer);
 
     sprintf(buffer, "FR: %.2f MR: %.2f BR: %.2f", right_drive.get_positions()[0], right_drive.get_positions()[1], right_drive.get_positions()[2]);

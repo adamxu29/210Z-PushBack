@@ -65,16 +65,15 @@ void Eclipse::Autonomous_Paths::skills()
 
 void Eclipse::Autonomous_Paths::test()
 {   
-    left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
-    right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
-    // drive.set_constants(5, 0, 35, 4.5, 0, 30, 90, 90);
-    // drive.move_to_point(12, 24, false, false, 2);
+    drive.set_constants(3.5, 0, 10, 2, 0.001, 13, 90, 90);
+    // drive.turn_to_point(24, 0, 2);
+    drive.move_to_point(12, 24, false, false, 2);
 
     // drive.turn_to_point(12, 24, 2);
 
-    t_pid.set_t_constants(2, 0.0, 0, 600);
-    t_pid.translation_pid(24, 90, 1);
+    // t_pid.set_t_constants(3.5, 0.0, 10, 600);
+    // t_pid.translation_pid(24, 90, 1);
 
-    // r_pid.set_r_constants(2, 0, 0);
+    // r_pid.set_r_constants(2, 0.001, 13);
     // r_pid.rotation_pid(90, 90, 1);
 }

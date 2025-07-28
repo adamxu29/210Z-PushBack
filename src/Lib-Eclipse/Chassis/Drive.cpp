@@ -15,10 +15,10 @@ void Eclipse::Drive::set_constants(const double t_kp, const double t_ki, const d
 }
 
 Eclipse::Drive::Drive(){
-    this->t_error_threshold = 5;
+    this->t_error_threshold = 3;
     this->t_tolerance = 4;
     this->r_error_threshold = 3;
-    this->r_tolerance = 4;
+    this->r_tolerance = 3;
 }
 
 void Eclipse::Drive::reset_variables(){
@@ -95,10 +95,14 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
     double local_timer = 0;
 
     while(true){
-        r_error = util.get_min_angle(util.get_angular_error(x, y)) * 180 / M_PI;
-        r_error -= util.get_heading() + (backwards ? M_PI : 0);
+        odom.update_position_single_vertical();
+        double r_current_position = util.get_heading();
+        r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y)) * 180 / M_PI);
+        r_error -= (backwards ? M_PI : 0);
+        std::cout << "r_error: " << r_error << std::endl;
         t_error = (backwards ? -util.get_lateral_error(x, y) : util.get_lateral_error(x, y));
-        
+        std::cout << "t_error: " << t_error << std::endl;
+
         if(fabs(t_error) < 5){
             t_counter++;
         } else {
@@ -137,8 +141,8 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
             t_power = 0;
         }
 
-        double left_voltage = t_power - r_power;
-        double right_voltage = t_power + r_power;
+        double left_voltage = t_power + r_power;
+        double right_voltage = t_power - r_power;
         left_drive.move_voltage(left_voltage * (12000.0 / 127.0));
         right_drive.move_voltage(right_voltage * (12000.0 / 127.0));
 
@@ -154,6 +158,11 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
             right_drive.move_voltage(0);
             local_timer = 0;
             break;
+        }
+
+        if (time_out > 0)
+        {
+            local_timer++;
         }
 
         if(local_timer > time_out * 100){

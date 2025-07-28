@@ -6,8 +6,8 @@ namespace Eclipse{
             double kd = 0;
 
             double kp_increment = 0.5;
-            double ki_increment = 0.1;
-            double kd_increment = 5.0;
+            double ki_increment = 0.0005;
+            double kd_increment = 1.0;
 
             int current_constant = 0; // 0: kp 1: ki 2: k2
             int current_movement = 0; // 0: translation 1: rotation 2: curve
