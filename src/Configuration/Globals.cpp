@@ -17,6 +17,7 @@ pros::Rotation horizontal_tracking_wheel(10, true);
 
 pros::ADIDigitalOut scoring_adjuster('h');
 pros::ADIDigitalOut match_loader('g');
+pros::ADIDigitalOut descore('f');
 
 pros::IMU imu1(1);
 pros::IMU imu2(2);

@@ -66,6 +66,31 @@ void GUI::initialize_styles() {
     style_pressed_purple_btn.body.opa = LV_OPA_30;
 }
 
+void GUI::display_home() {
+    // Load the Home Screen
+    lv_scr_load(gui.home_screen);
+}
+
+void GUI::display_auton_selector() {
+    // Load the Autonomous Selector Screen
+    lv_scr_load(gui.auton_screen);
+}
+
+void GUI::display_sensors() {
+    // Load the Sensor Screen
+    lv_scr_load(gui.sensor_screen);
+}
+
+void GUI::display_match_checklist(){
+    // Load the Match Checklist Screen
+    lv_scr_load(gui.match_screen);
+}
+
+void GUI::display_debug_terminal() {
+    // Load the Debug Terminal Screen
+    lv_scr_load(gui.debug_screen);
+}
+
 // Initialize actions
 lv_res_t GUI::return_home_click(lv_obj_t *btn) {
     gui.display_home();
@@ -161,11 +186,6 @@ void GUI::initialize_objects() {
     // Initialize Home Screen and its objects
     gui.home_screen = lv_obj_create(NULL, NULL);
     lv_obj_set_style(home_screen, &style_screen_bg);
-
-    // Configure the team logo
-    // team_logo = lv_img_create(gui.home_screen, NULL);
-    //     lv_img_set_src(gui.team_logo, &logo_210z); 
-    //     lv_obj_align(gui.team_logo, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 52);
 
     gui.auton_home_btn = lv_btn_create(gui.home_screen, NULL);
         lv_btn_set_style(gui.auton_home_btn, LV_BTN_STYLE_REL, &gui.style_purple_btn);
@@ -470,31 +490,6 @@ void GUI::initialize_objects() {
         lv_label_set_text(lv_label_create(gui.debug_return_home, NULL), SYMBOL_HOME);
 }
 
-void GUI::display_home() {
-    // Load the Home Screen
-    lv_scr_load(gui.home_screen);
-}
-
-void GUI::display_auton_selector() {
-    // Load the Autonomous Selector Screen
-    lv_scr_load(gui.auton_screen);
-}
-
-void GUI::display_sensors() {
-    // Load the Sensor Screen
-    lv_scr_load(gui.sensor_screen);
-}
-
-void GUI::display_match_checklist(){
-    // Load the Match Checklist Screen
-    lv_scr_load(gui.match_screen);
-}
-
-void GUI::display_debug_terminal() {
-    // Load the Debug Terminal Screen
-    lv_scr_load(gui.debug_screen);
-}
-
 void GUI::run_selected_auton(){
     switch(gui.selected_color){
         case 0:
@@ -544,7 +539,6 @@ void GUI::run_selected_auton(){
 
 void GUI::update_sensors(){
     char buffer[300];
-
     sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", util.get_robot_x(), util.get_robot_y(), util.get_heading());
     lv_label_set_text(gui.position_readings, buffer);
     lv_label_set_text(gui.match_position_readings, buffer);

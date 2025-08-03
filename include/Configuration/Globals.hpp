@@ -14,6 +14,7 @@ extern pros::Rotation horizontal_tracking_wheel;
 
 extern pros::ADIDigitalOut scoring_adjuster;
 extern pros::ADIDigitalOut match_loader;
+extern pros::ADIDigitalOut descore;
 
 extern pros::IMU imu1;
 extern pros::IMU imu2;

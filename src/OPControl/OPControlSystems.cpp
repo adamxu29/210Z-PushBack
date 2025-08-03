@@ -43,11 +43,11 @@ void Eclipse::OPControl::drivetrain_control(){
     int32_t leftYjoystick  = (controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y));
     int32_t leftXjoystick  = (controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
 
-    int32_t left_power = (leftYjoystick + (rightXjoystick * 0.9));
-    int32_t right_power = (leftYjoystick - (rightXjoystick * 0.9));
+    int32_t left_power = (leftYjoystick + (rightXjoystick));
+    int32_t right_power = (leftYjoystick - (rightXjoystick));
 
-    left_drive.move(left_power);
-    right_drive.move(right_power);
+    left_drive.move_voltage(left_power * (12000.0 / 127));
+    right_drive.move_voltage(right_power * (12000.0 / 127));
 }
 
 void Eclipse::OPControl::power_intake(float speed){ // speed in percent
@@ -76,6 +76,7 @@ void Eclipse::OPControl::manual_pusher(float speed){ // speed in percent
 
 void Eclipse::OPControl::pusher_control(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+        this->multiple++;
         this->cycle_counter++;
     }
 }
@@ -89,16 +90,23 @@ void Eclipse::OPControl::power_pusher(float speed){ // speed in percent
 }
 
 void Eclipse::OPControl::raise_shooter(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
         this->shooter_raised = !this->shooter_raised;
         scoring_adjuster.set_value(this->shooter_raised);
     }
 }
 
 void Eclipse::OPControl::activate_match_load(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         this->match_loading = !this->match_loading;
         match_loader.set_value(this->match_loading);
+    }
+}
+
+void Eclipse::OPControl::activate_descore(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+        this->descore_active = !this->descore_active;
+        descore.set_value(this->descore_active);
     }
 }
 
@@ -119,12 +127,14 @@ void Eclipse::OPControl::change_pusher_speed(){
 void Eclipse::OPControl::driver_control(){
     odom.update_position_single_vertical();
     
-    driver.exponential_curve_accelerator();
+    // driver.exponential_curve_accelerator();
+    driver.drivetrain_control();
     driver.power_intake(100);
-    // driver.manual_pusher(this->pusher_speed);
+    // driver.manual_pusher(100);
     driver.pusher_control();
     driver.change_pusher_speed();
 
     driver.raise_shooter();
     driver.activate_match_load();
+    driver.activate_descore();
 }

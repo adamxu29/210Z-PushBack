@@ -4,7 +4,7 @@ void initialize() {
 	gui.initialize_styles();
 	gui.initialize_objects();
 
-	gui.display_sensors();
+	gui.display_home();
 	// initialize_particles();
 	
 	util.set_drive_constants(2.75, 0.75, 600);
@@ -13,8 +13,8 @@ void initialize() {
 	odom.set_horizontal_tracker_specs(2, 0.2);
 	odom.set_vertical_tracker_specs(2.75, 0);
 
-	imu1.tare_rotation();
-	imu2.tare_rotation();
+	imu1.reset();
+	imu2.reset();
 
 	vertical_tracking_wheel.reset_position();
 	horizontal_tracking_wheel.reset_position();
@@ -34,7 +34,7 @@ void initialize() {
 			gui.update_sensors();
 			gui.update_temps();
 			gui.update_match_checklist();
-			pros::delay(8);
+			pros::delay(10);
 		}
 	});
 
@@ -50,14 +50,14 @@ void initialize() {
 			// //sprintf(buffer, "Front: %.2f Back: %.2f Left: %.2f Right: %.2f", front_sensor.get(), back_sensor.get(), left_sensor.get(), right_sensor.get());
 			// sprintf(buffer, "X: %.2f Y: %.2f Theta: %.2f", estimate.x, estimate.y, imu1.get_heading());
 			// lv_label_set_text(gui.position_readings, buffer);
-			pros::delay(8);
+			pros::delay(10);
 		}
 	});
 
 	pros::Task power_pusher([]{
 		while(true){
 			driver.power_pusher(driver.pusher_speed);
-			pros::delay(8);
+			pros::delay(10);
 		}
 	});
 
@@ -104,7 +104,8 @@ void opcontrol() {
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	bool tuning = false;
-
+	driver.pusher_speed = 127;
+	
 	while(true){
 		controller.print(0, 0, "DT: %0.1f", util.get_drive_temp());
 		if(tuning){
@@ -113,7 +114,7 @@ void opcontrol() {
 		else{
 			driver.driver_control();
 		}
-		pros::delay(8);
+		pros::delay(10);
 	}
 	// pros::lcd::initialize();
 

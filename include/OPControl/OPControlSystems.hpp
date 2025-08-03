@@ -3,10 +3,11 @@ namespace Eclipse{
         private:
             bool shooter_raised = false;
             bool match_loading = false;
+            bool descore_active = false;
             bool scoring = false;
         public:
             int cycle_counter = 0;
-            int multiple = 1;
+            float multiple = 0;
             bool skills = false;
             bool color_sorting = false;
             float pusher_speed = 127;
@@ -22,6 +23,7 @@ namespace Eclipse{
 
             void raise_shooter();
             void activate_match_load();
+            void activate_descore();
 
             void driver_control();
     };

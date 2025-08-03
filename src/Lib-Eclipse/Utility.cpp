@@ -134,7 +134,8 @@ void Utility::set_tpi(){
 // }
 
 double Utility::get_heading(){   
-    double heading = (imu1.get_rotation() + imu2.get_rotation()) / 2;
+    // double heading = (imu1.get_rotation() + imu2.get_rotation()) / 2;
+    double heading = imu1.get_rotation();
     // for (auto i : imus)
     // {
     //     heading += i.get_rotation();

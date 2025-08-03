@@ -61,7 +61,7 @@ void Eclipse::PID::motor_pid(pros::Motor &motor, double target){
         double current_position = motor.get_position();
         double voltage = compute(current_position, target);
         motor.move_voltage(voltage * (12000.0 / 127.0));
-        
+
         if(fabs(this->error) < this->error_threshold){
             this->counter++;
         }
