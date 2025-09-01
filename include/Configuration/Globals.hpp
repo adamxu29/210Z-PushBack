@@ -19,7 +19,7 @@ extern pros::ADIDigitalOut descore;
 extern pros::IMU imu1;
 extern pros::IMU imu2;
 
-extern pros::Distance pusher_reset_sensor;
+extern pros::Optical color_sensor;
 extern pros::Distance front_sensor;
 extern pros::Distance left_sensor;
 extern pros::Distance right_sensor;
