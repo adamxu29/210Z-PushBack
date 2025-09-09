@@ -491,46 +491,22 @@ void GUI::initialize_objects() {
 }
 
 void GUI::run_selected_auton(){
-    switch(gui.selected_color){
+    switch(gui.selected_path){
         case 0:
-            switch(gui.selected_path){
-                case 0:
-                    red.solo_awp();
-                    break;
-                case 1:
-                    red.left_half_awp();
-                    break;
-                case 2:
-                    red.right_half_awp();
-                    break;
-                case 3:
-                    red.goal_side_rush();
-                    break;
-                case 4:
-                    red.ring_side_rush();
-                    break;
-            }
+            auton.solo_awp();
             break;
         case 1:
-            switch(gui.selected_path){
-                case 0:
-                    blue.solo_awp();
-                    break;
-                case 1:
-                    blue.left_half_awp();
-                    break;
-                case 2:
-                    blue.right_half_awp();
-                    break;
-                case 3:
-                    blue.goal_side_rush();
-                    break;
-                case 4:
-                    blue.ring_side_rush();
-                    break;
-            }
+            auton.left_half_awp();
             break;
-
+        case 2:
+            auton.right_half_awp();
+            break;
+        case 3:
+            auton.left_elims();
+            break;
+        case 4:
+            auton.right_elims();
+            break;
         default:
             auton.test();
             break;
@@ -559,7 +535,7 @@ void GUI::update_temps(){
     sprintf(buffer, "Drivetrain Temperature: %.2f°C", util.get_drive_temp());
     lv_label_set_text(gui.drivetrain_temp, buffer);
 
-    sprintf(buffer, "Intake: %.2f°C Pusher: %.2f°C", intake.get_temperature(), pusher.get_temperature());
+    sprintf(buffer, "Intake: %.2f°C Indexer: %.2f°C", intake.get_temperature(), indexer.get_temperature());
     lv_label_set_text(gui.motor_temp, buffer);
 }
 

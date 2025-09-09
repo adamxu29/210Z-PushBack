@@ -1,9 +1,6 @@
 #include "main.h"
 
 void initialize() {
-	gui.initialize_styles();
-	gui.initialize_objects();
-
 	gui.display_home();
 	// initialize_particles();
 	
