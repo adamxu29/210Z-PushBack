@@ -6,11 +6,11 @@ using namespace Eclipse;
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-pros::Motor_Group left_drive({-20, -18, 19});
-pros::Motor_Group right_drive({11, 13, -12});
+pros::Motor_Group left_drive({-20, -19, 18});
+pros::Motor_Group right_drive({10, 13, -12});
 
 pros::Motor intake(3);
-pros::Motor pusher(10);
+pros::Motor indexer(10);
 
 pros::Rotation vertical_tracking_wheel(14);
 pros::Rotation horizontal_tracking_wheel(5, true);
@@ -42,7 +42,5 @@ Drive drive;
 // MonteCarloLocalization mcl;
 
 Autonomous_Paths auton;
-Autonomous_Paths::Red red;
-Autonomous_Paths::Blue blue;
 
 GUI gui;

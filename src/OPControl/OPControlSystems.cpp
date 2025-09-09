@@ -50,42 +50,27 @@ void Eclipse::OPControl::drivetrain_control(){
     right_drive.move_voltage(right_power * (12000.0 / 127));
 }
 
-void Eclipse::OPControl::power_intake(float speed){ // speed in percent
+void Eclipse::OPControl::power_intake(float speed){
     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-        intake.move_voltage(12000 * (speed / 100));
+        intake.move_voltage(12000 * (speed / 127));
     }
     else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-        intake.move_voltage(-12000 * (speed / 100));
+        intake.move_voltage(-12000 * (speed / 127));
     }
     else{
         intake.move_voltage(0);
     }
 }
 
-void Eclipse::OPControl::manual_pusher(float speed){ // speed in percent
+void Eclipse::OPControl::power_indexer(float speed){
     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-        pusher.move_voltage(12000 * (speed / 100));
+        indexer.move_voltage(12000 * (speed / 127));
     }
     else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-        pusher.move_voltage(-12000 * (speed / 100));
+        indexer.move_voltage(-12000 * (speed / 127));
     }
     else{
-        pusher.move_voltage(0);
-    }
-}
-
-void Eclipse::OPControl::pusher_control(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
-        this->multiple++;
-        this->cycle_counter++;
-    }
-}
-
-void Eclipse::OPControl::power_pusher(float speed){ // speed in percent
-    if(this->cycle_counter > 0){
-        m_pid.set_constants(2, 0, 4, 3, 100, 200, 5, this->pusher_speed);
-        m_pid.motor_pid(pusher, multiple * 2225);
-        this->cycle_counter--;
+        indexer.move_voltage(0);
     }
 }
 
@@ -110,16 +95,30 @@ void Eclipse::OPControl::activate_descore(){
     }
 }
 
-void Eclipse::OPControl::change_pusher_speed(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
-        if(this->pusher_speed == 127){
-            this->pusher_speed = 75;
+void Eclipse::OPControl::change_intake_speed(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+        if(this->intake_speed == 127){
+            this->intake_speed = 75;
         }
-        else if(this->pusher_speed == 75){
-            this->pusher_speed = 127;
+        else if(this->intake_speed == 75){
+            this->intake_speed = 127;
         }
         else{
-            this->pusher_speed = 127;
+            this->intake_speed = 127;
+        }
+    }
+}
+
+void Eclipse::OPControl::change_shooter_speed(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+        if(this->shooter_speed == 127){
+            this->shooter_speed = 75;
+        }
+        else if(this->shooter_speed == 75){
+            this->shooter_speed = 127;
+        }
+        else{
+            this->shooter_speed = 127;
         }
     }
 }
@@ -127,12 +126,12 @@ void Eclipse::OPControl::change_pusher_speed(){
 void Eclipse::OPControl::driver_control(){
     odom.update_position_single_vertical();
     
-    // driver.exponential_curve_accelerator();
-    driver.drivetrain_control();
-    driver.power_intake(100);
-    // driver.manual_pusher(100);
-    driver.pusher_control();
-    driver.change_pusher_speed();
+    driver.exponential_curve_accelerator();
+    // driver.drivetrain_control();
+    driver.power_intake(intake_speed);
+    driver.power_indexer(shooter_speed);
+    driver.change_intake_speed();
+    driver.change_shooter_speed();
 
     driver.raise_shooter();
     driver.activate_match_load();

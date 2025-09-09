@@ -21,8 +21,6 @@ void initialize() {
 
 	left_drive.set_zero_position(0);
     right_drive.set_zero_position(0);
-	pusher.set_zero_position(0);
-	pusher.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
 	pros::delay(3000);
 	controller.rumble(".");
@@ -53,14 +51,6 @@ void initialize() {
 			pros::delay(10);
 		}
 	});
-
-	pros::Task power_pusher([]{
-		while(true){
-			driver.power_pusher(driver.pusher_speed);
-			pros::delay(10);
-		}
-	});
-
 }
 
 void disabled() {
@@ -78,8 +68,6 @@ void autonomous(){
 
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
-
-	pusher.set_zero_position(0);
 
 	// Run auton selector or skills (toggle in GUI)
 	driver.skills ? auton.skills() : gui.run_selected_auton();
@@ -104,7 +92,6 @@ void opcontrol() {
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	bool tuning = false;
-	driver.pusher_speed = 127;
 	
 	while(true){
 		controller.print(0, 0, "DT: %0.1f", util.get_drive_temp());

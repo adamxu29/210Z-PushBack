@@ -7,7 +7,7 @@ extern pros::Motor_Group left_drive;
 extern pros::Motor_Group right_drive;
 
 extern pros::Motor intake;
-extern pros::Motor pusher;
+extern pros::Motor indexer;
 
 extern pros::Rotation vertical_tracking_wheel;
 extern pros::Rotation horizontal_tracking_wheel;
@@ -37,7 +37,5 @@ extern Eclipse::Odom odom;
 extern Eclipse::Drive drive;
 
 extern Eclipse::Autonomous_Paths auton;
-extern Eclipse::Autonomous_Paths::Red red;
-extern Eclipse::Autonomous_Paths::Blue blue;
 
 extern Eclipse::GUI gui;
