@@ -12,9 +12,8 @@ extern pros::Motor indexer;
 extern pros::Rotation vertical_tracking_wheel;
 extern pros::Rotation horizontal_tracking_wheel;
 
-extern pros::ADIDigitalOut scoring_adjuster;
 extern pros::ADIDigitalOut match_loader;
-extern pros::ADIDigitalOut descore;
+extern pros::ADIDigitalOut park;
 
 extern pros::IMU imu1;
 extern pros::IMU imu2;

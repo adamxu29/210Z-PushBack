@@ -1,15 +1,11 @@
 namespace Eclipse{
     class OPControl{
         private:
-            bool shooter_raised = false;
             bool match_loading = false;
-            bool descore_active = false;
-            bool scoring = false;
+            bool parking = false;
             float intake_speed = 127;
             float shooter_speed = 127;
         public:
-            int cycle_counter = 0;
-            float multiple = 0;
             bool skills = false;
             bool color_sorting = false;
 
@@ -23,9 +19,8 @@ namespace Eclipse{
             void change_intake_speed();
             void change_shooter_speed();
 
-            void raise_shooter();
             void activate_match_load();
-            void activate_descore();
+            void activate_double_park();
 
             void driver_control();
     };

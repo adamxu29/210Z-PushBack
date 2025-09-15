@@ -3,7 +3,7 @@
 using namespace Eclipse;
 
 const u_int16_t forwardCurve       = 10;
-const u_int16_t turnCurve          = 3;
+const u_int16_t turnCurve          = 2; // test different curve values
 const double euler                 = 2.71828;
 static bool toggleRedCurve         = false; // toggle red curve
 static bool turningRed             = false; // turning curve
@@ -18,10 +18,8 @@ int32_t joystick_accelerator(bool red, int8_t input, const double t){
 }
 
 void Eclipse::OPControl::exponential_curve_accelerator(){
-    int32_t rightXjoystick = (controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X)); // Axis 1
-    int32_t rightYjoystick = (controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y)); // Axis 2
-    int32_t leftYjoystick  = (controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y)); // Axis 3
-    int32_t leftXjoystick  = (controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X)); // Axis 4
+    int32_t rightXjoystick = (controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
+    int32_t leftYjoystick  = (controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y));
     if(abs(leftYjoystick) < 10) leftYjoystick = 0;
     if(abs(rightYjoystick) < 10) rightYjoystick = 0;
 
@@ -39,9 +37,7 @@ void Eclipse::OPControl::exponential_curve_accelerator(){
 
 void Eclipse::OPControl::drivetrain_control(){
     int32_t rightXjoystick = (controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
-    int32_t rightYjoystick = (controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y));
     int32_t leftYjoystick  = (controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y));
-    int32_t leftXjoystick  = (controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X));
 
     int32_t left_power = (leftYjoystick + (rightXjoystick));
     int32_t right_power = (leftYjoystick - (rightXjoystick));
@@ -74,13 +70,6 @@ void Eclipse::OPControl::power_indexer(float speed){
     }
 }
 
-void Eclipse::OPControl::raise_shooter(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
-        this->shooter_raised = !this->shooter_raised;
-        scoring_adjuster.set_value(this->shooter_raised);
-    }
-}
-
 void Eclipse::OPControl::activate_match_load(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         this->match_loading = !this->match_loading;
@@ -88,10 +77,10 @@ void Eclipse::OPControl::activate_match_load(){
     }
 }
 
-void Eclipse::OPControl::activate_descore(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-        this->descore_active = !this->descore_active;
-        descore.set_value(this->descore_active);
+void Eclipse::OPControl::activate_double_park(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+        this->parking = !this->parking;
+        park.set_value(this->parking);
     }
 }
 
@@ -130,10 +119,10 @@ void Eclipse::OPControl::driver_control(){
     // driver.drivetrain_control();
     driver.power_intake(intake_speed);
     driver.power_indexer(shooter_speed);
+    
     driver.change_intake_speed();
     driver.change_shooter_speed();
 
-    driver.raise_shooter();
     driver.activate_match_load();
-    driver.activate_descore();
+    driver.activate_double_park();
 }

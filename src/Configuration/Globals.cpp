@@ -7,7 +7,7 @@ using namespace Eclipse;
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 pros::Motor_Group left_drive({-20, -19, 18});
-pros::Motor_Group right_drive({10, 13, -12});
+pros::Motor_Group right_drive({11, -12, 13});
 
 pros::Motor intake(3);
 pros::Motor indexer(10);
@@ -15,9 +15,8 @@ pros::Motor indexer(10);
 pros::Rotation vertical_tracking_wheel(14);
 pros::Rotation horizontal_tracking_wheel(5, true);
 
-pros::ADIDigitalOut scoring_adjuster('h');
 pros::ADIDigitalOut match_loader('g');
-pros::ADIDigitalOut descore('f');
+pros::ADIDigitalOut park('h');
 
 pros::IMU imu1(16);
 pros::IMU imu2(2);
