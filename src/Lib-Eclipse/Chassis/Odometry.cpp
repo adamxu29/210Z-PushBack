@@ -100,3 +100,64 @@ void Odom::update_position_single_vertical(){
     gui.update_temps();
     gui.update_match_checklist();
 }
+
+void Odom::distance_sensor_reset(int wall_1, int wall_2, int readings){
+    pros::Task task([&]() {
+        while(readings > 0){
+            double distance_1 = (right_sensor.get() - right_offset) * mm_to_inches;
+            double distance_2 = (back_sensor.get() - back_offset) * mm_to_inches;
+    
+            double confidence_1 = right_sensor.get_confidence();
+            double confidence_2 = back_sensor.get_confidence();
+    
+            right_weightings += confidence_1;
+            right_weighted_distance += distance_1 * confidence_1;
+    
+            back_weightings += confidence_2;
+            back_weighted_distance += distance_2 * confidence_2;
+    
+            pros::delay(10);
+            readings--;
+        }
+    
+        double avg_right_distance = right_weighted_distance / right_weightings;
+        double avg_back_distance = back_weighted_distance / back_weightings;
+    
+        char buffer[300];
+        sprintf(buffer, "Prev X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
+        lv_label_set_text(gui.debug_line_5, buffer);
+    
+        switch(wall_1){
+            case 0:
+                util.set_robot_position(min_x + avg_right_distance, util.get_robot_y());
+                break;
+            case 1:
+                util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance);
+                break;
+            case 2:
+                util.set_robot_position(max_x - avg_right_distance, util.get_robot_y());
+                break;
+            case 3:
+                util.set_robot_position(util.get_robot_x(), min_y + avg_right_distance);
+                break;
+        }
+    
+        switch(wall_2){
+            case 0:
+                util.set_robot_position(min_x + avg_back_distance, util.get_robot_y());
+                break;
+            case 1:
+                util.set_robot_position(util.get_robot_x(), max_y - avg_back_distance);
+                break;
+            case 2:
+                util.set_robot_position(max_x - avg_back_distance, util.get_robot_y());
+                break;
+            case 3:
+                util.set_robot_position(util.get_robot_x(), min_y + avg_back_distance);
+                break;
+        }
+    
+        sprintf(buffer, "New X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
+        lv_label_set_text(gui.debug_line_6, buffer);
+    });
+ }
