@@ -15,13 +15,14 @@ pros::Motor indexer(10);
 pros::Rotation vertical_tracking_wheel(14);
 pros::Rotation horizontal_tracking_wheel(5, true);
 
-pros::ADIDigitalOut match_loader('g');
+pros::ADIDigitalOut match_loader('a');
 pros::ADIDigitalOut park('h');
+pros::ADIDigitalOut trapdoor('g');
 
 pros::IMU imu1(16);
 pros::IMU imu2(2);
 
-pros::Optical color_sensor(9);
+pros::Optical color(9);
 
 // pros::Distance front_sensor(5);
 // pros::Distance left_sensor(6);

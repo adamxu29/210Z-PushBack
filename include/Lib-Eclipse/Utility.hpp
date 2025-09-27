@@ -9,6 +9,12 @@ namespace Eclipse
             double circumference = 0;
             double tpr = 0; // ticks per revolution
             double tpi = 0; // ticks per inch
+
+            int red_max = 20;
+            int red_min = 10;
+            int blue_max = 230;
+            int blue_min = 220;
+            int sort_delay = 50;
         public:
             // odometry
             double get_robot_x();
@@ -21,6 +27,10 @@ namespace Eclipse
             // sensors
             double get_position();
             void reset_position();
+
+            bool sorting = true;
+            void sort_red();
+            void sort_blue();
 
             void set_tpi();
             double get_tpi(){ return tpi; }

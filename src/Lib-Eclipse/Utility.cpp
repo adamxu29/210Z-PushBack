@@ -161,6 +161,52 @@ void Utility::reset_position()
     right_drive.set_zero_position(0);
 }
 
+void Utility::sort_red(){
+    if(color.get_hue() > this->blue_min && color.get_hue() < this->blue_max){
+        int voltage = indexer.get_voltage();
+
+        char buffer[300];   
+        sprintf(buffer, "Hue: %.1f", color.get_hue());
+        lv_label_set_text(gui.debug_line_1, buffer);
+
+        sprintf(buffer, "Blue Detected");
+        lv_label_set_text(gui.debug_line_2, buffer);
+
+        pros::delay(sort_delay);
+        driver.color_sorting = true;
+
+        indexer.move_voltage(-12000);
+        pros::delay(200);
+        indexer.move_voltage(voltage);
+
+        driver.color_sorting = false;
+        util.sorting = false;
+    }
+}
+
+void Utility::sort_blue(){
+    if(color.get_hue() > this->red_min && color.get_hue() < this->red_max){
+        int voltage = indexer.get_voltage();
+
+        char buffer[300];
+        sprintf(buffer, "Hue: %.1f", color.get_hue());
+        lv_label_set_text(gui.debug_line_1, buffer);
+
+        sprintf(buffer, "Red Detected");
+        lv_label_set_text(gui.debug_line_2, buffer);
+
+        pros::delay(sort_delay);
+        driver.color_sorting = true;
+
+        indexer.move_voltage(-12000);
+        pros::delay(200);
+        indexer.move_voltage(voltage);
+
+        driver.color_sorting = false;
+        util.sorting = false;
+    }
+}
+
 // misc
 bool Eclipse::Utility::is_reversed(int port)
 {

@@ -526,7 +526,7 @@ void GUI::update_sensors(){
     sprintf(buffer, "FR: %.2f MR: %.2f BR: %.2f", right_drive.get_positions()[0], right_drive.get_positions()[1], right_drive.get_positions()[2]);
     lv_label_set_text(gui.right_drivetrain_encoders, buffer);
 
-    sprintf(buffer, "Right: %.2fcm Back: %.2fcm", (float)right_sensor.get() / 10, 0.0);
+    sprintf(buffer, "Right: %.2fcm Back: %.2fcm", (float)right_sensor.get() / 10, (float)back_sensor.get() / 10);
     lv_label_set_text(gui.misc_sensors, buffer);
 }
 

@@ -21,6 +21,9 @@ void initialize() {
 	left_drive.set_zero_position(0);
     right_drive.set_zero_position(0);
 
+	color.set_led_pwm(0);
+	color.set_integration_time(10);
+
 	pros::delay(3000);
 	controller.rumble(".");
 
@@ -47,6 +50,28 @@ void initialize() {
 			// //sprintf(buffer, "Front: %.2f Back: %.2f Left: %.2f Right: %.2f", front_sensor.get(), back_sensor.get(), left_sensor.get(), right_sensor.get());
 			// sprintf(buffer, "X: %.2f Y: %.2f Theta: %.2f", estimate.x, estimate.y, imu1.get_heading());
 			// lv_label_set_text(gui.position_readings, buffer);
+			pros::delay(10);
+		}
+	});
+
+	pros::Task color_sorting([]{
+		int stop_delay_counter = 0;
+		while(true){
+			if(util.sorting){
+				if(gui.selected_color == 0){
+					util.sort_red();
+				}
+				else if(gui.selected_color == 1){
+					util.sort_blue();
+				}
+			}
+			else{
+				stop_delay_counter++;
+				if(stop_delay_counter == 25){
+					stop_delay_counter = 0;
+					util.sorting = true;
+				}
+			}
 			pros::delay(10);
 		}
 	});
