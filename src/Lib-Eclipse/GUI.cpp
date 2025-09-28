@@ -549,9 +549,9 @@ void GUI::update_match_checklist(){
     sprintf(buffer, "Selected Auton: %s %s", selected_color_str, selected_path_str);
     lv_label_set_text(gui.selected_auton, buffer);
 
-    int total_seconds = pros::millis() / 1000;
-    int minutes = total_seconds / 60;
-    int seconds = total_seconds % 60;
+    total_seconds = pros::millis() / 1000;
+    minutes = total_seconds / 60;
+    seconds = total_seconds % 60;
     sprintf(buffer, "Time Elapsed: %d:%02d", minutes, seconds);
     lv_label_set_text(gui.elapsed_time, buffer);
 

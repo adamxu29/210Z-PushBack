@@ -27,7 +27,7 @@ namespace Eclipse{
             const double min_x = -98.527;
             const double min_y = -133.19;
 
-            std::pair<int, double> get_wall(double heading, double distance, bool horizontal);
+            std::pair<int, int> get_wall(double heading);
         public:
 
             float horizontal_wheel_diameter;

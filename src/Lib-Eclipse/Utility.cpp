@@ -165,11 +165,11 @@ void Utility::sort_red(){
     if(color.get_hue() > this->blue_min && color.get_hue() < this->blue_max){
         int voltage = indexer.get_voltage();
 
-        char buffer[300];   
-        sprintf(buffer, "Hue: %.1f", color.get_hue());
+        char buffer[300];
+        sprintf(buffer, "Blue Detected at Time: %d:%02d", gui.minutes, gui.seconds);
         lv_label_set_text(gui.debug_line_1, buffer);
 
-        sprintf(buffer, "Blue Detected");
+        sprintf(buffer, "Hue: %.1f", color.get_hue());
         lv_label_set_text(gui.debug_line_2, buffer);
 
         pros::delay(sort_delay);
@@ -189,10 +189,11 @@ void Utility::sort_blue(){
         int voltage = indexer.get_voltage();
 
         char buffer[300];
-        sprintf(buffer, "Hue: %.1f", color.get_hue());
+
+        sprintf(buffer, "Red Detected at Time: %d:%02d", gui.minutes, gui.seconds);
         lv_label_set_text(gui.debug_line_1, buffer);
 
-        sprintf(buffer, "Red Detected");
+        sprintf(buffer, "Hue: %.1f", color.get_hue());
         lv_label_set_text(gui.debug_line_2, buffer);
 
         pros::delay(sort_delay);

@@ -122,6 +122,7 @@ std::pair<int, int> Eclipse::Odom::get_wall(double heading) {
         // facing 270°
         return {4, 1}; // front wall, right wall
     }
+    return {0, 0}; // something broken
 }
 
 
@@ -175,6 +176,8 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
             // 270° wall
             util.set_robot_position(min_x + avg_right_distance, util.get_robot_y());
             break;
+        default:
+            break;
     }
 
     switch(wall_2){
@@ -193,6 +196,8 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
         case 4:
             // 270° wall
             util.set_robot_position(min_x + avg_right_distance, util.get_robot_y());
+            break;
+        default:
             break;
     }
 

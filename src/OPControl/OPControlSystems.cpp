@@ -2,11 +2,11 @@
 
 using namespace Eclipse;
 
-const u_int16_t forward_curve       = 10;
-const u_int16_t turn_curve          = 10; // test different curve values
+const u_int16_t forward_curve       = 10; 
+const u_int16_t turn_curve          = 10;
 const double euler                 = 2.71828;
-static bool turning_sharp             = false; // turning curve
-static bool forward_sharp             = false; // linear curve
+static bool turning_sharp             = false;
+static bool forward_sharp             = false;
 
 int32_t joystick_accelerator(bool red, int8_t input, const double t){
     int16_t value = 0;
@@ -45,32 +45,29 @@ void Eclipse::OPControl::drivetrain_control(){
 }
 
 void Eclipse::OPControl::power_intake(float speed){
-    if(!driver.color_sorting){
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-            intake.move_voltage(12000 * (speed / 127));
-            color.set_led_pwm(100);
-        }
-        else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-            intake.move_voltage(-12000 * (speed / 127));
-            color.set_led_pwm(100);
-        }
-        else{
-            intake.move_voltage(0);
-            color.set_led_pwm(0);
-        }
+    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+        intake.move_voltage(12000 * (speed / 127));
+        color.set_led_pwm(100);
+        util.sorting = true;
+    }
+    else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+        intake.move_voltage(-12000 * (speed / 127));
+        color.set_led_pwm(100);
+    }
+    else{
+        intake.move_voltage(0);
+        color.set_led_pwm(0);
+        util.sorting = false;
     }
 }
-
 
 void Eclipse::OPControl::power_indexer(float speed){
     if(!driver.color_sorting){
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
             indexer.move_voltage(12000 * (speed / 127));
-            color.set_led_pwm(100);
         }
         else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
             indexer.move_voltage(-12000 * (speed / 127));
-            color.set_led_pwm(100);
         }
         else{
             indexer.move_voltage(0);
@@ -88,9 +85,6 @@ void Eclipse::OPControl::activate_match_load(){
 void Eclipse::OPControl::activate_double_park(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
         this->parking = !this->parking;
-        char buffer[50];
-        sprintf(buffer, "Parking: %d", this->parking);
-        lv_label_set_text(gui.debug_line_3, buffer);
         park.set_value(this->parking);
     }
 }
@@ -98,9 +92,6 @@ void Eclipse::OPControl::activate_double_park(){
 void Eclipse::OPControl::activate_trapdoor(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
         this->trapdoor_down = !this->trapdoor_down;
-        char buffer[50];
-        sprintf(buffer, "Trapdoor: %d", this->trapdoor_down);
-        lv_label_set_text(gui.debug_line_4, buffer);
         trapdoor.set_value(this->trapdoor_down);
     }
 }

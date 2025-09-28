@@ -66,6 +66,10 @@ namespace Eclipse{
 
             void update_sensors();
             void update_temps();
+
+            int total_seconds;
+            int minutes;
+            int seconds;
             void update_match_checklist();
     };
 } 
