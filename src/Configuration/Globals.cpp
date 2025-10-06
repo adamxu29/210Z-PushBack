@@ -6,28 +6,28 @@ using namespace Eclipse;
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-pros::Motor_Group left_drive({-20, -19, 18});
-pros::Motor_Group right_drive({11, -12, 13});
+pros::Motor_Group left_drive({2, -1, -12});
+pros::Motor_Group right_drive({-9, 10, 19});
 
-pros::Motor intake(3);
-pros::Motor indexer(10);
+pros::Motor intake(6);
+pros::Motor indexer(3);
 
 pros::Rotation vertical_tracking_wheel(14);
 pros::Rotation horizontal_tracking_wheel(5, true);
 
-pros::ADIDigitalOut match_loader('a');
-pros::ADIDigitalOut park('h');
-pros::ADIDigitalOut trapdoor('g');
+pros::ADIDigitalOut match_loader('c');
+pros::ADIDigitalOut park('a');
+pros::ADIDigitalOut trapdoor('b');
 
-pros::IMU imu1(16);
-pros::IMU imu2(2);
+pros::IMU imu1(20);
+pros::IMU imu2(21);
 
-pros::Optical color(9);
+pros::Optical color(4);
 
 // pros::Distance front_sensor(5);
 // pros::Distance left_sensor(6);
-pros::Distance right_sensor(1);
-pros::Distance back_sensor(17);
+pros::Distance right_sensor(7);
+pros::Distance back_sensor(13);
 
 Utility util;
 OPControl driver;

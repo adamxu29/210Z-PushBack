@@ -185,7 +185,7 @@ void Utility::sort_red(){
 }
 
 void Utility::sort_blue(){
-    if(color.get_hue() > this->red_min && color.get_hue() < this->red_max){
+    if((color.get_hue() > this->red_min && color.get_hue() < this->red_max) || (color.get_hue() >= 348)){
         int voltage = indexer.get_voltage();
 
         char buffer[300];

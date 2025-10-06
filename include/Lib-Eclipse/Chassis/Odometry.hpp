@@ -18,8 +18,8 @@ namespace Eclipse{
 
             const double mm_to_inches = 0.0393701;
 
-            const double right_offset = 30;
-            const double back_offset = 10;
+            const double right_offset = 95.0;
+            const double back_offset = 98.00;
 
             // retune values for skills
             const double max_x = 40.1124;

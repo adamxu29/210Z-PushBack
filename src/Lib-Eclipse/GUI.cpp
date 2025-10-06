@@ -546,7 +546,7 @@ void GUI::update_match_checklist(){
 
     const char* selected_color_str = driver.skills ? "Skills" : ((gui.selected_color == 0) ? "Red:" : (gui.selected_color == 1) ? "Blue:" : "None:");
     const char* selected_path_str = driver.skills ? " " : ((gui.selected_path == 0) ? "Solo AWP" : (gui.selected_path == 1) ? "Left Half AWP" : (gui.selected_path == 2) ? "Right Half AWP" : (gui.selected_path == 3) ? "Goal Side Rush" : (gui.selected_path == 4) ? "Ring Side Rush" : "Test");
-    sprintf(buffer, "Selected Auton: %s %s", selected_color_str, selected_path_str);
+    sprintf(buffer, "Selected Path: %s Colur: %s", selected_path_str, selected_color_str);
     lv_label_set_text(gui.selected_auton, buffer);
 
     total_seconds = pros::millis() / 1000;

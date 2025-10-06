@@ -14,7 +14,7 @@ namespace Eclipse
             int red_min = 10;
             int blue_max = 230;
             int blue_min = 220;
-            int sort_delay = 50;
+            int sort_delay = 0;
         public:
             // odometry
             double get_robot_x();
