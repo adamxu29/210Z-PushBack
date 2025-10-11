@@ -95,7 +95,6 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
     double local_timer = 0;
 
     while(true){
-        odom.update_position_single_vertical();
         double r_current_position = util.get_heading();
         r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI);
         std::cout << "r_error: " << r_error << std::endl;

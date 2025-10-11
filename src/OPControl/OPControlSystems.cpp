@@ -48,7 +48,6 @@ void Eclipse::OPControl::power_intake(float speed){
     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
         intake.move_voltage(12000 * (speed / 127));
         color.set_led_pwm(100);
-        util.sorting = true;
     }
     else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
         intake.move_voltage(-12000 * (speed / 127));
@@ -57,7 +56,6 @@ void Eclipse::OPControl::power_intake(float speed){
     else{
         intake.move_voltage(0);
         color.set_led_pwm(0);
-        util.sorting = false;
     }
 }
 
@@ -84,8 +82,19 @@ void Eclipse::OPControl::activate_match_load(){
 
 void Eclipse::OPControl::activate_double_park(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-        this->parking = !this->parking;
-        park.set_value(this->parking);
+        if(this->driver_disabled){
+            this->driver_disabled = false;
+            park.set_value(false);
+        }
+        else{
+            this->driver_disabled = true;
+            while(!util.detect_ball()){
+                intake.move_voltage(-10000);
+            }
+            intake.move_voltage(0);
+            intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+            park.set_value(true);
+        }
     }
 }
 
@@ -124,18 +133,18 @@ void Eclipse::OPControl::change_shooter_speed(){
     }
 }
 
-void Eclipse::OPControl::driver_control(){
-    odom.update_position_single_vertical();
+void Eclipse::OPControl::driver_control(bool disabled){
+    if(!disabled){
+        driver.exponential_curve_accelerator();
+        // driver.drivetrain_control();
+        driver.power_intake(intake_speed);
+        driver.power_indexer(shooter_speed);
+        
+        driver.change_intake_speed();
+        driver.change_shooter_speed();
     
-    driver.exponential_curve_accelerator();
-    // driver.drivetrain_control();
-    driver.power_intake(intake_speed);
-    driver.power_indexer(shooter_speed);
-    
-    driver.change_intake_speed();
-    driver.change_shooter_speed();
-
-    driver.activate_match_load();
+        driver.activate_match_load();
+        driver.activate_trapdoor();
+    }
     driver.activate_double_park();
-    driver.activate_trapdoor();
 }

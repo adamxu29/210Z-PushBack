@@ -10,8 +10,8 @@ namespace Eclipse
             double tpr = 0; // ticks per revolution
             double tpi = 0; // ticks per inch
 
-            int red_max = 20;
-            int red_min = 10;
+            int red_max = 360;
+            int red_min = 350;
             int blue_max = 230;
             int blue_min = 220;
             int sort_delay = 0;
@@ -28,7 +28,13 @@ namespace Eclipse
             double get_position();
             void reset_position();
 
-            bool sorting = true;
+            int sorting = 0;
+            bool detect_ball();
+            bool is_red();
+            bool is_blue();
+
+            void sort();
+
             void sort_red();
             void sort_blue();
 

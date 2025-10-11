@@ -12,8 +12,8 @@ pros::Motor_Group right_drive({-9, 10, 19});
 pros::Motor intake(6);
 pros::Motor indexer(3);
 
-pros::Rotation vertical_tracking_wheel(14);
-pros::Rotation horizontal_tracking_wheel(5, true);
+pros::Rotation vertical_tracking_wheel(5, true);
+pros::Rotation horizontal_tracking_wheel(14, true);
 
 pros::ADIDigitalOut match_loader('c');
 pros::ADIDigitalOut park('a');
@@ -24,6 +24,7 @@ pros::IMU imu2(21);
 
 pros::Optical color(4);
 
+pros::Distance park_sensor(11);
 // pros::Distance front_sensor(5);
 // pros::Distance left_sensor(6);
 pros::Distance right_sensor(7);

@@ -165,7 +165,6 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
     double starting_position = odom.get_vertical_displacement();
     while (true)
     {
-        odom.update_position_single_vertical();
         // motor encoder:
         // double current_position = util.get_position() * 3 / util.get_tpi();
 

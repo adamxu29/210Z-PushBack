@@ -161,51 +161,52 @@ void Utility::reset_position()
     right_drive.set_zero_position(0);
 }
 
+bool Utility::is_red(){
+    return (color.get_hue() > this->red_min && color.get_hue() < this->red_max);
+}
+
+bool Utility::is_blue(){
+    return (color.get_hue() > this->blue_min && color.get_hue() < this->blue_max);
+}
+
+void Utility::sort(){
+    int voltage = indexer.get_voltage();
+
+    char buffer[300];
+    sprintf(buffer, "Opp Ball Detected at: %d:%02d, Hue: %.1f", gui.minutes, gui.seconds, color.get_hue());
+    lv_label_set_text(gui.debug_line_1, buffer);
+
+    pros::delay(sort_delay);
+    driver.color_sorting = true;
+
+    indexer.move_voltage(-12000);
+    pros::delay(200);
+    indexer.move_voltage(voltage);
+
+    driver.color_sorting = false;
+    sorting--;
+}
+
 void Utility::sort_red(){
-    if(color.get_hue() > this->blue_min && color.get_hue() < this->blue_max){
-        int voltage = indexer.get_voltage();
-
-        char buffer[300];
-        sprintf(buffer, "Blue Detected at Time: %d:%02d", gui.minutes, gui.seconds);
-        lv_label_set_text(gui.debug_line_1, buffer);
-
-        sprintf(buffer, "Hue: %.1f", color.get_hue());
-        lv_label_set_text(gui.debug_line_2, buffer);
-
-        pros::delay(sort_delay);
-        driver.color_sorting = true;
-
-        indexer.move_voltage(-12000);
-        pros::delay(200);
-        indexer.move_voltage(voltage);
-
-        driver.color_sorting = false;
-        util.sorting = false;
+    if(is_blue()){
+        sort();
+    }
+    else if(is_red()){
+        sorting--;
     }
 }
 
 void Utility::sort_blue(){
-    if((color.get_hue() > this->red_min && color.get_hue() < this->red_max) || (color.get_hue() >= 348)){
-        int voltage = indexer.get_voltage();
-
-        char buffer[300];
-
-        sprintf(buffer, "Red Detected at Time: %d:%02d", gui.minutes, gui.seconds);
-        lv_label_set_text(gui.debug_line_1, buffer);
-
-        sprintf(buffer, "Hue: %.1f", color.get_hue());
-        lv_label_set_text(gui.debug_line_2, buffer);
-
-        pros::delay(sort_delay);
-        driver.color_sorting = true;
-
-        indexer.move_voltage(-12000);
-        pros::delay(200);
-        indexer.move_voltage(voltage);
-
-        driver.color_sorting = false;
-        util.sorting = false;
+    if(is_red()){
+        sort();
     }
+    else if(is_blue()){
+        sorting--;
+    }
+}
+
+bool Utility::detect_ball(){
+    return (park_sensor.get() < 70.0);
 }
 
 // misc

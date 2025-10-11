@@ -20,6 +20,7 @@ extern pros::IMU imu1;
 extern pros::IMU imu2;
 
 extern pros::Optical color;
+extern pros::Distance park_sensor;
 extern pros::Distance front_sensor;
 extern pros::Distance left_sensor;
 extern pros::Distance right_sensor;

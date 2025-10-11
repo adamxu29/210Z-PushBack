@@ -9,6 +9,7 @@ namespace Eclipse{
         public:
             bool skills = false;
             bool color_sorting = false;
+            bool driver_disabled = false;
 
             void exponential_curve_accelerator();
             void drivetrain_control();
@@ -22,6 +23,6 @@ namespace Eclipse{
             void activate_double_park();
             void activate_trapdoor();
 
-            void driver_control();
+            void driver_control(bool disabled);
     };
 }

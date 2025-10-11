@@ -55,22 +55,21 @@ void initialize() {
 	});
 
 	pros::Task color_sorting([]{
-		int stop_delay_counter = 0;
+		char buffer[300];
 		while(true){
-			if(util.sorting){
-				if(gui.selected_color == 0){
-					util.sort_red();
-				}
-				else if(gui.selected_color == 1){
-					util.sort_blue();
-				}
+			if(util.detect_ball()){
+				util.sorting++;
+			}
+			
+			if(util.sorting > 0 && gui.selected_color != -1){
+				sprintf(buffer, "Sorting enabled");
+				lv_label_set_text(gui.debug_line_2, buffer);
+
+				gui.selected_color == 0 ? util.sort_red() : gui.selected_color == 1 ? util.sort_blue();
 			}
 			else{
-				stop_delay_counter++;
-				if(stop_delay_counter == 25){
-					stop_delay_counter = 0;
-					util.sorting = true;
-				}
+				sprintf(buffer, "Sorting disabled");
+				lv_label_set_text(gui.debug_line_2, buffer);
 			}
 			pros::delay(10);
 		}
@@ -123,7 +122,7 @@ void opcontrol() {
 			tuner.driver_tuner();
 		}
 		else{
-			driver.driver_control();
+			driver.driver_control(driver.driver_disabled);
 		}
 		pros::delay(10);
 	}
