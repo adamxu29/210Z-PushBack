@@ -88,8 +88,11 @@ void Eclipse::OPControl::activate_double_park(){
         }
         else{
             this->driver_disabled = true;
-            while(!util.detect_ball()){
+            int counter = 0;
+            while(!util.detect_ball() || counter < 250){
                 intake.move_voltage(-10000);
+                counter++;
+                pros::delay(10);
             }
             intake.move_voltage(0);
             intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);

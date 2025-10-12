@@ -162,11 +162,11 @@ void Utility::reset_position()
 }
 
 bool Utility::is_red(){
-    return (color.get_hue() > this->red_min && color.get_hue() < this->red_max);
+    return (color.get_hue() > this->red_min && color.get_hue() < this->red_max && color.get_proximity() > 250);
 }
 
 bool Utility::is_blue(){
-    return (color.get_hue() > this->blue_min && color.get_hue() < this->blue_max);
+    return (color.get_hue() > this->blue_min && color.get_hue() < this->blue_max && color.get_proximity() > 250);
 }
 
 void Utility::sort(){
@@ -180,7 +180,7 @@ void Utility::sort(){
     driver.color_sorting = true;
 
     indexer.move_voltage(-12000);
-    pros::delay(200);
+    pros::delay(250);
     indexer.move_voltage(voltage);
 
     driver.color_sorting = false;
@@ -188,25 +188,50 @@ void Utility::sort(){
 }
 
 void Utility::sort_red(){
-    if(is_blue()){
-        sort();
+
+    if(detect_upper_ball() && !ball_detected){
+        ball_detected = true;
+        if(is_blue()){
+            sort();
+        }
+        else if(is_red()){
+            sorting--;
+
+            char buffer[300];
+            sprintf(buffer, "Ally Ball Detected at: %d:%02d, Hue: %.1f", gui.minutes, gui.seconds, color.get_hue());
+            lv_label_set_text(gui.debug_line_1, buffer);
+        }
     }
-    else if(is_red()){
-        sorting--;
+    else if (!detect_upper_ball()){
+        ball_detected = false;
     }
 }
 
 void Utility::sort_blue(){
-    if(is_red()){
-        sort();
+    if(detect_upper_ball() && !ball_detected){
+        ball_detected = true;
+        if(is_red()){
+            sort();
+        }
+        else if(is_blue()){
+            sorting--;
+
+            char buffer[300];
+            sprintf(buffer, "Ally Ball Detected at: %d:%02d, Hue: %.1f", gui.minutes, gui.seconds, color.get_hue());
+            lv_label_set_text(gui.debug_line_1, buffer);
+        }
     }
-    else if(is_blue()){
-        sorting--;
+    else if (!detect_upper_ball()){
+        ball_detected = false;
     }
 }
 
 bool Utility::detect_ball(){
     return (park_sensor.get() < 70.0);
+}
+
+bool Utility::detect_upper_ball(){
+    return (color.get_proximity() > 250);
 }
 
 // misc

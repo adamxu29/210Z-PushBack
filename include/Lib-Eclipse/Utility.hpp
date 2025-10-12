@@ -11,7 +11,7 @@ namespace Eclipse
             double tpi = 0; // ticks per inch
 
             int red_max = 360;
-            int red_min = 350;
+            int red_min = 320;
             int blue_max = 230;
             int blue_min = 220;
             int sort_delay = 0;
@@ -29,7 +29,10 @@ namespace Eclipse
             void reset_position();
 
             int sorting = 0;
+            bool ball_detected = false;
+
             bool detect_ball();
+            bool detect_upper_ball();
             bool is_red();
             bool is_blue();
 
