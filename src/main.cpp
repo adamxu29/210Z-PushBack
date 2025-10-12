@@ -55,41 +55,22 @@ void initialize() {
 	});
 
 	pros::Task color_sorting([]{
-		char buffer[300];
-		bool ball_detected = false;
+		int stop_delay_counter = 0;
 		while(true){
-			sprintf(buffer, "sorting: %d", util.sorting);
-			lv_label_set_text(gui.debug_line_3, buffer);
-
-			sprintf(buffer, "ball_now: %s", util.detect_upper_ball() ? "yes" : "no");
-			lv_label_set_text(gui.debug_line_4, buffer);
-
-			sprintf(buffer, "ball detected: %s", util.ball_detected ? "yes" : "no");
-			lv_label_set_text(gui.debug_line_5, buffer);
-
-			if(gui.selected_color != -1){
-				if (util.detect_ball() && ball_detected == false) {
-					util.sorting++;
-					ball_detected = true;
+			if(util.sorting){
+				if(gui.selected_color == 0){
+					util.sort_red();
 				}
-				else if (!util.detect_ball()) {
-					ball_detected = false;
+				else if(gui.selected_color == 1){
+					util.sort_blue();
 				}
-			}
-
-			if(util.sorting > 0 && gui.selected_color != -1){
-				color.set_led_pwm(100);
-
-				sprintf(buffer, "Sorting enabled");
-				lv_label_set_text(gui.debug_line_2, buffer);
-
-				gui.selected_color == 0 ? util.sort_red() : util.sort_blue();
 			}
 			else{
-				color.set_led_pwm(0);
-
-				sprintf(buffer, "Sorting disabled");
-				lv_label_set_text(gui.debug_line_2, buffer);
+				stop_delay_counter++;
+				if(stop_delay_counter == 25){
+					stop_delay_counter = 0;
+					util.sorting = true;
+				}
 			}
 			pros::delay(10);
 		}

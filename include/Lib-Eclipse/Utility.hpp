@@ -28,9 +28,7 @@ namespace Eclipse
             double get_position();
             void reset_position();
 
-            int sorting = 0;
-            bool ball_detected = false;
-
+            bool sorting = true;
             bool detect_ball();
             bool detect_upper_ball();
             bool is_red();
