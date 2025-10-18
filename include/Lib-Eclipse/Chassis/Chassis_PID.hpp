@@ -11,11 +11,13 @@ namespace Eclipse{
             double t_integral;
             double t_derivative;
             double t_prev_error;
+            double prev_voltage = 0;
             int t_error_threshold; 
             int t_tolerance;
             int t_counter;
             int t_failsafe;
             int t_max_speed;
+            int slew = 254;
 
             Translation_PID();
             void set_t_constants(const double kp, const double ki, const double kd, const double heading_kp);

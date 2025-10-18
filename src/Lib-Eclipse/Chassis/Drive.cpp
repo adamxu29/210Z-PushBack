@@ -37,7 +37,7 @@ void Eclipse::Drive::reset_variables(){
     this->r_failsafe = 0;
 }
 
-void Eclipse::Drive::turn_to_point(double x, double y, double time_out){
+void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double time_out){
     // Simple rotation pid wrapper for ttp
     // acounts for the fact that the robot may not turn on its centre
     r_pid.reset_r_variables();
@@ -48,7 +48,7 @@ void Eclipse::Drive::turn_to_point(double x, double y, double time_out){
     
     while(true){
         double current_position = util.get_heading();
-        double theta = util.get_min_angle(util.get_angular_error(x, y, false)) * 180 / M_PI;
+        double theta = util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI;
 
         double voltage = r_pid.compute_r(current_position, theta);
 
@@ -95,6 +95,8 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
     double local_timer = 0;
 
     while(true){
+        odom.update_position_single_vertical();
+        
         double r_current_position = util.get_heading();
         r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI);
         std::cout << "r_error: " << r_error << std::endl;

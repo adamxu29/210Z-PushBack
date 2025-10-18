@@ -35,21 +35,19 @@ float Odom::get_vertical_displacement(){
     return  (((float)vertical_tracking_wheel.get_position() / 100) * odom.vertical_wheel_diameter * M_PI / 360);
 }
 
-double heading;
-
 double prev_horizontal_displacement = 0;
 double prev_vertical_displacement = 0;
 double prev_heading = 0;
 
 // Pilons odom implementation: https://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf
 void Odom::update_position(){
-    double horizontal_pos = /*get_horizontal_displacement()*/ 0;
+    double horizontal_pos = get_horizontal_displacement();
     double vertical_pos = get_right_displacement();
 
     double delta_horizontal = horizontal_pos - prev_horizontal_displacement;
     double delta_vertical = vertical_pos - prev_vertical_displacement;
 
-    heading = util.get_min_angle((90 - util.get_heading())) * M_PI / 180.0; // convert to radians
+    double heading = util.get_min_angle((90 - util.get_heading())) * M_PI / 180.0; // convert to radians
     double delta_heading = heading - prev_heading;
     
     prev_horizontal_displacement = horizontal_pos;
@@ -88,7 +86,7 @@ void Odom::update_position_single_vertical(){
 
     prev_vertical_displacement = vertical_pos;
 
-    heading = util.get_min_angle(util.get_heading()) * M_PI / 180; // convert to radians
+    double heading = util.get_min_angle(util.get_heading()) * M_PI / 180; // convert to radians
     prev_heading = heading;
 
     odom.x += delta_vertical * sin(heading);

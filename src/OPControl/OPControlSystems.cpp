@@ -89,11 +89,12 @@ void Eclipse::OPControl::activate_double_park(){
         else{
             this->driver_disabled = true;
             int counter = 0;
-            while(!util.detect_ball() || counter < 250){
+            while(!util.detect_ball() && counter < 250){
                 intake.move_voltage(-10000);
                 counter++;
                 pros::delay(10);
             }
+            pros::delay(50);
             intake.move_voltage(0);
             intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
             park.set_value(true);
@@ -105,20 +106,6 @@ void Eclipse::OPControl::activate_trapdoor(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
         this->trapdoor_down = !this->trapdoor_down;
         trapdoor.set_value(this->trapdoor_down);
-    }
-}
-
-void Eclipse::OPControl::change_intake_speed(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-        if(this->intake_speed == 127){
-            this->intake_speed = 75;
-        }
-        else if(this->intake_speed == 75){
-            this->intake_speed = 127;
-        }
-        else{
-            this->intake_speed = 127;
-        }
     }
 }
 
@@ -142,8 +129,7 @@ void Eclipse::OPControl::driver_control(bool disabled){
         // driver.drivetrain_control();
         driver.power_intake(intake_speed);
         driver.power_indexer(shooter_speed);
-        
-        driver.change_intake_speed();
+
         driver.change_shooter_speed();
     
         driver.activate_match_load();

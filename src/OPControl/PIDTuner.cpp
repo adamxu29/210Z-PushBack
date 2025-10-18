@@ -94,19 +94,19 @@ void Eclipse::PID_Tuner::set_brake_hold(){
 void Eclipse::PID_Tuner::move(){
     if(tuner.current_movement == 0){
         if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-            t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 600);
+            t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 100);
             t_pid.translation_pid(24, 90, 2);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
-            t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 600);
+            t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 100);
             t_pid.translation_pid(12, 90, 2);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
-            t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 600);
+            t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 100);
             t_pid.translation_pid(48, 90, 2);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
-            t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 600);
+            t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 100);
             t_pid.translation_pid(36, 90, 2);
         }
     }

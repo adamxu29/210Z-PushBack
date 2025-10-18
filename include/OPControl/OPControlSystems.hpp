@@ -7,7 +7,7 @@ namespace Eclipse{
             float intake_speed = 127;
             float shooter_speed = 127;
         public:
-            bool skills = false;
+            bool skills = true;
             bool color_sorting = false;
             bool driver_disabled = false;
 
@@ -15,8 +15,7 @@ namespace Eclipse{
             void drivetrain_control();
             void power_intake(float speed);
             void power_indexer(float speed);
-
-            void change_intake_speed();
+            
             void change_shooter_speed();
 
             void activate_match_load();

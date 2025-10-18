@@ -149,23 +149,24 @@ lv_res_t GUI::autonomous_path_callback(lv_obj_t *btn) {
         gui.current_selected_path = btn;
         lv_btn_set_state(btn, LV_BTN_STATE_TGL_REL);
     }
+    
     if (gui.current_selected_path == gui.solo_awp){
-            gui.selected_path = 0;
-        }
-        else if(gui.current_selected_path == gui.left_half_awp){
-            gui.selected_path = 1;
-        }
-        else if(gui.current_selected_path == gui.right_half_awp){
-            gui.selected_path = 2;
-        }
-        else if(gui.current_selected_path == gui.goal_side_rush){
-            gui.selected_path = 3;
-        }
-        else if(gui.current_selected_path == gui.ring_side_rush){
-            gui.selected_path = 4;
-        }
-        else{
-            gui.selected_path = -1;
+        gui.selected_path = 0;
+    }
+    else if(gui.current_selected_path == gui.left_half_awp){
+        gui.selected_path = 1;
+    }
+    else if(gui.current_selected_path == gui.right_half_awp){
+        gui.selected_path = 2;
+    }
+    else if(gui.current_selected_path == gui.goal_side_rush){
+        gui.selected_path = 3;
+    }
+    else if(gui.current_selected_path == gui.ring_side_rush){
+        gui.selected_path = 4;
+    }
+    else{
+        gui.selected_path = -1;
     }
     return LV_RES_OK;
 }

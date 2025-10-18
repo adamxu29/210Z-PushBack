@@ -13,7 +13,7 @@ void initialize() {
 	odom.set_vertical_tracker_specs(2.75, 0);
 
 	imu1.reset();
-	imu2.reset();
+	// imu2.reset();
 
 	vertical_tracking_wheel.reset_position();
 	horizontal_tracking_wheel.reset_position();
@@ -87,9 +87,6 @@ void competition_initialize() {
 
 char buffer[300];
 void autonomous(){
-	// t_pid constants: kp: 5, kd: 15
-	// r_pid constants: kd: 2.5, kd: 15
-
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 

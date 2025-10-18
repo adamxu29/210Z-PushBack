@@ -32,7 +32,7 @@ void Eclipse::Curve_PID::set_c_constants(const double kp, const double ki, const
 Eclipse::Translation_PID::Translation_PID()
 {
     t_pid.t_tolerance = 3;
-    t_pid.t_error_threshold = 6;
+    t_pid.t_error_threshold = 2;
 }
 
 Eclipse::Rotation_PID::Rotation_PID()
@@ -158,7 +158,6 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
     t_pid.reset_t_variables();
 
     double theta = util.get_heading();
-    target *= 3;
     t_pid.t_max_speed = max_speed;
     double local_timer = 0;
 
@@ -169,7 +168,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
         // double current_position = util.get_position() * 3 / util.get_tpi();
 
         // tracking wheel:
-        double current_position = (odom.get_vertical_displacement() - starting_position) * 3;
+        double current_position = (odom.get_vertical_displacement() - starting_position);
  
         double voltage = t_pid.compute_t(current_position, target);
         double heading_correction = util.get_min_error(util.get_heading(), theta) * t_pid.t_heading_kp;
@@ -177,6 +176,10 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
         // std::cout << "average pos" << current_position << std::endl;
         // std::cout << "output" << voltage << std::endl;
         // std::cout << "error" << target - current_position << std::endl;
+        double delta_voltage = voltage - t_pid.prev_voltage;
+
+        if (delta_voltage > slew){ voltage = t_pid.prev_voltage + slew; }
+        if (delta_voltage < -slew){ voltage = t_pid.prev_voltage - slew; }
 
         left_drive.move_voltage((voltage * (12000.0 / 127.0)) + heading_correction);
         right_drive.move_voltage((voltage * (12000.0 / 127.0)) - heading_correction);
