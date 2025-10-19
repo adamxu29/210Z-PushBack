@@ -94,7 +94,7 @@ void Eclipse::OPControl::activate_double_park(){
                 counter++;
                 pros::delay(10);
             }
-            pros::delay(50);
+            pros::delay(75);
             intake.move_voltage(0);
             intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
             park.set_value(true);

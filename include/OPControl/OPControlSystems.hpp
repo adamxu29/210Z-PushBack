@@ -7,7 +7,7 @@ namespace Eclipse{
             float intake_speed = 127;
             float shooter_speed = 127;
         public:
-            bool skills = true;
+            bool skills = false;
             bool color_sorting = false;
             bool driver_disabled = false;
 
