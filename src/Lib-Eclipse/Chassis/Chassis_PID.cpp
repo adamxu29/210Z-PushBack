@@ -224,8 +224,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
             break;
         }
 
-        // left_drive.move_voltage((voltage * (12000.0 / 127.0)) + heading_correction);
-        // right_drive.move_voltage((voltage * (12000.0 / 127.0)) - heading_correction);
+        t_pid.prev_voltage = voltage;
 
         pros::delay(10);
     }

@@ -121,6 +121,7 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
         double r_power = (r_error * r_kp) + (r_integral * r_ki) + (r_derivative * r_kd);
         double t_power = (t_error * t_kp) + (t_integral * t_ki) + (t_derivative * t_kd);
 
+
         double adjustment_factor = r_error * (M_PI / 180.0);
         t_power *= std::cos(adjustment_factor);
 
@@ -140,6 +141,11 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
         if(local_timer < 20 && turn_first){
             t_power = 0;
         }
+
+        double delta_power = t_power - t_prev_voltage;
+
+        if (delta_power > t_slew){ t_power = t_prev_voltage + t_slew; }
+        if (delta_power < -t_slew){ t_power = t_prev_voltage - t_slew; }
 
         double left_voltage = t_power + r_power;
         double right_voltage = t_power - r_power;
@@ -174,6 +180,7 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
 
         r_prev_error = r_error;
         t_prev_error = t_error;
+        t_prev_voltage = t_power;
 
         pros::delay(10);
     }

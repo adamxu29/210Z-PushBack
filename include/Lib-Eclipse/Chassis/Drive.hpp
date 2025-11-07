@@ -8,10 +8,12 @@ namespace Eclipse {
             double t_integral;
             double t_derivative;
             double t_prev_error;
+            double t_prev_voltage = 0;
             int t_error_threshold;
             int t_tolerance;
             int t_counter;
             int t_failsafe;
+            int t_slew = 254;
 
 
             double r_kp;
