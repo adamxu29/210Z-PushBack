@@ -4,6 +4,7 @@ namespace Eclipse{
             bool match_loading = false;
             bool parking = false;
             bool trapdoor_down = false;
+            bool wing_up = false;
             float intake_speed = 127;
             float shooter_speed = 127;
         public:
@@ -21,6 +22,7 @@ namespace Eclipse{
             void activate_match_load();
             void activate_double_park();
             void activate_trapdoor();
+            void activate_wing();
 
             void driver_control(bool disabled);
     };

@@ -16,8 +16,9 @@ pros::Rotation vertical_tracking_wheel(4, true);
 pros::Rotation horizontal_tracking_wheel(14, true);
 
 pros::ADIDigitalOut match_loader('c');
-pros::ADIDigitalOut park('a');
-pros::ADIDigitalOut trapdoor('b');
+pros::ADIDigitalOut park('b');
+pros::ADIDigitalOut trapdoor('a');
+pros::ADIDigitalOut wing('d');
 
 pros::IMU imu1(20);
 pros::IMU imu2(21);

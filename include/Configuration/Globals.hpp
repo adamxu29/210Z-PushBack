@@ -15,6 +15,7 @@ extern pros::Rotation horizontal_tracking_wheel;
 extern pros::ADIDigitalOut match_loader;
 extern pros::ADIDigitalOut park;
 extern pros::ADIDigitalOut trapdoor;
+extern pros::ADIDigitalOut wing;
 
 extern pros::IMU imu1;
 extern pros::IMU imu2;

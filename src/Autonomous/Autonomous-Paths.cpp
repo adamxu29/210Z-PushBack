@@ -441,6 +441,8 @@ void Eclipse::Autonomous_Paths::test(){
     drive.move_to_point(-3, 15, false, false, .7);
     pros::delay(50);
 
+    match_loader.set_value(true);
+
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
     drive.move_to_point(-6, 24, false, false, .9);
     pros::delay(200);
@@ -473,7 +475,6 @@ void Eclipse::Autonomous_Paths::test(){
 
     drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
     drive.move_to_point(-31, 24, false, true, .7);
-
     match_loader.set_value(false);
     pros::delay(500);
 
@@ -486,11 +487,11 @@ void Eclipse::Autonomous_Paths::test(){
 
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 127);
     drive.move_to_point(30, 21, false, false, 3);
+    match_loader.set_value(true);
     pros::delay(50);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
     drive.move_to_point(36, 21, false, false, .9);
-    match_loader.set_value(true);
     pros::delay(200);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 11, 127, 127);

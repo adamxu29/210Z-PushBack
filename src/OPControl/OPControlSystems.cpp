@@ -47,15 +47,12 @@ void Eclipse::OPControl::drivetrain_control(){
 void Eclipse::OPControl::power_intake(float speed){
     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
         intake.move_voltage(12000 * (speed / 127));
-        color.set_led_pwm(100);
     }
     else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
         intake.move_voltage(-12000 * (speed / 127));
-        color.set_led_pwm(100);
     }
     else{
         intake.move_voltage(0);
-        color.set_led_pwm(0);
     }
 }
 
@@ -63,12 +60,15 @@ void Eclipse::OPControl::power_indexer(float speed){
     if(!driver.color_sorting){
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
             indexer.move_voltage(12000 * (speed / 127));
+            color.set_led_pwm(100);
         }
         else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
             indexer.move_voltage(-12000 * (speed / 127));
+            color.set_led_pwm(100);
         }
         else{
             indexer.move_voltage(0);
+            color.set_led_pwm(0);
         }
     }
 }
@@ -109,6 +109,13 @@ void Eclipse::OPControl::activate_trapdoor(){
     }
 }
 
+void Eclipse::OPControl::activate_wing(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
+        this->wing_up = !this->wing_up;
+        wing.set_value(this->wing_up);
+    }
+}
+
 void Eclipse::OPControl::change_shooter_speed(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
         if(this->shooter_speed == 127){
@@ -134,6 +141,7 @@ void Eclipse::OPControl::driver_control(bool disabled){
     
         driver.activate_match_load();
         driver.activate_trapdoor();
+        driver.activate_wing();
     }
     driver.activate_double_park();
 }
