@@ -110,7 +110,7 @@ void Eclipse::OPControl::activate_trapdoor(){
 }
 
 void Eclipse::OPControl::activate_wing(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         this->wing_up = !this->wing_up;
         wing.set_value(this->wing_up);
     }
