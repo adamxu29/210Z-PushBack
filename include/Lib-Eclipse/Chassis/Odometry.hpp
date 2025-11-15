@@ -19,13 +19,13 @@ namespace Eclipse{
             const double mm_to_inches = 0.0393701;
 
             const double right_offset = 95.0;
-            const double back_offset = 98.00;
+            const double back_offset = 87;
 
             // retune values for skills
-            const double max_x = 40.1124;
-            const double max_y = 5.7999;
-            const double min_x = -98.527;
-            const double min_y = -133.19;
+            const double max_x = 46.24;
+            const double max_y = 117.23;
+            const double min_x = -81.74;
+            const double min_y = -9.63;
 
             std::pair<int, int> get_wall(double heading);
         public:

@@ -68,9 +68,10 @@ using namespace Eclipse;
 
 double Utility::get_robot_x(){ return robot_x; }
 double Utility::get_robot_y(){ return robot_y; }
-void Utility::set_robot_position(double x, double y){
+void Utility::set_robot_position(double x, double y, double heading){
     robot_x = x;
     robot_y = y;
+    imu1.set_rotation(heading);
 }
 
 void Eclipse::Utility::set_drive_constants(const double dt_wheel_diameter, const double dt_gear_ratio, const double dt_motor_cartridge)

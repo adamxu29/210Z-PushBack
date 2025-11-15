@@ -71,7 +71,7 @@ void Odom::update_position(){
     odom.x += local_y * cos(avg_heading) + local_x * sin(avg_heading);
     odom.y += local_y * sin(avg_heading) - local_x * cos(avg_heading);
 
-    util.set_robot_position(odom.x, odom.y);
+    util.set_robot_position(odom.x, odom.y, util.get_heading());
 
     robot_theta = heading;
 
@@ -92,7 +92,7 @@ void Odom::update_position_single_vertical(){
     odom.x += delta_vertical * sin(heading);
     odom.y += delta_vertical * cos(heading);
 
-    util.set_robot_position(odom.x, odom.y);
+    util.set_robot_position(odom.x, odom.y, util.get_heading());
 
     gui.update_sensors();
     gui.update_temps();
@@ -160,19 +160,19 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
     switch(wall_1){
         case 1:
             // 0° wall
-            util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance);
+            util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance, util.get_heading());
             break;
         case 2:
             // 90° wall
-            util.set_robot_position(max_x - avg_right_distance, util.get_robot_y());
+            util.set_robot_position(max_x - avg_right_distance, util.get_robot_y(), util.get_heading());
             break;
         case 3:
             // 180° wall
-            util.set_robot_position(util.get_robot_x(), min_y + avg_right_distance);
+            util.set_robot_position(util.get_robot_x(), min_y + avg_right_distance, util.get_heading());
             break;
         case 4:
             // 270° wall
-            util.set_robot_position(min_x + avg_right_distance, util.get_robot_y());
+            util.set_robot_position(min_x + avg_right_distance, util.get_robot_y(), util.get_heading());
             break;
         default:
             break;
@@ -181,19 +181,19 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
     switch(wall_2){
         case 1:
             // 0° wall
-            util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance);
+            util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance, util.get_heading());
             break;
         case 2:
             // 90° wall
-            util.set_robot_position(max_x - avg_right_distance, util.get_robot_y());
+            util.set_robot_position(max_x - avg_right_distance, util.get_robot_y(), util.get_heading());
             break;
         case 3:
             // 180° wall
-            util.set_robot_position(util.get_robot_x(), min_y + avg_right_distance);
+            util.set_robot_position(util.get_robot_x(), min_y + avg_right_distance, util.get_heading());
             break;
         case 4:
             // 270° wall
-            util.set_robot_position(min_x + avg_right_distance, util.get_robot_y());
+            util.set_robot_position(min_x + avg_right_distance, util.get_robot_y(), util.get_heading());
             break;
         default:
             break;

@@ -27,7 +27,7 @@ void initialize() {
 	pros::delay(3000);
 	controller.rumble(".");
 
-	util.set_robot_position(0.0, 0.0);
+	util.set_robot_position(0.0, 0.0, 90);
 
 	pros::Task update_gui([]{
 		while(true){
@@ -110,6 +110,7 @@ void autonomous(){
 
 void opcontrol() {
 	int start_time = pros::millis();
+
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	bool tuning = false;

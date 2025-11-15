@@ -19,7 +19,7 @@ namespace Eclipse
             // odometry
             double get_robot_x();
             double get_robot_y();
-            void set_robot_position(double x, double y);
+            void set_robot_position(double x, double y, double heading);
             void set_drive_constants(const double dt_wheel_diameter, const double dt_gear_ratio, const double dt_motor_cartridge);
             
             double get_angular_error(double x, double y, bool backwards);

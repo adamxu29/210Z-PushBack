@@ -143,5 +143,8 @@ void Eclipse::OPControl::driver_control(bool disabled){
         driver.activate_trapdoor();
         driver.activate_wing();
     }
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+        odom.distance_sensor_reset(10);
+    }
     driver.activate_double_park();
 }
