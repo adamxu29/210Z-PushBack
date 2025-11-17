@@ -138,7 +138,7 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
             r_power = -max_rotation_speed;
         }
 
-        if(local_timer < 20 && turn_first){
+        if(local_timer < 30 && turn_first){
             t_power = 0;
         }
 
