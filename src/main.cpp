@@ -27,7 +27,7 @@ void initialize() {
 	pros::delay(3000);
 	controller.rumble(".");
 
-	util.set_robot_position(0.0, 0.0, 0.0);
+	util.set_robot_position(0.0, 0.0, -90);
 
 	pros::Task update_gui([]{
 		while(true){

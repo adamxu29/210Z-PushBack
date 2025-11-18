@@ -18,8 +18,8 @@ namespace Eclipse{
 
             const double mm_to_inches = 0.0393701;
 
-            const double right_offset = 95.0;
-            const double back_offset = 87;
+            const double right_offset = 70;
+            const double back_offset = 95;
 
             // retune values for skills
             const double max_x = 46.24;
@@ -46,6 +46,6 @@ namespace Eclipse{
             void update_position();
             void update_position_single_vertical();
 
-            void distance_sensor_reset(int readings, bool create_task = true);
+            void distance_sensor_reset(int readings, bool create_task);
     };
 }

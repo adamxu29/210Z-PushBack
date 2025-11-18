@@ -28,8 +28,8 @@ pros::Optical color(1);
 pros::Distance park_sensor(11);
 // pros::Distance front_sensor(5);
 // pros::Distance left_sensor(6);
-pros::Distance right_sensor(6);
-pros::Distance back_sensor(7);
+pros::Distance right_sensor(7);
+pros::Distance back_sensor(13);
 
 Utility util;
 OPControl driver;

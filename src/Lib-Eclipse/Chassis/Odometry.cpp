@@ -108,15 +108,15 @@ std::pair<int, int> Eclipse::Odom::get_wall(double heading) {
         // facing 0°
         return {1, 2}; // right wall, back wall
     }
-    else if((heading >= 45 || heading < 135)){
+    else if((heading >= 45 && heading < 135)){
         // facing 90°
         return {2, 3}; // back wall, left wall
     }  
-    else if((heading >= 135 || heading < 225)){
+    else if((heading >= 135 && heading < 225)){
         // facing 180°
         return {3, 4}; // left wall, front wall
     }
-    else if((heading >= 225 || heading < 315)){
+    else if((heading >= 225 && heading < 315)){
         // facing 270°
         return {4, 1}; // front wall, right wall
     }
@@ -125,13 +125,13 @@ std::pair<int, int> Eclipse::Odom::get_wall(double heading) {
 
 
 void Odom::distance_sensor_reset(int readings, bool create_task){
-    pros::Task task([&]() {
-        distance_sensor_reset(readings, false);
+    if(create_task){
+        pros::Task task([&]() {distance_sensor_reset(readings, false);});
         pros::delay(10);
         return;
-    });
+    }
 
-    while(readings > 0){
+    while(readings--){
         double distance_1 = (right_sensor.get() - right_offset) * mm_to_inches;
         double distance_2 = (back_sensor.get() - back_offset) * mm_to_inches;
 
@@ -145,7 +145,6 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
         back_weighted_distance += distance_2 * confidence_2;
 
         pros::delay(10);
-        readings--;
     }
 
     double avg_right_distance = right_weighted_distance / right_weightings;
@@ -159,20 +158,20 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
 
     switch(wall_1){
         case 1:
-            // 0° wall
-            util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance, util.get_heading());
-            break;
-        case 2:
-            // 90° wall
+            // right wall
             util.set_robot_position(max_x - avg_right_distance, util.get_robot_y(), util.get_heading());
             break;
-        case 3:
-            // 180° wall
+        case 2:
+            // back wall
             util.set_robot_position(util.get_robot_x(), min_y + avg_right_distance, util.get_heading());
             break;
-        case 4:
-            // 270° wall
+        case 3:
+            // left wall
             util.set_robot_position(min_x + avg_right_distance, util.get_robot_y(), util.get_heading());
+            break;
+        case 4:
+            // front wall
+            util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance, util.get_heading());
             break;
         default:
             break;
@@ -180,20 +179,20 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
 
     switch(wall_2){
         case 1:
-            // 0° wall
-            util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance, util.get_heading());
+            // right wall
+            util.set_robot_position(max_x - avg_back_distance, util.get_robot_y(), util.get_heading());
             break;
         case 2:
-            // 90° wall
-            util.set_robot_position(max_x - avg_right_distance, util.get_robot_y(), util.get_heading());
+            // back wall
+            util.set_robot_position(util.get_robot_x(), min_y + avg_back_distance, util.get_heading());
             break;
         case 3:
-            // 180° wall
-            util.set_robot_position(util.get_robot_x(), min_y + avg_right_distance, util.get_heading());
+            // left wall
+            util.set_robot_position(min_x + avg_back_distance, util.get_robot_y(), util.get_heading());
             break;
         case 4:
-            // 270° wall
-            util.set_robot_position(min_x + avg_right_distance, util.get_robot_y(), util.get_heading());
+            // front wall
+            util.set_robot_position(util.get_robot_x(), max_y - avg_back_distance, util.get_heading());
             break;
         default:
             break;
@@ -201,4 +200,5 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
 
     sprintf(buffer, "New X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
     lv_label_set_text(gui.debug_line_6, buffer);
+    util.set_robot_position(util.get_robot_x(), util.get_robot_y(), util.get_heading());
  }
