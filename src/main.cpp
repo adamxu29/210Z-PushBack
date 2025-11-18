@@ -30,14 +30,14 @@ void initialize() {
 
 	pros::Task update_gui([]{
 		while(true){
-			position_mutex.take();
 			odom.update_position_single_vertical();
 
+			position_mutex.take();
 			gui.update_sensors();
 			gui.update_temps();
 			gui.update_match_checklist();
-
 			position_mutex.give();
+
 			pros::delay(10);
 		}
 	});
