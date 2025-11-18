@@ -419,13 +419,13 @@ void Eclipse::Autonomous_Paths::test(){
     intake.move_voltage(12000);
     pros::delay(1500);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
+    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 50);
     drive.move_to_point(34, 95, false, false, .6);
 
     trapdoor.set_value(false);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    drive.turn_to_point(34, 130, false, .3);
+    drive.turn_to_point(34, 130, false, .5);
 
     t_pid.set_t_constants(5.5, 0, 11, 100);
     t_pid.translation_pid(15, 100, .6);
@@ -528,8 +528,57 @@ void Eclipse::Autonomous_Paths::test(){
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 90);
     drive.move_to_point(-64, 35, false, true, .7);
     trapdoor.set_value(true);
+    match_loader.set_value(false);
     pros::delay(2000);
 
+    // mid goal
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
+    drive.turn_to_point(-38, 36, false, .9);
+    trapdoor.set_value(false);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 75, 75);
+    drive.move_to_point(-40, 32, false, false, .9);
+    match_loader.set_value(true);
+    pros::delay(150);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    drive.turn_to_point(-25, 47, true, .9);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 75, 75);
+    drive.move_to_point(-25, 47, false, true, .9);
+    indexer.move_voltage(-6000);
+    pros::delay(1500);
+    indexer.move_voltage(0);
+    match_loader.set_value(false);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    drive.move_to_point(-20, 35, true, false, .9);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 75, 75);
+    drive.move_to_point(-3, 32, true, false, .9);
+    match_loader.set_value(true);
+    pros::delay(150);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    drive.turn_to_point(-7, 47, false, .9);
+    match_loader.set_value(false);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 75, 75);
+    drive.move_to_point(-7, 47, false, false, .9);
+    intake.move_voltage(-12000);
+    pros::delay(2000);
+
+    // go park
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    drive.move_to_point(5, 15, false, true, .9);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
+    drive.move_to_point(5, -5, true, false, .9);
+
+    r_pid.set_r_constants(2, 0, 11);
+    r_pid.rotation_pid(-90, 90, .7);
+
+    match_loader.set_value(true);
     t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-17, 90, .7);
+    t_pid.translation_pid(34, 90, 1.5);
 }

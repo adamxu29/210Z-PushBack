@@ -150,6 +150,8 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
     double avg_right_distance = right_weighted_distance / right_weightings;
     double avg_back_distance = back_weighted_distance / back_weightings;
 
+    position_mutex.take();
+
     char buffer[300];
     sprintf(buffer, "Prev X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
     lv_label_set_text(gui.debug_line_5, buffer);
@@ -200,5 +202,6 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
 
     sprintf(buffer, "New X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
     lv_label_set_text(gui.debug_line_6, buffer);
-    util.set_robot_position(util.get_robot_x(), util.get_robot_y(), util.get_heading());
+
+    position_mutex.give();
  }
