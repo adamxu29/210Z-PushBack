@@ -13,7 +13,6 @@ void initialize() {
 	odom.set_vertical_tracker_specs(2.75, 0);
 
 	imu1.reset();
-	// imu2.reset();
 
 	vertical_tracking_wheel.reset_position();
 	horizontal_tracking_wheel.reset_position();
@@ -31,25 +30,14 @@ void initialize() {
 
 	pros::Task update_gui([]{
 		while(true){
+			odom.update_position_single_vertical();
+
+			position_mutex.take();
 			gui.update_sensors();
 			gui.update_temps();
 			gui.update_match_checklist();
-			pros::delay(10);
-		}
-	});
+			position_mutex.give();
 
-	pros::Task update_odom([]{
-		while(true){
-			// Particle estimate = get_estimate();
-			odom.update_position_single_vertical();
-			// //predict();
-			// run_localization_step();
-			// pros::delay(10);
-
-			// char buffer[300];
-			// //sprintf(buffer, "Front: %.2f Back: %.2f Left: %.2f Right: %.2f", front_sensor.get(), back_sensor.get(), left_sensor.get(), right_sensor.get());
-			// sprintf(buffer, "X: %.2f Y: %.2f Theta: %.2f", estimate.x, estimate.y, imu1.get_heading());
-			// lv_label_set_text(gui.position_readings, buffer);
 			pros::delay(10);
 		}
 	});
@@ -90,7 +78,7 @@ void autonomous(){
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 
-	// Run auton selector or skills (toggle in GUI)
+	// Run auton selector or skills
 	driver.skills ? auton.skills() : gui.run_selected_auton();
 }
 

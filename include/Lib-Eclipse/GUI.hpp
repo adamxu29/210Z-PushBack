@@ -7,7 +7,7 @@ namespace Eclipse{
             lv_obj_t *home_screen, *team_logo, *auton_home_btn, *sensors_home_btn, *match_home_btn, *debug_home_btn;
 
             lv_obj_t *auton_screen, *auton_title, *alliance_color, *red_btn, *blue_btn, *autonomous_path, *solo_awp, *left_half_awp,
-            *right_half_awp, *goal_side_rush, *ring_side_rush, *auton_return_home;
+            *right_half_awp, *right_elims, *left_elims, *auton_return_home;
 
             lv_obj_t *sensor_screen, *sensor_title, *position_readings, *left_drivetrain_encoders, *right_drivetrain_encoders,
             *misc_sensors, *drivetrain_temp, *motor_temp, *sensor_return_home;

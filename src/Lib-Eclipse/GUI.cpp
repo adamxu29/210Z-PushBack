@@ -159,10 +159,10 @@ lv_res_t GUI::autonomous_path_callback(lv_obj_t *btn) {
     else if(gui.current_selected_path == gui.right_half_awp){
         gui.selected_path = 2;
     }
-    else if(gui.current_selected_path == gui.goal_side_rush){
+    else if(gui.current_selected_path == gui.right_elims){
         gui.selected_path = 3;
     }
-    else if(gui.current_selected_path == gui.ring_side_rush){
+    else if(gui.current_selected_path == gui.left_elims){
         gui.selected_path = 4;
     }
     else{
@@ -298,27 +298,27 @@ void GUI::initialize_objects() {
         lv_obj_align(gui.right_half_awp, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 161);
         lv_label_set_text(lv_label_create(gui.right_half_awp, NULL), "Right Half AWP");
 
-    gui.goal_side_rush = lv_btn_create(gui.auton_screen, NULL);
-        lv_btn_set_toggle(gui.goal_side_rush, true);
-        lv_btn_set_style(gui.goal_side_rush, LV_BTN_STYLE_REL, &gui.style_purple_btn);
-        lv_btn_set_style(gui.goal_side_rush, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
-        lv_btn_set_style(gui.goal_side_rush, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
-        lv_btn_set_style(gui.goal_side_rush, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
-        lv_btn_set_action(gui.goal_side_rush, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
-        lv_obj_set_size(gui.goal_side_rush, 140, 30);
-        lv_obj_align(gui.goal_side_rush, NULL, LV_ALIGN_IN_TOP_LEFT, 76, 201);        
-        lv_label_set_text(lv_label_create(gui.goal_side_rush, NULL), "Goal Side Rush");
+    gui.right_elims = lv_btn_create(gui.auton_screen, NULL);
+        lv_btn_set_toggle(gui.right_elims, true);
+        lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_REL, &gui.style_purple_btn);
+        lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
+        lv_btn_set_action(gui.right_elims, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
+        lv_obj_set_size(gui.right_elims, 140, 30);
+        lv_obj_align(gui.right_elims, NULL, LV_ALIGN_IN_TOP_LEFT, 76, 201);        
+        lv_label_set_text(lv_label_create(gui.right_elims, NULL), "Right Elims");
 
-    gui.ring_side_rush = lv_btn_create(gui.auton_screen, NULL);
-        lv_btn_set_toggle(gui.ring_side_rush, true);
-        lv_btn_set_style(gui.ring_side_rush, LV_BTN_STYLE_REL, &gui.style_purple_btn);
-        lv_btn_set_style(gui.ring_side_rush, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
-        lv_btn_set_style(gui.ring_side_rush, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
-        lv_btn_set_style(gui.ring_side_rush, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
-        lv_btn_set_action(gui.ring_side_rush, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
-        lv_obj_set_size(gui.ring_side_rush, 140, 30);
-        lv_obj_align(gui.ring_side_rush, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 201);
-        lv_label_set_text(lv_label_create(gui.ring_side_rush, NULL), "Ring Side Rush");
+    gui.left_elims = lv_btn_create(gui.auton_screen, NULL);
+        lv_btn_set_toggle(gui.left_elims, true);
+        lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_REL, &gui.style_purple_btn);
+        lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
+        lv_btn_set_action(gui.left_elims, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
+        lv_obj_set_size(gui.left_elims, 140, 30);
+        lv_obj_align(gui.left_elims, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 201);
+        lv_label_set_text(lv_label_create(gui.left_elims, NULL), "Left Elims");
 
     gui.auton_return_home = lv_btn_create(gui.auton_screen, NULL);
         lv_btn_set_style(gui.auton_return_home, LV_BTN_STYLE_REL, &gui.style_purple_btn);

@@ -49,7 +49,7 @@ void Odom::update_position(){
 
     double heading = util.get_min_angle((90 - util.get_heading())) * M_PI / 180.0; // convert to radians
     double delta_heading = heading - prev_heading;
-    
+
     prev_horizontal_displacement = horizontal_pos;
     prev_vertical_displacement = vertical_pos;
     prev_heading = heading;
@@ -68,16 +68,13 @@ void Odom::update_position(){
 
     double avg_heading = prev_heading + (delta_heading / 2);
 
+    position_mutex.take();
     odom.x += local_y * cos(avg_heading) + local_x * sin(avg_heading);
     odom.y += local_y * sin(avg_heading) - local_x * cos(avg_heading);
 
     util.set_robot_position(odom.x, odom.y, util.get_heading());
-
     robot_theta = heading;
-
-    gui.update_sensors();
-    gui.update_temps();
-    gui.update_match_checklist();
+    position_mutex.give();
 }
 
 void Odom::update_position_single_vertical(){
@@ -89,14 +86,12 @@ void Odom::update_position_single_vertical(){
     double heading = util.get_min_angle(util.get_heading()) * M_PI / 180; // convert to radians
     prev_heading = heading;
 
+    position_mutex.take();
     odom.x += delta_vertical * sin(heading);
     odom.y += delta_vertical * cos(heading);
 
     util.set_robot_position(odom.x, odom.y, util.get_heading());
-
-    gui.update_sensors();
-    gui.update_temps();
-    gui.update_match_checklist();
+    position_mutex.give();
 }
 
 std::pair<int, int> Eclipse::Odom::get_wall(double heading) {
@@ -150,6 +145,8 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
     double avg_right_distance = right_weighted_distance / right_weightings;
     double avg_back_distance = back_weighted_distance / back_weightings;
 
+    position_mutex.take();
+
     char buffer[300];
     sprintf(buffer, "Prev X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
     lv_label_set_text(gui.debug_line_5, buffer);
@@ -200,5 +197,6 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
 
     sprintf(buffer, "New X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
     lv_label_set_text(gui.debug_line_6, buffer);
-    util.set_robot_position(util.get_robot_x(), util.get_robot_y(), util.get_heading());
+
+    position_mutex.give();
  }
