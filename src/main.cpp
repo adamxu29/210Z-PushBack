@@ -1,9 +1,10 @@
 #include "main.h"
 
 void initialize() {
-	gui.initialize_styles();
-	gui.initialize_objects();
-	gui.display_home();
+	// GUI disabled - remove all GUI tasks and initialization
+	// gui.initialize_styles();
+	// gui.initialize_objects();
+	// gui.display_home();
 	// initialize_particles();
 	
 	util.set_drive_constants(2.75, 0.75, 600);
@@ -25,42 +26,6 @@ void initialize() {
 
 	pros::delay(3000);
 	controller.rumble(".");
-
-	pros::Task update_gui([]{
-		while(true){
-			odom.update_position_single_vertical();
-
-			position_mutex.take();
-			gui.update_sensors();
-			gui.update_temps();
-			gui.update_match_checklist();
-			position_mutex.give();
-
-			pros::delay(10);
-		}
-	});
-
-	pros::Task color_sorting([]{
-		int stop_delay_counter = 0;
-		while(true){
-			if(util.sorting){
-				if(gui.selected_color == 0){
-					util.sort_red();
-				}
-				else if(gui.selected_color == 1){
-					util.sort_blue();
-				}
-			}
-			else{
-				stop_delay_counter++;
-				if(stop_delay_counter == 25){
-					stop_delay_counter = 0;
-					util.sorting = true;
-				}
-			}
-			pros::delay(10);
-		}
-	});
 }
 
 void disabled() {
@@ -71,13 +36,18 @@ void competition_initialize() {
 
 }
 
-char buffer[300];
+// Global buffer removed - no longer needed with GUI disabled
 void autonomous(){
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 
-	// Run auton selector or skills
-	driver.skills ? auton.skills() : gui.run_selected_auton();
+	// Run auton selector or skills (GUI disabled)
+	if (driver.skills) {
+		auton.skills();
+	} else {
+		// gui.run_selected_auton();  // GUI disabled
+		auton.solo_awp();  // Default auton since GUI is disabled
+	}
 }
 
 /**
@@ -95,14 +65,12 @@ void autonomous(){
  */
 
 void opcontrol() {
-	int start_time = pros::millis();
-
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	bool tuning = false;
-	
+
 	while(true){
-		controller.print(0, 0, "DT: %0.1f", util.get_drive_temp());
+		// GUI disabled - controller.print(0, 0, "DT: %0.1f", util.get_drive_temp());
 		if(tuning){
 			tuner.driver_tuner();
 		}

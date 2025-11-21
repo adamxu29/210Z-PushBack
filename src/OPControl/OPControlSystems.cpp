@@ -144,7 +144,7 @@ void Eclipse::OPControl::driver_control(bool disabled){
         driver.activate_wing();
     }
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-        odom.distance_sensor_reset(10, true);
+        // Task creation disabled - odom.distance_sensor_reset(10, true);
     }
     driver.activate_double_park();
 }

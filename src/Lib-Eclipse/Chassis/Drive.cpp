@@ -99,9 +99,9 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
         
         double r_current_position = util.get_heading();
         r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI);
-        std::cout << "r_error: " << r_error << std::endl;
+        // Debug output disabled - std::cout << "r_error: " << r_error << std::endl;
         t_error = (backwards ? -util.get_lateral_error(x, y) : util.get_lateral_error(x, y)) * 3;
-        std::cout << "t_error: " << t_error << std::endl;
+        // Debug output disabled - std::cout << "t_error: " << t_error << std::endl;
 
         if(fabs(t_error) < 5){
             t_counter++;

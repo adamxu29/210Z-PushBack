@@ -17,16 +17,16 @@
 #define MCL_UPDATE_INTERVAL 1
 #define SENSOR_JUMP_THRESHOLD 10
 
-std::vector<Particle> particles(NUM_PARTICLES);
-std::random_device rd;
-std::mt19937 gen(rd());
+// Lazy-allocated particle vector - only created when initialize_particles() is called
+static std::vector<Particle>* particles_ptr = nullptr;
+static std::mt19937* gen_ptr = nullptr;
 
-std::uniform_real_distribution<double> rand_x(-6, 6);
-std::uniform_real_distribution<double> rand_y(-6, 6);
-std::uniform_real_distribution<double> rand_theta(-5, 5);
-std::normal_distribution<double> noise_x(0, 0.2);
-std::normal_distribution<double> noise_y(0, 0.2);
-std::normal_distribution<double> noise_theta(0, 1.5);
+static std::uniform_real_distribution<double>* rand_x_ptr = nullptr;
+static std::uniform_real_distribution<double>* rand_y_ptr = nullptr;
+static std::uniform_real_distribution<double>* rand_theta_ptr = nullptr;
+static std::normal_distribution<double>* noise_x_ptr = nullptr;
+static std::normal_distribution<double>* noise_y_ptr = nullptr;
+static std::normal_distribution<double>* noise_theta_ptr = nullptr;
 
 uint32_t last_update_time = 0;
 uint32_t last_sensor_refresh = 0;
@@ -54,10 +54,23 @@ bool ray_hits_ladder_from_sensor(double heading_deg, double sensor_offset_angle_
 }
 
 void initialize_particles() {
-    for (auto& p : particles) {
-        p.x = LADDER_CENTER_X + rand_x(gen);
-        p.y = LADDER_CENTER_Y + rand_y(gen);
-        p.theta = rand_theta(gen);
+    // Lazy allocate particle vector and RNG on first call
+    if (particles_ptr == nullptr) {
+        std::random_device rd;
+        gen_ptr = new std::mt19937(rd());
+        particles_ptr = new std::vector<Particle>(NUM_PARTICLES);
+        rand_x_ptr = new std::uniform_real_distribution<double>(-6, 6);
+        rand_y_ptr = new std::uniform_real_distribution<double>(-6, 6);
+        rand_theta_ptr = new std::uniform_real_distribution<double>(-5, 5);
+        noise_x_ptr = new std::normal_distribution<double>(0, 0.2);
+        noise_y_ptr = new std::normal_distribution<double>(0, 0.2);
+        noise_theta_ptr = new std::normal_distribution<double>(0, 1.5);
+    }
+
+    for (auto& p : *particles_ptr) {
+        p.x = LADDER_CENTER_X + (*rand_x_ptr)(*gen_ptr);
+        p.y = LADDER_CENTER_Y + (*rand_y_ptr)(*gen_ptr);
+        p.theta = (*rand_theta_ptr)(*gen_ptr);
         p.weight = 1.0 / NUM_PARTICLES;
     }
 
@@ -98,6 +111,8 @@ void refresh_sensors() {
 }
 
 void update_particles_from_heading() {
+    if (particles_ptr == nullptr) return;  // Not initialized
+
     double heading = util.get_heading();  // degrees
     double dx = (cached_right - cached_left) / 2.0;
     double dy = (cached_back - cached_front) / 2.0;
@@ -112,25 +127,27 @@ void update_particles_from_heading() {
     }
 
     // When rotating, don't update the X and Y unless moving forward/backward
-    for (auto& p : particles) {
+    for (auto& p : *particles_ptr) {
         if (fabs(dx) > 0.5 || fabs(dy) > 0.5) {
-            p.x = LADDER_CENTER_X + rotated_x + noise_x(gen);
-            p.y = LADDER_CENTER_Y + rotated_y + noise_y(gen);
+            p.x = LADDER_CENTER_X + rotated_x + (*noise_x_ptr)(*gen_ptr);
+            p.y = LADDER_CENTER_Y + rotated_y + (*noise_y_ptr)(*gen_ptr);
         }
 
-        p.theta = heading + noise_theta(gen);
+        p.theta = heading + (*noise_theta_ptr)(*gen_ptr);
         p.weight = in_ladder(p.x, p.y) ? 0.1 : 1.0;
     }
 
     // Normalize weights
     double total = 0;
-    for (const auto& p : particles) total += p.weight;
-    for (auto& p : particles) p.weight /= total;
+    for (const auto& p : *particles_ptr) total += p.weight;
+    for (auto& p : *particles_ptr) p.weight /= total;
 }
 
 Particle get_estimate() {
+    if (particles_ptr == nullptr) return {0, 0, 0, 0};  // Not initialized
+
     double sx = 0, sy = 0, st = 0, tw = 0;
-    for (const auto& p : particles) {
+    for (const auto& p : *particles_ptr) {
         sx += p.x * p.weight;
         sy += p.y * p.weight;
         st += p.theta * p.weight;

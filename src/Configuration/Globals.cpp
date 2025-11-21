@@ -46,4 +46,3 @@ Drive drive;
 Autonomous_Paths auton;
 
 GUI gui;
-pros::Mutex position_mutex;
