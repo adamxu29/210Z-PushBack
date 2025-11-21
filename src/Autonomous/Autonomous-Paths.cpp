@@ -13,7 +13,7 @@ using namespace Eclipse;
 // Curve PID constants: 5, 0, 30
 
 void Eclipse::Autonomous_Paths::solo_awp(){
-    util.set_robot_position(0, 0, -14);
+    // util.set_robot_position(0, 0, -14);
 
     intake.move_voltage(12000);
     indexer.move_voltage(12000);
@@ -89,7 +89,7 @@ void Eclipse::Autonomous_Paths::solo_awp(){
 }
 
 void Eclipse::Autonomous_Paths::left_half_awp(){
-    util.set_robot_position(0, 0, -14);
+    // util.set_robot_position(0, 0, -14);
 
     intake.move_voltage(12000);
     indexer.move_voltage(12000);
@@ -160,7 +160,7 @@ void Eclipse::Autonomous_Paths::left_half_awp(){
 }
 
 void Eclipse::Autonomous_Paths::right_half_awp(){
-    util.set_robot_position(0, 0, 14);
+    // util.set_robot_position(0, 0, 14);
     intake.move_voltage(12000);
     indexer.move_voltage(12000);
 
@@ -173,7 +173,7 @@ void Eclipse::Autonomous_Paths::right_half_awp(){
     match_loader.set_value(false);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 75);
-    drive.move_to_point(25, 32, false, false, .5);
+    drive.move_to_point(24, 32, false, false, .5);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
     drive.turn_to_point(28, 40, false, .7);
@@ -231,7 +231,7 @@ void Eclipse::Autonomous_Paths::right_half_awp(){
 }
 
 void Eclipse::Autonomous_Paths::left_elims(){
-    util.set_robot_position(0, 0, -14);
+    // util.set_robot_position(0, 0, -14);
 
     intake.move_voltage(12000);
     indexer.move_voltage(12000);
@@ -254,12 +254,13 @@ void Eclipse::Autonomous_Paths::left_elims(){
     t_pid.translation_pid(10, 45, .5);
 
     match_loader.set_value(true);
+    pros::delay(100);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 90);
-    drive.move_to_point(-5, 30, false, true, .75);
+    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
+    drive.move_to_point(-5, 30, false, true, 1.2);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 11, 75, 90);
-    drive.turn_to_point(5, 37, true, 1.2);
+    drive.turn_to_point(5, 37, true, .7);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 60, 60);
     drive.move_to_point(5, 37, false, true, .7);
@@ -298,19 +299,19 @@ void Eclipse::Autonomous_Paths::left_elims(){
     t_pid.translation_pid(3, 90, .2);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(-22, 12, true, false, .7);
+    drive.move_to_point(-23, 12, true, false, .7);
     trapdoor.set_value(false);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-22, 34, true, .5);
+    drive.turn_to_point(-23, 34, true, .5);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(-22, 37, false, true, .9);
+    drive.move_to_point(-23, 37, false, true, .9);
     match_loader.set_value(false);
 }
 
 void Eclipse::Autonomous_Paths::right_elims(){
-    util.set_robot_position(0, 0, 14);
+    // util.set_robot_position(0, 0, 14);
 
     intake.move_voltage(12000);
     indexer.move_voltage(12000);
@@ -322,11 +323,12 @@ void Eclipse::Autonomous_Paths::right_elims(){
     drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
     drive.move_to_point(6, 24, false, false, .5);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
+    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 75);
     drive.move_to_point(29, 5, true, false, 1.2);
+    pros::delay(250);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 60);
-    drive.turn_to_point(30, -10, false, .4);
+    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    drive.turn_to_point(28, -10, false, .4);
 
     t_pid.set_t_constants(5.5, 0, 11, 100);
     t_pid.translation_pid(18, 90, .7);

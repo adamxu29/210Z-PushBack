@@ -152,18 +152,29 @@ lv_res_t GUI::autonomous_path_callback(lv_obj_t *btn) {
     
     if (gui.current_selected_path == gui.solo_awp){
         gui.selected_path = 0;
+        // util.set_robot_position(0, 0, -14);
+        imu1.set_rotation(-14);
     }
     else if(gui.current_selected_path == gui.left_half_awp){
         gui.selected_path = 1;
+        // util.set_robot_position(0, 0, -14);
+        imu1.set_rotation(-14);
     }
     else if(gui.current_selected_path == gui.right_half_awp){
         gui.selected_path = 2;
+        // util.set_robot_position(0, 0, 14);
+        imu1.set_rotation(14);
     }
     else if(gui.current_selected_path == gui.right_elims){
         gui.selected_path = 3;
+        // util.set_robot_position(0, 0, 14);
+        imu1.set_rotation(14);
+        
     }
     else if(gui.current_selected_path == gui.left_elims){
         gui.selected_path = 4;
+        // util.set_robot_position(0, 0, -14);
+        imu1.set_rotation(-14);
     }
     else{
         gui.selected_path = -1;

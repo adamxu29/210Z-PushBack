@@ -163,7 +163,7 @@ void Utility::reset_position()
 }
 
 bool Utility::detect_ball(){
-    return (park_sensor.get() < 70.0);
+    return ((park_sensor.get() < 70) && (park_sensor.get() > 60));
 }
 
 bool Utility::detect_upper_ball(){
