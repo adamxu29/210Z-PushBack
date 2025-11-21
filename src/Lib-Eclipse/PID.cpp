@@ -71,7 +71,7 @@ void Eclipse::PID::motor_pid(pros::Motor &motor, double target){
 
         if(this->counter > this->tolerance){ 
             motor.brake();
-            std::cout << "PID loop completed" << std::endl;
+            // Debug output disabled - std::cout << "PID loop completed" << std::endl;
             break;
         }
 
@@ -81,7 +81,7 @@ void Eclipse::PID::motor_pid(pros::Motor &motor, double target){
 
         if(this->failsafe > this->failsafe_tolerance){
             motor.brake();
-            std::cout << "failsafe" << std::endl;
+            // Debug output disabled - std::cout << "failsafe" << std::endl;
             break;
         }
         pros::delay(10);
@@ -107,7 +107,7 @@ void Eclipse::PID::motor_pid_with_rotation(pros::Motor &motor, pros::Rotation &r
 
         if(this->counter > this->tolerance){ 
             motor.brake();
-            std::cout << "PID loop completed" << std::endl;
+            // Debug output disabled - std::cout << "PID loop completed" << std::endl;
             break;
         }
 
@@ -117,7 +117,7 @@ void Eclipse::PID::motor_pid_with_rotation(pros::Motor &motor, pros::Rotation &r
 
         if(this->failsafe > this->failsafe_tolerance){
             motor.brake();
-            std::cout << "failsafe" << std::endl;
+            // Debug output disabled - std::cout << "failsafe" << std::endl;
             break;
         }
         pros::delay(10);

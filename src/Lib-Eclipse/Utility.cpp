@@ -181,9 +181,10 @@ bool Utility::is_blue(){
 void Utility::sort(){
     int voltage = indexer.get_voltage();
 
-    char buffer[300];
-    sprintf(buffer, "Opp Ball Detected at: %d:%02d, Hue: %.1f", gui.minutes, gui.seconds, color.get_hue());
-    lv_label_set_text(gui.debug_line_1, buffer);
+    // GUI disabled
+    // char buffer[300];
+    // sprintf(buffer, "Opp Ball Detected at: %d:%02d, Hue: %.1f", gui.minutes, gui.seconds, color.get_hue());
+    // lv_label_set_text(gui.debug_line_1, buffer);
 
     pros::delay(sort_delay);
     driver.color_sorting = true;
