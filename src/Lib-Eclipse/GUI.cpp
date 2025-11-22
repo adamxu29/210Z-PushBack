@@ -152,29 +152,24 @@ lv_res_t GUI::autonomous_path_callback(lv_obj_t *btn) {
     
     if (gui.current_selected_path == gui.solo_awp){
         gui.selected_path = 0;
-        // util.set_robot_position(0, 0, -14);
-        imu1.set_rotation(-14);
+        util.set_robot_position(0, 0, -14);
     }
     else if(gui.current_selected_path == gui.left_half_awp){
         gui.selected_path = 1;
-        // util.set_robot_position(0, 0, -14);
-        imu1.set_rotation(-14);
+        util.set_robot_position(0, 0, -14);
     }
     else if(gui.current_selected_path == gui.right_half_awp){
         gui.selected_path = 2;
-        // util.set_robot_position(0, 0, 14);
-        imu1.set_rotation(14);
+        util.set_robot_position(0, 0, 14);
     }
     else if(gui.current_selected_path == gui.right_elims){
         gui.selected_path = 3;
-        // util.set_robot_position(0, 0, 14);
-        imu1.set_rotation(14);
+        util.set_robot_position(0, 0, 14);
         
     }
     else if(gui.current_selected_path == gui.left_elims){
         gui.selected_path = 4;
-        // util.set_robot_position(0, 0, -14);
-        imu1.set_rotation(-14);
+        util.set_robot_position(0, 0, -14);
     }
     else{
         gui.selected_path = -1;
@@ -317,7 +312,7 @@ void GUI::initialize_objects() {
         lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
         lv_btn_set_action(gui.right_elims, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
         lv_obj_set_size(gui.right_elims, 140, 30);
-        lv_obj_align(gui.right_elims, NULL, LV_ALIGN_IN_TOP_LEFT, 76, 201);        
+        lv_obj_align(gui.right_elims, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 201);        
         lv_label_set_text(lv_label_create(gui.right_elims, NULL), "Right Elims");
 
     gui.left_elims = lv_btn_create(gui.auton_screen, NULL);
@@ -328,7 +323,7 @@ void GUI::initialize_objects() {
         lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
         lv_btn_set_action(gui.left_elims, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
         lv_obj_set_size(gui.left_elims, 140, 30);
-        lv_obj_align(gui.left_elims, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 201);
+        lv_obj_align(gui.left_elims, NULL, LV_ALIGN_IN_TOP_LEFT, 71, 201);
         lv_label_set_text(lv_label_create(gui.left_elims, NULL), "Left Elims");
 
     gui.auton_return_home = lv_btn_create(gui.auton_screen, NULL);
@@ -513,10 +508,10 @@ void GUI::run_selected_auton(){
         case 2:
             auton.right_half_awp();
             break;
-        case 3:
+        case 4:
             auton.left_elims();
             break;
-        case 4:
+        case 3:
             auton.right_elims();
             break;
         default:

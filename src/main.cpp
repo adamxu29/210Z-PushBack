@@ -22,19 +22,17 @@ void initialize() {
 
 	color.set_led_pwm(0);
 	color.set_integration_time(3);
+	util.set_robot_position(0.0, 0.0, -14);
 
 	pros::delay(3000);
-	controller.rumble(".");
-
-	pros::Task update_gui([]{
+	
+		pros::Task update_gui([]{
 		while(true){
 			odom.update_position_single_vertical();
 
-			position_mutex.take();
-			gui.update_sensors();
-			gui.update_temps();
-			gui.update_match_checklist();
-			position_mutex.give();
+			// gui.update_sensors();
+			// gui.update_temps();
+			// gui.update_match_checklist();
 
 			pros::delay(10);
 		}
@@ -77,7 +75,11 @@ void autonomous(){
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 
 	// Run auton selector or skills
-	driver.skills ? auton.skills() : gui.run_selected_auton();
+	// driver.skills ? auton.skills() : gui.run_selected_auton();
+	// auton.solo_awp();
+	auton.left_elims();
+	// auton.right_elims();
+	// auton.skills();
 }
 
 /**

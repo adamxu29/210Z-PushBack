@@ -41,4 +41,3 @@ extern Eclipse::Drive drive;
 extern Eclipse::Autonomous_Paths auton;
 
 extern Eclipse::GUI gui;
-extern pros::Mutex position_mutex;

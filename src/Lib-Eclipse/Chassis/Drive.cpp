@@ -47,6 +47,7 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
     r_pid.r_max_speed = this->max_rotation_speed;
     
     while(true){
+        odom.update_position_single_vertical();
         double current_position = util.get_heading();
         double theta = util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI;
 
@@ -87,6 +88,8 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
         }
         pros::delay(10);
     }
+    // std::cout << "h";
+    // std::cout << "x: " << util.get_robot_x() << "y: " << util.get_robot_y() << std::endl;
 }
 
 
@@ -99,9 +102,9 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
         
         double r_current_position = util.get_heading();
         r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI);
-        std::cout << "r_error: " << r_error << std::endl;
+        // std::cout << "r_error: " << r_error << std::endl;
         t_error = (backwards ? -util.get_lateral_error(x, y) : util.get_lateral_error(x, y)) * 3;
-        std::cout << "t_error: " << t_error << std::endl;
+        // std::cout << "t_error: " << t_error << std::endl;
 
         if(fabs(t_error) < 5){
             t_counter++;
@@ -184,4 +187,5 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
 
         pros::delay(10);
     }
+    std::cout << "x: " << util.get_robot_x() << "y: " << util.get_robot_y() << std::endl;
 }
