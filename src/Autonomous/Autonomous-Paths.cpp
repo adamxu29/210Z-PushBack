@@ -240,87 +240,77 @@ void Eclipse::Autonomous_Paths::right_half_awp(){
     match_loader.set_value(false);
 }
 
-void Eclipse::Autonomous_Paths::left_elims(){
-    util.set_robot_position(0, 0, -14);
+void Eclipse::Autonomous_Paths::left_elims()
+{
+    util.set_robot_position(0, 0, 90);
 
     intake.move_voltage(12000);
     indexer.move_voltage(12000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(-3, 15, false, false, .7);
     match_loader.set_value(true);
-    pros::delay(50);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
-    drive.move_to_point(-6, 24, false, false, .5);
-    // match_loader.set_value(false);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 75);
-    // drive.move_to_point(-22, 33, false, false, .5);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    // drive.turn_to_point(-28, 40, false, .7);
-
-    // t_pid.set_t_constants(5.5, 0, 11, 100);
-    // t_pid.translation_pid(12, 45, .5);
-
-    // match_loader.set_value(true);
-    // pros::delay(100);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    // drive.move_to_point(-5, 30, false, true, 1.2);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    // drive.turn_to_point(6, 39, true, .7);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 60);
-    // drive.move_to_point(6, 39, false, true, .7);
-
-    // indexer.move_voltage(-11000);
-    // pros::delay(750);
-    // indexer.move_voltage(12000);
-    // match_loader.set_value(true);
+    drive.set_constants(5.5, 0, 11, 2, 0, 0, 75, 90);
+    drive.move_to_point(-29, 5, false, true, 1.1);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-31, 5, false, false, .9);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-29, -15, false, .4);
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(-180, 90, .7);
+    drive.turn_to_point(-31, -14, false, .7);
 
     t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(15, 90, .7);
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    // drive.move_to_point(-33, -7, false, false, .5);
-    pros::delay(350);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 60, 90);
-    drive.turn_to_point(-30, 30, true, .4);
+    t_pid.translation_pid(17, 90, .5);
+    pros::delay(400);
 
     drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    drive.move_to_point(-31, 30, false, true, 1.2);
+    drive.turn_to_point(-31, 26, true, .3);
+
+    drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
+    drive.move_to_point(-31, 26, false, true, .9);
 
     trapdoor.set_value(true);
-    pros::delay(1500);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .2);
-    indexer.move_voltage(0);
-
-    t_pid.set_t_constants(9, 0, 11, 600);
-    t_pid.translation_pid(3, 90, .2);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(-21, 12, true, false, .7);
-    trapdoor.set_value(false);
-    wing.set_value(true);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-20, 34, true, .5);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(-20, 37, false, true, .9);
     match_loader.set_value(false);
+    pros::delay(1500);
+    
+    
+    // util.set_robot_position(0, 0, -14);
+
+    // intake.move_voltage(12000);
+    // // indexer.move_voltage(12000);
+    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
+    // drive.move_to_point(-3, 15, false, false, .7);
+    // match_loader.set_value(true);
+    // pros::delay(50);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
+    // drive.move_to_point(-6, 24, false, false, .5);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    // drive.move_to_point(-33, 13, true, false, .9);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    // drive.turn_to_point(-33, 35, true, .5);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    // drive.move_to_point(-33, 35, false, true, .5);
+
+    // indexer.move_voltage(12000);
+    // trapdoor.set_value(true);
+    // pros::delay(900);
+    // t_pid.set_t_constants(5.5, 0, 11, 600);
+    // t_pid.translation_pid(-10, 90, .2);
+    // indexer.move_voltage(0);
+
+    // t_pid.set_t_constants(9, 0, 11, 600);
+    // t_pid.translation_pid(3, 90, .2);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
+    // drive.move_to_point(-19, 12, true, false, .7);
+    // trapdoor.set_value(false);
+    // wing.set_value(true);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    // drive.turn_to_point(-19, 34, true, .5);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
+    // drive.move_to_point(-19, 37, false, true, .9);
+    // match_loader.set_value(false);
 }
 
 void Eclipse::Autonomous_Paths::right_elims(){
@@ -608,6 +598,84 @@ void Eclipse::Autonomous_Paths::skills(){
 }
 
 void Eclipse::Autonomous_Paths::test(){
-    
-    
+    // util.set_robot_position(0, 0, -14);
+
+    // intake.move_voltage(12000);
+    // indexer.move_voltage(12000);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
+    // drive.move_to_point(-3, 15, false, false, .7);
+    // match_loader.set_value(true);
+    // pros::delay(50);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
+    // drive.move_to_point(-6, 24, false, false, .5);
+    // // match_loader.set_value(false);
+
+    // // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 75);
+    // // drive.move_to_point(-22, 33, false, false, .5);
+
+    // // drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
+    // // drive.turn_to_point(-28, 40, false, .7);
+
+    // // t_pid.set_t_constants(5.5, 0, 11, 100);
+    // // t_pid.translation_pid(12, 45, .5);
+
+    // // match_loader.set_value(true);
+    // // pros::delay(100);
+
+    // // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
+    // // drive.move_to_point(-5, 30, false, true, 1.2);
+
+    // // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    // // drive.turn_to_point(6, 39, true, .7);
+
+    // // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 60);
+    // // drive.move_to_point(6, 39, false, true, .7);
+
+    // // indexer.move_voltage(-11000);
+    // // pros::delay(750);
+    // // indexer.move_voltage(12000);
+    // // match_loader.set_value(true);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    // drive.move_to_point(-31, 5, false, false, .9);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    // drive.turn_to_point(-29, -15, false, .4);
+    // r_pid.set_r_constants(2, 0, 11);
+    // r_pid.rotation_pid(-180, 90, .7);
+
+    // t_pid.set_t_constants(5.5, 0, 11, 600);
+    // t_pid.translation_pid(15, 90, .7);
+    // // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
+    // // drive.move_to_point(-33, -7, false, false, .5);
+    // pros::delay(350);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 60, 90);
+    // drive.turn_to_point(-30, 30, true, .4);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
+    // drive.move_to_point(-31, 30, false, true, 1.2);
+
+    // trapdoor.set_value(true);
+    // pros::delay(1500);
+    // t_pid.set_t_constants(5.5, 0, 11, 600);
+    // t_pid.translation_pid(-10, 90, .2);
+    // indexer.move_voltage(0);
+
+    // t_pid.set_t_constants(9, 0, 11, 600);
+    // t_pid.translation_pid(3, 90, .2);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
+    // drive.move_to_point(-21, 12, true, false, .7);
+    // trapdoor.set_value(false);
+    // wing.set_value(true);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
+    // drive.turn_to_point(-20, 34, true, .5);
+
+    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
+    // drive.move_to_point(-20, 37, false, true, .9);
+    // match_loader.set_value(false);
 }
