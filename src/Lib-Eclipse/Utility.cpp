@@ -66,12 +66,28 @@ using namespace Eclipse;
 
 // sensing
 
-double Utility::get_robot_x(){ return robot_x; }
-double Utility::get_robot_y(){ return robot_y; }
+double Utility::get_robot_x(){ 
+    return robot_x;
+}
+double Utility::get_robot_y(){
+    return robot_y;
+}
 void Utility::set_robot_position(double x, double y, double heading){
     robot_x = x;
     robot_y = y;
     imu1.set_rotation(heading);
+}
+
+void Utility::update_telemetry_fn(void* param){
+    while(true){
+        odom.update_position_single_vertical();
+
+        // gui.update_sensors();
+        // gui.update_temps();
+        // gui.update_match_checklist();
+
+        pros::delay(10);
+    }
 }
 
 void Eclipse::Utility::set_drive_constants(const double dt_wheel_diameter, const double dt_gear_ratio, const double dt_motor_cartridge)
@@ -181,9 +197,9 @@ bool Utility::is_blue(){
 void Utility::sort(){
     int voltage = indexer.get_voltage();
 
-    // char buffer[300];
-    // sprintf(buffer, "Opp Ball Detected at: %d:%02d, Hue: %.1f", gui.minutes, gui.seconds, color.get_hue());
-    // lv_label_set_text(gui.debug_line_1, buffer);
+    char buffer[300];
+    sprintf(buffer, "Opp Ball Detected at: %d:%02d, Hue: %.1f", gui.minutes, gui.seconds, color.get_hue());
+    lv_label_set_text(gui.debug_line_1, buffer);
 
     pros::delay(sort_delay);
     driver.color_sorting = true;
@@ -205,6 +221,28 @@ void Utility::sort_red(){
 void Utility::sort_blue(){
     if(is_red() && detect_upper_ball()){
         sort();
+    }
+}
+
+void Utility::run_sort(){
+    int stop_delay_counter = 0;
+    while(true){
+        if(util.sorting){
+            if(gui.selected_color == 0){
+                util.sort_red();
+            }
+            else if(gui.selected_color == 1){
+                util.sort_blue();
+            }
+        }
+        else{
+            stop_delay_counter++;
+            if(stop_delay_counter == 25){
+                stop_delay_counter = 0;
+                util.sorting = true;
+            }
+        }
+        pros::delay(10);
     }
 }
 

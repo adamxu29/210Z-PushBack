@@ -20,24 +20,27 @@ namespace Eclipse
             double get_robot_x();
             double get_robot_y();
             void set_robot_position(double x, double y, double heading);
+            static void update_telemetry_fn(void* param);
             void set_drive_constants(const double dt_wheel_diameter, const double dt_gear_ratio, const double dt_motor_cartridge);
             
+            // PID helpers
             double get_angular_error(double x, double y, bool backwards);
             double get_lateral_error(double x, double y);
+
             // sensors
             double get_position();
             void reset_position();
 
+            // color sort
             bool sorting = true;
             bool detect_ball();
             bool detect_upper_ball();
             bool is_red();
             bool is_blue();
-
             void sort();
-
             void sort_red();
             void sort_blue();
+            void run_sort();
 
             void set_tpi();
             double get_tpi(){ return tpi; }

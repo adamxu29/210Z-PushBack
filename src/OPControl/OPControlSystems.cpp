@@ -119,13 +119,23 @@ void Eclipse::OPControl::activate_wing(){
 void Eclipse::OPControl::change_shooter_speed(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
         if(this->shooter_speed == 127){
-            this->shooter_speed = 75;
+            this->shooter_speed = 67;
         }
-        else if(this->shooter_speed == 75){
+        else if(this->shooter_speed == 67){
             this->shooter_speed = 127;
         }
         else{
             this->shooter_speed = 127;
+        }
+
+        if(this->intake_speed == 127){
+            this->intake_speed = 67;
+        }
+        else if(this->intake_speed == 67){
+            this->intake_speed = 127;
+        }
+        else{
+            this->intake_speed = 127;
         }
     }
 }
@@ -143,8 +153,8 @@ void Eclipse::OPControl::driver_control(bool disabled){
         driver.activate_trapdoor();
         driver.activate_wing();
     }
-    // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-    //     odom.distance_sensor_reset(10, true);
-    // }
-    driver.activate_double_park();
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+        odom.distance_sensor_reset(5, true);
+    }
+    // driver.activate_double_park();
 }

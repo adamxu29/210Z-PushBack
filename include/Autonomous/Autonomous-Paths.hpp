@@ -4,8 +4,10 @@ namespace Eclipse{
         void solo_awp();
         void left_half_awp();
         void right_half_awp();
-        void left_elims();
-        void right_elims();
+        void left_9();
+        void left_7();
+        void right_9();
+        void right_7();
         
         void skills();
         void test();

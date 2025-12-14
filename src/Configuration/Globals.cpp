@@ -9,7 +9,7 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 pros::Motor_Group left_drive({3, -2, -12});
 pros::Motor_Group right_drive({-6, 8, 19});
 
-pros::Motor intake(9);
+pros::Motor intake(-9);
 pros::Motor indexer(5);
 
 pros::Rotation vertical_tracking_wheel(4, true);
@@ -46,3 +46,5 @@ Drive drive;
 Autonomous_Paths auton;
 
 GUI gui;
+pros::Task* update_telemetry = nullptr;
+pros::Mutex odom_mutex;

@@ -41,3 +41,6 @@ extern Eclipse::Drive drive;
 extern Eclipse::Autonomous_Paths auton;
 
 extern Eclipse::GUI gui;
+
+extern pros::Task* update_telemetry;
+extern pros::Mutex odom_mutex;
