@@ -37,7 +37,7 @@ void Eclipse::Drive::reset_variables(){
     this->r_failsafe = 0;
 }
 
-void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double time_out){
+void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double time_out, bool motion_chain){
     // Simple rotation pid wrapper for ttp
     // acounts for the fact that the robot may not turn on its centre
     r_pid.reset_r_variables();
@@ -56,8 +56,15 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
         left_drive.move_voltage(voltage * (12000.0 / 127.0));
         right_drive.move_voltage(-voltage * (12000.0 / 127.0));
         
-        fabs(r_pid.r_error) < r_pid.r_error_threshold ? r_pid.r_counter++ : r_pid.r_counter = 0;
+        if(motion_chain && (fabs(r_pid.r_error) < 3 * r_pid.r_error_threshold)){ break; }
 
+        if (fabs(r_pid.r_error) < r_pid.r_error_threshold){
+            r_pid.r_counter++;
+        }
+        else {
+            r_pid.r_counter = 0;
+        }
+        
         if (r_pid.r_counter >= r_pid.r_tolerance)
         {
             left_drive.move_voltage(0);
@@ -88,12 +95,11 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
         }
         pros::delay(10);
     }
-    // std::cout << "h";
-    // std::cout << "x: " << util.get_robot_x() << "y: " << util.get_robot_y() << std::endl;
+    std::cout << "x: " << util.get_robot_x() << "y: " << util.get_robot_y() << std::endl;
 }
 
 
-void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool backwards, double time_out){
+void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool backwards, double time_out, bool motion_chain){
     this->reset_variables();
     double local_timer = 0;
 
@@ -121,9 +127,10 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
         if(util.sign(r_error) != util.sign(r_prev_error)){ r_integral = 0; }
         if(util.sign(t_error) != util.sign(t_prev_error)){ t_integral = 0; }
 
+        if(motion_chain) { t_kd /= 1.5; }
+
         double r_power = (r_error * r_kp) + (r_integral * r_ki) + (r_derivative * r_kd);
         double t_power = (t_error * t_kp) + (t_integral * t_ki) + (t_derivative * t_kd);
-
 
         double adjustment_factor = r_error * (M_PI / 180.0);
         t_power *= std::cos(adjustment_factor);
@@ -154,6 +161,8 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
         double right_voltage = t_power - r_power;
         left_drive.move_voltage(left_voltage * (12000.0 / 127.0));
         right_drive.move_voltage(right_voltage * (12000.0 / 127.0));
+
+        if(motion_chain && (fabs(t_error) < 3 * t_error_threshold)){ break; }
 
         if(fabs(t_error) < t_error_threshold){
             t_counter++;

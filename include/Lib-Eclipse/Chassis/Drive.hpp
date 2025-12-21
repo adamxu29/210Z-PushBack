@@ -35,7 +35,7 @@ namespace Eclipse {
 
             void set_constants(const double t_kp, const double t_ki, const double t_kd, const double r_kp, const double r_ki, const double r_kd, const double max_translation_speed, const double max_rotation_speed);
             void reset_variables();
-            void turn_to_point(double x, double y, bool backwards, double time_out);
-            void move_to_point(double x, double y, bool turn_first, bool backwards, double time_out);
+            void turn_to_point(double x, double y, bool backwards, double time_out, bool motion_chain = true);
+            void move_to_point(double x, double y, bool turn_first, bool backwards, double time_out, bool motion_chain = true);
     };
 }

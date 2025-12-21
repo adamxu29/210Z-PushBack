@@ -128,12 +128,12 @@ std::pair<int, int> Eclipse::Odom::get_wall(double heading) {
 
 
 void Odom::distance_sensor_reset(int readings, bool create_task){
-    update_telemetry->suspend();
     if(create_task){
         pros::Task task([&]() {distance_sensor_reset(readings, false);});
         pros::delay(10);
         return;
     }
+    update_telemetry->suspend();
 
     while(readings--){
         double distance_1 = (right_sensor.get() - right_offset) * mm_to_inches;

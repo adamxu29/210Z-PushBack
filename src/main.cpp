@@ -27,18 +27,7 @@ void initialize() {
 	controller.rumble("..");
 	util.set_robot_position(0.0, 0.0, -90);
 	
-	// update_telemetry = new pros::Task(Eclipse::Utility::update_telemetry_fn);
-	pros::Task update_odom([]{
-		while(true){
-			odom.update_position_single_vertical();
-	
-			// gui.update_sensors();
-			// gui.update_temps();
-			// gui.update_match_checklist();
-	
-			pros::delay(10);
-		}
-	});
+	update_telemetry = new pros::Task(Eclipse::Utility::update_telemetry_fn);
 
 	pros::Task color_sorting([]{
 		util.run_sort();
