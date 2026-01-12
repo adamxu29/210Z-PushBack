@@ -103,16 +103,18 @@ void Eclipse::OPControl::activate_double_park(){
 }
 
 void Eclipse::OPControl::activate_trapdoor(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         this->trapdoor_down = !this->trapdoor_down;
         trapdoor.set_value(this->trapdoor_down);
     }
 }
 
 void Eclipse::OPControl::activate_wing(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-        this->wing_up = !this->wing_up;
-        wing.set_value(this->wing_up);
+    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
+        wing.set_value(true);
+    }
+    else{
+        wing.set_value(false);
     }
 }
 
