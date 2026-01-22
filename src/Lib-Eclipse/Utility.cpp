@@ -81,11 +81,6 @@ void Utility::set_robot_position(double x, double y, double heading){
 void Utility::update_telemetry_fn(void* param){
     while(true){
         odom.update_position_single_vertical();
-
-        // gui.update_sensors();
-        // gui.update_temps();
-        // gui.update_match_checklist();
-
         pros::delay(10);
     }
 }

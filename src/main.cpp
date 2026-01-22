@@ -49,10 +49,10 @@ void autonomous(){
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 
 	// Run auton selector or skills
-	// driver.skills ? auton.skills() : gui.run_selected_auton();
+	driver.skills ? auton.skills() : gui.run_selected_auton();
 	// auton.solo_awp();
 	// auton.left_half_awp();
-	auton.right_7();
+	// auton.right_7();
 	// auton.right_half_awp();
 	// auton.skills();
 }

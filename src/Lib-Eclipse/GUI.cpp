@@ -522,6 +522,12 @@ void GUI::run_selected_auton(){
 
 void GUI::update_sensors(){
     char buffer[300];
+    
+    sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", util.get_robot_x(), util.get_robot_y(), util.get_heading());
+    lv_label_set_text(gui.position_readings, buffer);
+    lv_label_set_text(gui.match_position_readings, buffer);
+    lv_label_set_text(gui.debug_line_9, buffer);
+    
     sprintf(buffer, "FL: %.2f ML: %.2f BL: %.2f", left_drive.get_positions()[0], left_drive.get_positions()[1], left_drive.get_positions()[2]);
     lv_label_set_text(gui.left_drivetrain_encoders, buffer);
 

@@ -74,11 +74,9 @@ void Odom::update_position(){
     util.set_robot_position(odom.x, odom.y, util.get_heading());
     robot_theta = heading;
 
-    char buffer[300];
-    sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", util.get_robot_x(), util.get_robot_y(), util.get_heading());
-    lv_label_set_text(gui.position_readings, buffer);
-    lv_label_set_text(gui.match_position_readings, buffer);
-    lv_label_set_text(gui.debug_line_9, buffer);
+    gui.update_sensors();
+    gui.update_temps();
+    gui.update_match_checklist();
 }
 
 void Odom::update_position_single_vertical(){
@@ -94,12 +92,10 @@ void Odom::update_position_single_vertical(){
     odom.y += delta_vertical * cos(heading);
 
     util.set_robot_position(odom.x, odom.y, util.get_heading());
-
-    char buffer[300];
-    sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", util.get_robot_x(), util.get_robot_y(), util.get_heading());
-    lv_label_set_text(gui.position_readings, buffer);
-    lv_label_set_text(gui.match_position_readings, buffer);
-    lv_label_set_text(gui.debug_line_9, buffer);
+    
+    gui.update_sensors();
+    gui.update_temps();
+    gui.update_match_checklist();
 }
 
 std::pair<int, int> Eclipse::Odom::get_wall(double heading) {
@@ -133,7 +129,11 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
         pros::delay(10);
         return;
     }
-    update_telemetry->suspend();
+
+    right_weightings = 0;
+    back_weightings = 0;
+    right_weighted_distance = 0;
+    back_weighted_distance = 0;
 
     while(readings--){
         double distance_1 = (right_sensor.get() - right_offset) * mm_to_inches;
@@ -204,5 +204,10 @@ void Odom::distance_sensor_reset(int readings, bool create_task){
 
     sprintf(buffer, "New X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
     lv_label_set_text(gui.debug_line_6, buffer);
-    update_telemetry->resume();
+
+    odom.x = util.get_robot_x();
+    odom.y = util.get_robot_y();
+    prev_horizontal_displacement = get_horizontal_displacement();
+    prev_vertical_displacement = get_vertical_displacement();
+    prev_heading = util.get_min_angle(util.get_heading()) * M_PI / 180.0;
  }

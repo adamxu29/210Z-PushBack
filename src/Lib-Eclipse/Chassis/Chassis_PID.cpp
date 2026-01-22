@@ -164,7 +164,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
     double starting_position = odom.get_vertical_displacement();
     while (true)
     {
-        odom.update_position_single_vertical();
+        odom.update_position();
         // motor encoder:
         // double current_position = util.get_position() * 3 / util.get_tpi();
 
@@ -240,7 +240,7 @@ void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double 
 
     while (true)
     {
-        odom.update_position_single_vertical();
+        odom.update_position();
         double current_position = util.get_heading();
         double voltage = r_pid.compute_r(current_position, theta);
 
@@ -305,7 +305,7 @@ void Eclipse::Curve_PID::curve_pid(double theta, double max_speed, double time_o
 
     while (true)
     {
-        odom.update_position_single_vertical();
+        odom.update_position();
         double current_position = util.get_heading();
         double voltage = c_pid.compute_c(current_position, theta);
 

@@ -3,7 +3,7 @@
 using namespace Eclipse;
 
 const u_int16_t forward_curve       = 10; 
-const u_int16_t turn_curve          = 10;
+const u_int16_t turn_curve          = 3;
 const double euler                 = 2.71828;
 static bool turning_sharp             = false;
 static bool forward_sharp             = false;
@@ -80,27 +80,27 @@ void Eclipse::OPControl::activate_match_load(){
     }
 }
 
-void Eclipse::OPControl::activate_double_park(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-        if(this->driver_disabled){
-            this->driver_disabled = false;
-            park.set_value(false);
-        }
-        else{
-            this->driver_disabled = true;
-            int counter = 0;
-            while(!util.detect_ball() && counter < 250){
-                intake.move_voltage(-10000);
-                counter++;
-                pros::delay(10);
-            }
-            pros::delay(75);
-            intake.move_voltage(0);
-            intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-            park.set_value(true);
-        }
-    }
-}
+// void Eclipse::OPControl::activate_double_park(){
+//     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+//         if(this->driver_disabled){
+//             this->driver_disabled = false;
+//             park.set_value(false);
+//         }
+//         else{
+//             this->driver_disabled = true;
+//             int counter = 0;
+//             while(!util.detect_ball() && counter < 250){
+//                 intake.move_voltage(-10000);
+//                 counter++;
+//                 pros::delay(10);
+//             }
+//             pros::delay(75);
+//             intake.move_voltage(0);
+//             intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+//             park.set_value(true);
+//         }
+//     }
+// }
 
 void Eclipse::OPControl::activate_trapdoor(){
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
@@ -155,8 +155,7 @@ void Eclipse::OPControl::driver_control(bool disabled){
         driver.activate_trapdoor();
         driver.activate_wing();
     }
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-        odom.distance_sensor_reset(5, true);
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+        odom.distance_sensor_reset(10, true);
     }
-    // driver.activate_double_park();
 }
