@@ -13,9 +13,11 @@ extern pros::Rotation vertical_tracking_wheel;
 extern pros::Rotation horizontal_tracking_wheel;
 
 extern pros::ADIDigitalOut match_loader;
-extern pros::ADIDigitalOut park;
+extern pros::ADIDigitalOut mid_goal;
 extern pros::ADIDigitalOut trapdoor;
 extern pros::ADIDigitalOut wing;
+extern pros::ADIDigitalOut intake_lift;
+extern pros::ADIDigitalOut odom_lift;
 
 extern pros::IMU imu1;
 extern pros::IMU imu2;
@@ -43,4 +45,3 @@ extern Eclipse::Autonomous_Paths auton;
 extern Eclipse::GUI gui;
 
 extern pros::Task* update_telemetry;
-extern pros::Mutex odom_mutex;

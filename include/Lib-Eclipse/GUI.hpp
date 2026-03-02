@@ -52,6 +52,10 @@ namespace Eclipse{
 
             int selected_color = -1;
             int selected_path = -1;
+
+            // void save_auton_selection();
+            // void load_auton_selection();
+            // void apply_auton_selection_ui();
                     
             void initialize_styles();
             void initialize_objects();

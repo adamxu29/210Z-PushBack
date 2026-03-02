@@ -8,19 +8,18 @@ namespace Eclipse
             double motor_cartridge = 0;
             double circumference = 0;
             double tpr = 0; // ticks per revolution
+            // 1800 ticks/rev with 36:1 gears
+            // 900 ticks/rev with 18:1 gears
+            // 300 ticks/rev with 6:1 gears
             double tpi = 0; // ticks per inch
 
             int red_max = 360;
-            int red_min = 320;
+            int red_min = 330;
             int blue_max = 230;
-            int blue_min = 220;
+            int blue_min = 200;
             int sort_delay = 0;
         public:
             // odometry
-            double get_robot_x();
-            double get_robot_y();
-            void set_robot_position(double x, double y, double heading);
-            static void update_telemetry_fn(void* param);
             void set_drive_constants(const double dt_wheel_diameter, const double dt_gear_ratio, const double dt_motor_cartridge);
             
             // PID helpers
@@ -41,6 +40,7 @@ namespace Eclipse
             void sort_red();
             void sort_blue();
             void run_sort();
+            void score_until_opp_block(int time_out = 0);
 
             void set_tpi();
             double get_tpi(){ return tpi; }

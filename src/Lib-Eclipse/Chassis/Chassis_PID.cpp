@@ -31,8 +31,8 @@ void Eclipse::Curve_PID::set_c_constants(const double kp, const double ki, const
 
 Eclipse::Translation_PID::Translation_PID()
 {
-    t_pid.t_tolerance = 3;
-    t_pid.t_error_threshold = 2;
+    t_pid.t_tolerance = 4;
+    t_pid.t_error_threshold = 3;
 }
 
 Eclipse::Rotation_PID::Rotation_PID()
@@ -160,6 +160,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
     double theta = util.get_heading();
     t_pid.t_max_speed = max_speed;
     double local_timer = 0;
+    target = target * 3;
 
     double starting_position = odom.get_vertical_displacement();
     while (true)
@@ -169,7 +170,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
         // double current_position = util.get_position() * 3 / util.get_tpi();
 
         // tracking wheel:
-        double current_position = (odom.get_vertical_displacement() - starting_position);
+        double current_position = (odom.get_vertical_displacement() - starting_position) * 3;
  
         double voltage = t_pid.compute_t(current_position, target);
         double heading_correction = util.get_min_error(util.get_heading(), theta) * t_pid.t_heading_kp;
@@ -229,6 +230,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
 
         pros::delay(10);
     }
+    std::cout << "x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
 }
 
 void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double time_out)

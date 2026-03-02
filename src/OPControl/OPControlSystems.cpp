@@ -4,9 +4,9 @@ using namespace Eclipse;
 
 const u_int16_t forward_curve       = 10; 
 const u_int16_t turn_curve          = 3;
-const double euler                 = 2.71828;
-static bool turning_sharp             = false;
-static bool forward_sharp             = false;
+const double euler                  = 2.71828;
+static bool turning_sharp           = false;
+static bool forward_sharp           = false;
 
 int32_t joystick_accelerator(bool red, int8_t input, const double t){
     int16_t value = 0;
@@ -45,40 +45,219 @@ void Eclipse::OPControl::drivetrain_control(){
 }
 
 void Eclipse::OPControl::power_intake(float speed){
-    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-        intake.move_voltage(12000 * (speed / 127));
-    }
-    else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-        intake.move_voltage(-12000 * (speed / 127));
-    }
-    else{
-        intake.move_voltage(0);
-    }
-}
-
-void Eclipse::OPControl::power_indexer(float speed){
-    if(!driver.color_sorting){
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+    // scoring
+    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+        // mid goal scoring 
+        intake_lift.set_value(false);
+        intake_lift_delay_active = false;
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+            trapdoor_delay_active = false;
+            mid_goal.set_value(true);
+            intake.move_voltage(12000 * (speed / 127));
             indexer.move_voltage(12000 * (speed / 127));
-            color.set_led_pwm(100);
         }
-        else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            indexer.move_voltage(-12000 * (speed / 127));
+        // long goal scoring
+        else{
+            if(!trapdoor_delay_active){
+                trapdoor_delay_active = true;
+                trapdoor_delay_counter = 0;
+                trapdoor.set_value(false);
+            }
+            if(trapdoor_delay_active){
+                if(trapdoor_delay_counter >= 8){
+                    trapdoor.set_value(true);
+                    trapdoor_down = true;
+                }
+                else{
+                    trapdoor_delay_counter++;
+                }
+            }
+            mid_goal.set_value(false);
+            intake.move_voltage(12000 * (speed / 127));
+            indexer.move_voltage(12000 * (speed / 127));
+        }
+    }
+    // intaking
+    else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+        trapdoor_delay_active = false;
+        intake_lift.set_value(false);
+        intake_lift_delay_active = false;
+        // match load
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
             color.set_led_pwm(100);
+            indexer.set_current_limit(2000);
+            intake_lift.set_value(false);
+            match_loader.set_value(true);
+            intake.move_voltage(12000 * (speed / 127));
+            indexer.move_voltage(12000 * (speed / 127));
+            if((gui.selected_color != -1) && util.detect_upper_ball()){
+                if(util.is_red()){
+                    trapdoor.set_value(gui.selected_color == 1 ? true : false);
+                }
+                else if(util.is_blue()){
+                    trapdoor.set_value(gui.selected_color == 0 ? true : false);
+                }
+            }
         }
         else{
-            indexer.move_voltage(0);
             color.set_led_pwm(0);
+            trapdoor.set_value(false);
+            trapdoor_down = false;
+            indexer.set_current_limit(2000);
+            intake.move_voltage(12000 * (speed / 127));
+            indexer.move_voltage(12000 * (speed / 127));
+        }
+    }
+    // bottom goal
+    else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+        trapdoor_delay_active = false;
+        if(intake_lift_active){
+            if(!intake_lift_delay_active){
+                intake_lift_delay_active = true;
+                intake_lift_delay_counter = 0;
+                intake_lift.set_value(false);
+            }
+            if(intake_lift_delay_active){
+                if(intake_lift_delay_counter >= 5){
+                    intake_lift.set_value(true);
+                }
+                else{
+                    intake_lift_delay_counter++;
+                }
+            }
+        }
+        intake.move_voltage(-12000 * (speed / 127));
+        indexer.move_voltage(-12000 * (speed / 127));
+    }
+    else{
+        color.set_led_pwm(0);
+        intake_lift.set_value(false);
+        indexer.set_current_limit(2500);
+        mid_goal.set_value(false);
+        match_loader.set_value(false);
+        intake.move_voltage(0);
+        indexer.move_voltage(0);
+    }
+}
+
+void Eclipse::OPControl::intake_lift_control(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
+        intake_lift_active = !intake_lift_active;
+    }
+}
+
+void Eclipse::OPControl::activate_wing(){
+    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+        wing.set_value(true);
+    }
+    else{
+        wing.set_value(false);
+    }
+}
+
+void Eclipse::OPControl::change_intake_speed(){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+        if(this->shooter_speed == max_speed){
+            this->shooter_speed = slow_speed;
+        }
+        else if(this->shooter_speed == slow_speed){
+            this->shooter_speed = max_speed;
+        }
+        else{
+            this->shooter_speed = max_speed;
+        }
+
+        if(this->intake_speed == max_speed){
+            this->intake_speed = slow_speed;
+        }
+        else if(this->intake_speed == slow_speed){
+            this->intake_speed = max_speed;
+        }
+        else{
+            this->intake_speed = max_speed;
         }
     }
 }
 
-void Eclipse::OPControl::activate_match_load(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
-        this->match_loading = !this->match_loading;
-        match_loader.set_value(this->match_loading);
+void Eclipse::OPControl::driver_control(bool disabled){
+    if(!disabled){
+        driver.drivetrain_control();
+        // driver.exponential_curve_accelerator();
+        driver.power_intake(intake_speed);
+        driver.change_intake_speed();
+        driver.intake_lift_control();
+        driver.activate_wing();
+
+        // driver.activate_match_load();
+        // driver.activate_trapdoor();
     }
+
+    // dsr test
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+        odom.distance_sensor_reset(10, false, Odom::Front);
+        odom.distance_sensor_reset(10, false, Odom::Left);
+        std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+    }
+    
+    // odom lift
+    if(pros::competition::get_status() == 4){ odom_lift.set_value(true);}
+    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){ 
+        odom_lift.set_value(true);
+    }
+
+    // mid goal macro
+    // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+    //     disabled = true;
+    //     intake.move_voltage(0);
+    //     indexer.move_voltage(0);
+    //     mid_goal.set_value(true);
+    //     pros::delay(250);
+    //     intake.move_voltage(12000);
+    //     indexer.move_voltage(10000);
+    //     pros::delay(200);
+    //     indexer.move_voltage(9000);
+    //     t_pid.set_t_constants(3, 0, 30, 100);
+    //     t_pid.translation_pid(2, 70, .4);
+    //     indexer.move_voltage(4500);
+    //     pros::delay(1000);
+    //     indexer.move_voltage(4000);
+    //     pros::delay(1250);
+    //     disabled = false;
+    // }
+
+    // color select
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+        if(gui.selected_color == 0){
+            gui.selected_color = 1;
+        }
+        else{
+            gui.selected_color = 0;
+        }
+    }
+
+    // auto select
+    // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+    //     gui.selected
+    // }
+
 }
+
+// void Eclipse::OPControl::power_indexer(float speed){
+//     if(!driver.color_sorting){
+//         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+//             indexer.move_voltage(12000 * (speed / 127));
+//             color.set_led_pwm(100);
+//         }
+//         else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+//             indexer.move_voltage(-12000 * (speed / 127));
+//             color.set_led_pwm(100);
+//         }
+//         else{
+//             indexer.move_voltage(0);
+//             color.set_led_pwm(0);
+//         }
+//     }
+// }
 
 // void Eclipse::OPControl::activate_double_park(){
 //     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
@@ -102,60 +281,16 @@ void Eclipse::OPControl::activate_match_load(){
 //     }
 // }
 
-void Eclipse::OPControl::activate_trapdoor(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-        this->trapdoor_down = !this->trapdoor_down;
-        trapdoor.set_value(this->trapdoor_down);
-    }
-}
+// void Eclipse::OPControl::activate_trapdoor(){
+//     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+//         this->trapdoor_down = !this->trapdoor_down;
+//         trapdoor.set_value(this->trapdoor_down);
+//     }
+// }
 
-void Eclipse::OPControl::activate_wing(){
-    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-        wing.set_value(true);
-    }
-    else{
-        wing.set_value(false);
-    }
-}
-
-void Eclipse::OPControl::change_shooter_speed(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-        if(this->shooter_speed == 127){
-            this->shooter_speed = 67;
-        }
-        else if(this->shooter_speed == 67){
-            this->shooter_speed = 127;
-        }
-        else{
-            this->shooter_speed = 127;
-        }
-
-        if(this->intake_speed == 127){
-            this->intake_speed = 67;
-        }
-        else if(this->intake_speed == 67){
-            this->intake_speed = 127;
-        }
-        else{
-            this->intake_speed = 127;
-        }
-    }
-}
-
-void Eclipse::OPControl::driver_control(bool disabled){
-    if(!disabled){
-        driver.exponential_curve_accelerator();
-        // driver.drivetrain_control();
-        driver.power_intake(intake_speed);
-        driver.power_indexer(shooter_speed);
-
-        driver.change_shooter_speed();
-    
-        driver.activate_match_load();
-        driver.activate_trapdoor();
-        driver.activate_wing();
-    }
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-        odom.distance_sensor_reset(10, true);
-    }
-}
+// void Eclipse::OPControl::activate_match_load(){
+//     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+//         this->match_loading = !this->match_loading;
+//         match_loader.set_value(this->match_loading);
+//     }
+// }

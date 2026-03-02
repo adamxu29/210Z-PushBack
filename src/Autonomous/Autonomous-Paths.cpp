@@ -8,535 +8,194 @@ Odometry coord finder: //https://path.jerryio.com/
 
 using namespace Eclipse;
 
-// Translation PID constants: 5.5, 0, 11, 100
-// Rotation PID constants: 2, 0, (0 (~20), 8 (~45), 11 (90))
+// Translation PID constants: 3, 0, 30, 100
+// Rotation PID constants: 5, 0, 35/28)
 // Curve PID constants: 5, 0, 30
 
+
 void Eclipse::Autonomous_Paths::solo_awp(){
-    util.set_robot_position(0, 0, -14);
+    odom_lift.set_value(false);
+    odom.set_robot_position(16, 0);
 
     intake.move_voltage(12000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(-3, 15, false, false, .7);
     indexer.move_voltage(12000);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(48, 5, false, true, .7, false);
+
     match_loader.set_value(true);
-    pros::delay(150);
-    match_loader.set_value(false);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(46, -20, false, .7, false);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 65, 65);
-    drive.move_to_point(-28, 42, false, false, .9, false);
-    indexer.move_voltage(0);
-    match_loader.set_value(true);
-    pros::delay(150);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(12, 75, .7);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(7, 30, false, true, .7);
-    intake.move_voltage(0);
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+    pros::delay(400);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(10, 41, true, true, .67, false);
-
-    indexer.move_voltage(-9000);
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(2, 65, .3);
-    indexer.move_voltage(0);
-    pros::delay(25);
-    indexer.move_voltage(-9000);
-    pros::delay(600);
-
-    t_pid.set_t_constants(10, 0, 11, 100);
-    t_pid.translation_pid(-5, 90, .2);
-    match_loader.set_value(true);
-    indexer.move_voltage(12000);
-    intake.move_voltage(12000);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(48, 23, false, true, .8, false);
     
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(-29.6, 5, false, false, 1.2, false);
-
-    drive.set_constants(5.5, 0, 11, 1.5, 0, 11, 90, 90);
-    drive.turn_to_point(-32.3, -7, false, .4, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(14, 65, .6);
-    pros::delay(150);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 60);
-    drive.turn_to_point(-32, 30, true, .4, false);
-
-    drive.set_constants(5.5, 0, 15, 2, 0, 0, 75, 90);
-    drive.move_to_point(-32, 26, false, true, .9, false);
-
     trapdoor.set_value(true);
     match_loader.set_value(false);
-    intake.move_voltage(-6000);
-    pros::delay(50);
-    intake.move_voltage(12000);
-    t_pid.set_t_constants(10, 0, 11, 100);
-    t_pid.translation_pid(-5, 90, .4);
-    pros::delay(550);
-    indexer.move_voltage(0);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
-    drive.turn_to_point(31, 23, false, .7);
+    // pros::delay(500);
+    util.score_until_opp_block(1);
     trapdoor.set_value(false);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 127);
-    drive.move_to_point(33, 23, false, false, 1.7, false);
-    match_loader.set_value(true);
-    indexer.move_voltage(12000);
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(56, 0, false, false, .9, false);
-    match_loader.set_value(true);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 127);
+    drive.turn_to_point(20, 27, false, .9);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    drive.turn_to_point(58.4, -20, false, .5, false);
-    
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(18, 75, .6);
-    pros::delay(300);
-
-    drive.set_constants(5.5, 0, 15, 2, 0, 0, 90, 127);
-    drive.move_to_point(60, 24, false, true, .7, false);
     trapdoor.set_value(true);
-    match_loader.set_value(false);
-    pros::delay(250);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 75, 90);
+    drive.move_to_point(20, 22, false, false, .7);
+    trapdoor.set_value(false);
 
-    t_pid.set_t_constants(10, 0, 11, 100);
-    t_pid.translation_pid(-5, 127, .4);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-17, 22, false, false, 1.2);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 75, 90);
+    drive.move_to_point(-43, 7, true, false, 1.2);
+
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(-43, 30, true, .9);
+
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.move_to_point(-43, 20, false, true, .7);
+
+    trapdoor.set_value(true);
+    match_loader.set_value(true);
+    intake.move_voltage(-12000);
+    indexer.move_voltage(-12000);
+    pros::delay(150);
+    intake.move_voltage(12000);
+    indexer.move_voltage(12000);
+    r_pid.set_r_constants(10, 0, 30);
+    r_pid.rotation_pid(180, 90, .4);
+    pros::delay(800);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Right);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.turn_to_point(-45, -20, false, .7);
+
+    indexer.move_voltage(12000);
+    t_pid.set_t_constants(3, 0, 35, 100);
+    t_pid.translation_pid(29, 75, 1.2);
+    trapdoor.set_value(false);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Right);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+    pros::delay(100);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-10, 90, .7);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.turn_to_point(-10, 37, true, .7);
+    indexer.move_voltage(0);
+    mid_goal.set_value(true);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-10, 39, false, true, 1.2, false);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-10, 90, .4);
+
+    indexer.move_voltage(10000);
+    intake.move_voltage(12000);
+    match_loader.set_value(false);
+
+    // can cut wing part
+
+    // pros::delay(600);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.move_to_point(-37, 14, false, false, .8, false);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.turn_to_point(-37, 37, true, .7);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.move_to_point(-37, 37, false, true, .8, false);
 }
 
 void Eclipse::Autonomous_Paths::anti_solo_awp(){
-    util.set_robot_position(0, 0, -90);
-
-    indexer.move_voltage(12000);
-    match_loader.set_value(true);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    drive.move_to_point(26, 5, false, true, .7, false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(30, -14, false, .3, false);
-    pros::delay(150);
-
-    intake.move_voltage(12000);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(16, 75, .7);
-    pros::delay(300);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    drive.turn_to_point(29, 30, true, .3);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 75, 90);
-    drive.move_to_point(29, 30, false, true, .8, false);
-
-    trapdoor.set_value(true);
-    match_loader.set_value(false);
-    pros::delay(800);
-    t_pid.set_t_constants(10, 0, 11, 100);
-    t_pid.translation_pid(-5, 90, .4);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
-    drive.turn_to_point(4, 30, false, .9);
-    trapdoor.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 75, 90);
-    drive.move_to_point(4, 30, false, false, .7);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-42, 30, false, .6);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-42, 30, false, false, .8, false);
-    match_loader.set_value(true);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-60, 12, false, false, 1.2, false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-60, 40, true, .2);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-60, 32, false, true, .7, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .2);
-
-    trapdoor.set_value(true);
-    intake.move_voltage(-6000);
-    pros::delay(50);
-    intake.move_voltage(12000);
-    pros::delay(1250);
-    indexer.move_voltage(0);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-61, -14, false, .5, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(18, 75, .8);
-    trapdoor.set_value(false);
-    indexer.move_voltage(12000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-62, -14, false, .5, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(15, 75, .8);
-    pros::delay(450);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-9, 90, .7);
-    indexer.move_voltage(0);
-    intake.move_voltage(-6000);
-    pros::delay(50);
-    intake.move_voltage(12000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-26, 38, true, .9);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-26, 38, false, true, 1.2, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-5, 90, .2);
-
-    indexer.move_voltage(-12000);
+    
 }
 
 void Eclipse::Autonomous_Paths::left_half_awp(){
-    util.set_robot_position(0, 0, -14);
-
-    intake.move_voltage(12000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(-3, 15, false, false, .7);
-    indexer.move_voltage(12000);
-    match_loader.set_value(true);
-    pros::delay(150);
-    match_loader.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 65, 65);
-    drive.move_to_point(-27, 41, false, false, .9, false);
-
-    match_loader.set_value(true);
-    indexer.move_voltage(0);
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 127, 127);
-    drive.move_to_point(-31, 43, true, false, .4, false);
-    intake.move_voltage(12000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 60, 60);
-    drive.move_to_point(-15, 15, false, true, 1.2);
-    intake.move_voltage(0);
-    match_loader.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(-26, 15, true, false, 1.2);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 60, 90);
-    drive.turn_to_point(-31, 30, true, .7);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 75, 90);
-    drive.move_to_point(-30, 24, false, true, .5);
-
-    t_pid.set_t_constants(10, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .3);
     
-    indexer.move_voltage(12000);
-    intake.move_voltage(-6000);
-    pros::delay(50);
-    intake.move_voltage(12000);
-    match_loader.set_value(true);
-    trapdoor.set_value(true);
-    pros::delay(1500);
-    t_pid.set_t_constants(10, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .3);
-    indexer.move_voltage(0);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 60);
-    drive.turn_to_point(-32, -7, false, .4);
-
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(17, 90, .7);
-    trapdoor.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 60);
-    drive.turn_to_point(-33, -7, false, .4);
-
-    indexer.move_voltage(12000);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(16, 65, .7);
-    pros::delay(300);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .7);
-    indexer.move_voltage(0);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 90);
-    drive.turn_to_point(9, 41, true, .7);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 80, 90);
-    drive.move_to_point(9, 41, false, true, 1.2);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .3);
-
-    pros::delay(750);
-
-    indexer.move_voltage(-8500);
-    pros::delay(200);
-    indexer.move_voltage(-12000);
-    pros::delay(600);
-    
-    match_loader.set_value(false); 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-22, 22, false, false, .7, false);
-    wing.set_value(true);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
-    drive.turn_to_point(-22, 40, true, .7, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(-15, 75, .7);
 }
 
 void Eclipse::Autonomous_Paths::right_half_awp(){
-    util.set_robot_position(0, 0, 14);
-
-    intake.move_voltage(12000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(3, 15, false, false, .7);
-    indexer.move_voltage(12000);
-    match_loader.set_value(true);
-    pros::delay(150);
-    match_loader.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 65, 65);
-    drive.move_to_point(28, 42, false, false, .9, false);
-    indexer.move_voltage(0);
-
-    match_loader.set_value(true);
-    pros::delay(250);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 127, 127);
-    drive.move_to_point(31, 43, true, false, .4, false);
-    intake.move_voltage(0);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(15, 7, false, true, 1.2);
-    match_loader.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(30, 10, true, false, 1);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(31, 30, true, .7);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 75, 90);
-    drive.move_to_point(31, 24, false, true, .9);
-
-    indexer.move_voltage(12000);
-    intake.move_voltage(12000);
-    match_loader.set_value(true);
-    trapdoor.set_value(true);
-    pros::delay(1400);
-    indexer.move_voltage(0);
-    t_pid.set_t_constants(10, 0, 11, 600);
-    t_pid.translation_pid(-5, 90, .2);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 60);
-    drive.turn_to_point(32, -7, false, .4);
-
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(18, 75, .7);
-    trapdoor.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 60);
-    drive.turn_to_point(33, -7, false, .4);
-    intake.move_voltage(12000);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(17, 65, .7);
-    pros::delay(250);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-8, 90, .7);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 90);
-    drive.turn_to_point(-5, 35, false, .7);
-    match_loader.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(-5, 35, false, false, 1.5, false);
-
-    intake.move_voltage(-7500);
-    pros::delay(500);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-5, 90, .2);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(5, 90, .2);
-
-    wing.set_value(false);
-    intake.move_voltage(0);
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(23, 22, false, true, .7, false);
-
-    wing.set_value(true);
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
-    drive.turn_to_point(23, 40, false, .7, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(15, 90, .7);
+   
 }
 
-void Eclipse::Autonomous_Paths::left_7()
-{   
-    util.set_robot_position(0, 0, -14);
+void Eclipse::Autonomous_Paths::left_7(){   
 
-    intake.move_voltage(12000);
-    // indexer.move_voltage(12000);
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(-3, 15, false, false, .7);
-    match_loader.set_value(true);
-    pros::delay(50);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
-    drive.move_to_point(-6, 24, false, false, .5);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-31, 5, true, false, .9);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-33, -10, false, .4);
-    pros::delay(250);
-    indexer.move_voltage(0);
-
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(14, 75, .7);
-    pros::delay(450);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-33, 35, true, .5);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-31, 35, false, true, .5);
-
-    indexer.move_voltage(12000);
-    trapdoor.set_value(true);
-    pros::delay(900);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .2);
-    indexer.move_voltage(0);
-
-    t_pid.set_t_constants(9, 0, 11, 600);
-    t_pid.translation_pid(3, 90, .2);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(-19, 12, true, false, .7);
-    trapdoor.set_value(false);
-    wing.set_value(true);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-19, 34, true, .5);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(-19, 37, false, true, .9);
-    match_loader.set_value(false);
 }
 
-void Eclipse::Autonomous_Paths::right_7(){
-    trapdoor.set_value(false);
-    util.set_robot_position(0, 0, 14);
-
+void Eclipse::Autonomous_Paths::right_9(){
+    odom.set_robot_position(-2, 14);
     intake.move_voltage(12000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    drive.move_to_point(3, 15, false, false, .7);
     indexer.move_voltage(12000);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(23, 25, false, false, .7);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 75, 75);
+    drive.move_to_point(48, 45, false, false, .6, false);
+
     match_loader.set_value(true);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
-    drive.move_to_point(6, 26, false, false, .3);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 75);
-    drive.move_to_point(29, 5, true, false, 1.2, false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(33, -10, false, .5, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(16, 75, .7);
-    pros::delay(350);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 60, 90);
-    drive.turn_to_point(32, 30, true, .4);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 75, 90);
-    drive.move_to_point(32, 24, false, true, .8);
-
-    trapdoor.set_value(true);
-    match_loader.set_value(false);
-    intake.move_voltage(-6000);
-    pros::delay(50);
-    intake.move_voltage(12000);
-    pros::delay(1100);
-    t_pid.set_t_constants(10, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .4);
-    indexer.move_voltage(0);
-
-    // go under goal
-    c_pid.set_c_constants(5, 0, 30);
-    c_pid.curve_pid(-7, 90, 1.2, -.12, false);
-
-    wing.set_value(true);
-    trapdoor.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(23, 35, false, false, .2);
-
-    intake.move_voltage(12000);
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 70, 75);
-    drive.move_to_point(27.5, 42, false, false, .9, false);
-    match_loader.set_value(true);
-    
-    // pros::delay(250);
-    intake.move_voltage(10000);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
-    drive.turn_to_point(31, 43, false, .3, false);
-
-    r_pid.set_r_constants(2, 0, 8);
-    r_pid.rotation_pid(3, 90, .7);
-    intake.move_voltage(0);
-    // wing.set_value(false);
-
-    // t_pid.set_t_constants(5.5, 0, 11, 600);
-    // t_pid.translation_pid(-10, 90, .5);
+    pros::delay(300);
+    // // drive.set_constants(3, 0, 30, 5, 0, 28, 127, 127);
+    // // drive.move_to_point(50, 47, true, false, .3, false);
     // match_loader.set_value(false);
 
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    // drive.move_to_point(4, 37, true, false, 1.2, false);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(40, 17, false, true, .7);
 
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    // drive.turn_to_point(-3, 44, false, .3, false);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 60);
+    drive.turn_to_point(48, 0, true, .4);
 
-    // intake.move_voltage(-12000);
-    // // t_pid.set_t_constants(10, 0, 11, 600);
-    // // t_pid.translation_pid(-2, 90, .2);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(48, 0, false, false, .7);
 
-    // pros::delay(600);
-    
-    // wing.set_value(true);
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    // drive.move_to_point(25, 23, false, true, .7, false);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(48, -9, true, true, .7);
 
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
-    // drive.turn_to_point(27, 40, false, .7);
+    pros::delay(700);
 
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    // drive.move_to_point(27, 37, false, false, .7, false);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(48, 20, false, true, .7);
+
+    util.score_until_opp_block(2);
+    trapdoor.set_value(false);
+
+    t_pid.set_t_constants(10, 0, 11, 600);
+    t_pid.translation_pid(-10, 90, .3);
+
+    // wing for right side (not tuned)
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 127);
+    // drive.move_to_point(60, 10, true, false, .6);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.move_to_point(60, 30, true, true, .9);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.turn_to_point(0, 0, false, .3, false);
+
+    // c_pid.set_c_constants(3, 0, 30);
+    // c_pid.curve_pid(-180, 90, .5, 0.2, true);
 }
 
 void jerk(int times){
@@ -551,442 +210,607 @@ void jerk(int times){
     t_pid.set_t_constants(25, 0, 11, 600);
     t_pid.translation_pid(3, 90, .1);
 }
+
+void clear_park_zone(){
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(7, 75, .7);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-5, 90, .5);
+    pros::delay(300);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(12, 75, .7);
+    match_loader.set_value(true);
+    pros::delay(300);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-17, 90, .7);
+    odom_lift.set_value(false);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(3, 60, .2);
+
+    // pros::delay(400);
+
+    // t_pid.set_t_constants(3, 0, 30, 100);
+    // t_pid.translation_pid(12, 45, 1.2);
+    // pros::delay(200);
+
+    // t_pid.set_t_constants(3, 0, 30, 100);
+    // t_pid.translation_pid(-13, 75, 1);
+
+    // match_loader.set_value(false);
+    // odom_lift.set_value(false);
+
+    // t_pid.set_t_constants(3, 0, 30, 100);
+    // t_pid.translation_pid(7, 60, .2);
+    // pros::delay(100);
+}
 // Misc paths
 void Eclipse::Autonomous_Paths::skills(){
-    util.set_robot_position(0, 0, -90);
-
-    indexer.move_voltage(12000);
-    match_loader.set_value(true);
-
-    // first corner
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 75, 90);
-    drive.move_to_point(27, 5, false, true, 1.1, false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(29.5, -14, false, .7, false);
-    pros::delay(250);
-
-    intake.move_voltage(0);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(17, 60, .7);
-    intake.move_voltage(12000);
-    pros::delay(1000);
-    jerk(5);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    drive.turn_to_point(31, 26, true, .3, false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 75, 90);
-    drive.move_to_point(29, 5, false, true, 1.1, false);
-    match_loader.set_value(false);
-
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(90, 90, .7);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(19, 90, .7);
-
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(3, 90, .7);
-
-    intake.move_voltage(0);
-    indexer.move_voltage(0);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(82, 127, 1.7);
-
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(90, 90, .7);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-12, 90, .5);
-
-    // second corner
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(5, 90, .7);
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    // drive.turn_to_point(33, 54, true, .4);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 90);
-    drive.move_to_point(32, 71, false, true, .7, false);
-
-    trapdoor.set_value(true);
-    match_loader.set_value(true);
+    // start in park zone
     indexer.move_voltage(12000);
     intake.move_voltage(12000);
-    pros::delay(1750);
-    t_pid.set_t_constants(8, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .4);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    drive.turn_to_point(33, 130, false, .5, false);
+    // clear park
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(6, 75, .7);
 
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(17, 100, .6);
-
-    trapdoor.set_value(false);
-    drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    drive.turn_to_point(34.7, 130, false, .5, false);
-
-    intake.move_voltage(0);
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(17, 75, .8);
-    intake.move_voltage(12000);
-    pros::delay(500);
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(5, 90, .5);
-    pros::delay(750);
-    jerk(3);
-    // t_pid.set_t_constants(5.5, 0, 11, 100);
-    // t_pid.translation_pid(5, 90, .5);
-    // pros::delay(700);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.turn_to_point(32, 54, true, .3, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-17, 90, .7);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(32, 72, false, true, .7, false);
-
-    trapdoor.set_value(true);
-    indexer.move_voltage(12000);
-    pros::delay(1500);
-    t_pid.set_t_constants(10, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .4);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.turn_to_point(-54, 98, false, .7, false);
-    trapdoor.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(-54, 104, false, false, 1.7, false);
-
-    // third corner
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-57, 116, false, .7, false);
-
-    intake.move_voltage(0);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(15, 60, .8);
-    intake.move_voltage(12000);
-    pros::delay(1000);
-    // t_pid.set_t_constants(5.5, 0, 11, 100);
-    // t_pid.translation_pid(5, 90, .5);
-    // pros::delay(750);
-    jerk(3);
-    // t_pid.set_t_constants(5.5, 0, 11, 100);
-    // t_pid.translation_pid(5, 90, .5);
-    // pros::delay(750);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.move_to_point(-58, 105, false, true, .7, false);
-
-    match_loader.set_value(false);
-
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(-90, 90, .7);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(20, 90, .7);
-    pros::delay(150);
-
-    intake.move_voltage(0);
-    indexer.move_voltage(0);
-
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(-175, 90, .7);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(80, 127, 1.9);
-
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(-90, 90, .7);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .5);
-
-    // fourth corner
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(180, 90, .7);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 90);
-    drive.move_to_point(-63, 35, false, true, .7, false);
-
-    t_pid.set_t_constants(10, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .4);
-    match_loader.set_value(true);
-    trapdoor.set_value(true);
-    indexer.move_voltage(12000);
-    intake.move_voltage(12000);
-    pros::delay(2000);
-    t_pid.set_t_constants(10, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .4);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-65, -14, false, .7, false);
-
-    t_pid.set_t_constants(5.5, 0, 11, 100);
-    t_pid.translation_pid(18, 75, .6);
-    trapdoor.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-66, -14, false, .7, false);
-
-    intake.move_voltage(0);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(18, 75, .8);
-    intake.move_voltage(12000);
-    pros::delay(1000);
-    jerk(3);
-    // t_pid.set_t_constants(5.5, 0, 11, 100);
-    // t_pid.translation_pid(5, 90, .5);
-    // pros::delay(1050);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    drive.turn_to_point(-64, 35, true, .4, false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 8, 85, 90);
-    drive.move_to_point(-64, 35, false, true, .9), false;
-    trapdoor.set_value(true);
-    match_loader.set_value(false);
-    pros::delay(2000);
-    t_pid.set_t_constants(10, 0, 11, 600);
-    t_pid.translation_pid(-10, 90, .4);
-
-    // mid goal
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
-    drive.turn_to_point(-36, 38, false, .7, false);
-    trapdoor.set_value(false);
-
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 50, 50);
-    drive.move_to_point(-36, 38, false, false, .8, false);
-    match_loader.set_value(true);
-    pros::delay(250);
-
-    indexer.move_voltage(0);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
+    t_pid.set_t_constants(3, 0, 30, 100);
     t_pid.translation_pid(-5, 90, .5);
+    pros::delay(300);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-30, 48, true, .9, false);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(12, 75, .7);
+    match_loader.set_value(true);
+    pros::delay(300);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 75, 75);
-    drive.move_to_point(-30, 48, false, true, .9, false);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-17, 90, .7);
+    odom_lift.set_value(false);
 
-    t_pid.set_t_constants(5.5, 0, 11, 600);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(3, 60, .2);
+
+    // reset and intake 7th block
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Right);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-3, 27, false, true, .9);
+    match_loader.set_value(false);
+    indexer.move_voltage(0);
+
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(-17, 29, false, .7);
+    trapdoor.set_value(false);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 45, 30);
+    drive.move_to_point(-17, 29, false, false, .9, false);
+
+    // dirve to mid goal
+    intake.move_voltage(-12000);
+    indexer.move_voltage(-12000);
+    pros::delay(150);
+    intake.move_voltage(0);
+    indexer.move_voltage(0);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.turn_to_point(0, 46, true, .7);
+
+    intake.move_voltage(12000);
+    mid_goal.set_value(true);
+    
+    drive.set_constants(3, 0, 30, 5, 0, 28, 60, 60);
+    drive.move_to_point(-12, 33.67, true, true, .7, false);
+
+    t_pid.set_t_constants(3, 0, 30, 1);
+    t_pid.translation_pid(-7, 70, .4);
+
+    std::cout << "mid goal " << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    // score mid goal
+    intake.move_voltage(12000);
+    indexer.move_voltage(12000);
+    pros::delay(200);
+    indexer.move_voltage(9000);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(2, 70, .4);
+    indexer.move_voltage(4500);
+    pros::delay(1000);
+    indexer.move_voltage(4000);
+    pros::delay(1250);
+
+    // match_loader first corner
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-21, 25, false, false, .9, false);
+    trapdoor.set_value(true);
+    mid_goal.set_value(false);
+    indexer.move_voltage(12000);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-48, -4, false, false, 1, false);
+    
+    match_loader.set_value(true);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.turn_to_point(-48, -20, false, .7, false);
+    trapdoor.set_value(false);
+
+    t_pid.set_t_constants(3, 0, 35, 100);
+    t_pid.translation_pid(9.5, 75, .7);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Right);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    pros::delay(700);
+
+    r_pid.set_r_constants(3, 0, 30);
+    r_pid.rotation_pid(175, 90, .4);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-60, 17, true, true, 1.2);
+
+    match_loader.set_value(false);
+    indexer.move_voltage(0);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-60, 74, false, true, 1.7, false);
+    
+    left_drive.move_voltage(0);
+    right_drive.move_voltage(0);
+    indexer.move_voltage(12000);
+
+    std::cout << "jew reset";
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Right);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    // match load second corner
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.turn_to_point(-49, 93, true, .7);
+    indexer.move_voltage(0);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-49.5, 93, false, true, .9, false);
+
+    match_loader.set_value(true);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(-49, 110, false, .7, false);
+    intake.move_voltage(12000);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(13.5, 60, .7);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+    pros::delay(500);
+
+    r_pid.set_r_constants(10, 0, 0);
+    r_pid.rotation_pid(5, 90, .4);
+
+    r_pid.set_r_constants(10, 0, 30);
+    r_pid.rotation_pid(-5, 90, .4);
+
+    r_pid.set_r_constants(10, 0, 30);
+    r_pid.rotation_pid(0, 90, .4);
+
+    t_pid.set_t_constants(10, 0, 30, 100);
+    t_pid.translation_pid(10, 90, .4);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    // score 12-15 blocks
+    drive.set_constants(3, 0, 30, 5, 0, 8, 90, 127);
+    drive.move_to_point(-48, 70, true, true, 1.2, false);
+
+    trapdoor.set_value(true);
+    intake.move_voltage(-12000);
+    indexer.move_voltage(12000);
+    pros::delay(200);
+    intake.move_voltage(12000);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    pros::delay(500);
+
+    intake.move_voltage(-12000);
+    indexer.move_voltage(-12000);
+    pros::delay(200);
+    intake.move_voltage(12000);
+    indexer.move_voltage(12000);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(3, 90, .4);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
     t_pid.translation_pid(-7, 90, .4);
 
-    indexer.move_voltage(-7500);
-    pros::delay(300);
-    indexer.move_voltage(0);
-    pros::delay(50);
-    indexer.move_voltage(-7500);
-    pros::delay(300);
-    indexer.move_voltage(0);
-    pros::delay(50);
-    indexer.move_voltage(-7500);
-    pros::delay(300);
+    pros::delay(1500);
 
-    indexer.move_voltage(0);
     match_loader.set_value(false);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(-20, 34, true, false, .9, false);
-    intake.move_voltage(5000);
+    t_pid.set_t_constants(10, 0, 30, 100);
+    t_pid.translation_pid(-10, 90, .2);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 65, 65);
-    drive.move_to_point(6, 36, true, false, 1.5, false);
+    // drive to park zone
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(-2, 92, false, .7);
+
+    std::cout << "qwertyuiop";
+    drive.set_constants(3, 0, 30, 5, 0, 28, 75, 75);
+    drive.move_to_point(-2, 92, false, false, 1.5, false);
+
+    r_pid.set_r_constants(5, 0, 35);
+    r_pid.rotation_pid(0, 90, .7);
+    
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left); // change to right
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+
+
+
+
+
+
+    // 2nd half
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(7, 40, .4);
+    odom_lift.set_value(true);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(12, 90, .6);
+    trapdoor.set_value(false);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-5, 90, .5);
+
+    // clear_park_zone();
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(7, 75, .7);
+    indexer.move_voltage(0);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-5, 90, .5);
+    pros::delay(300);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(12, 75, .7);
     match_loader.set_value(true);
-    pros::delay(150);
+    pros::delay(300);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.turn_to_point(-5, 50, false, .9, false);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-17, 90, .7);
+    odom_lift.set_value(false);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(3, 60, .2);
+
+    indexer.move_voltage(12000);
+    odom_lift.set_value(false);
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+    indexer.move_voltage(0);
     match_loader.set_value(false);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 75, 75);
-    drive.move_to_point(-5, 51, false, false, .9, false);
+    // intake 7th block
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-5, 67, false, true, 1.4, false);
 
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-5, 90, .2);
-    intake.move_voltage(-7500);
-    pros::delay(1000);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 75);
+    drive.turn_to_point(-17, 66.5, false, .9);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 45, 30);
+    drive.move_to_point(-17, 66.5, false, false, .8, false);
+
+    pros::delay(100);
+    intake.move_voltage(0);
+    
+    // score lower goal
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(0, 46, false, .7, false);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(-9, 58, false, false, .9);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(8, 30, .4);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-3, 75, .4);
+
+    std::cout << "mid goal " << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    intake_lift.set_value(true);
+    intake.move_voltage(12000);
+    indexer.move_voltage(12000);
+    pros::delay(150);
+    
+    intake.move_voltage(-5000);
+    indexer.move_voltage(-12000);
+    pros::delay(200);
+
+    intake.move_voltage(-7000);
+    pros::delay(500);
+    intake.move_voltage(-5000);
+    indexer.move_voltage(-12000);
+    pros::delay(500);
+    intake.move_voltage(-4500);
+    pros::delay(1750);
+    indexer.move_voltage(0);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(3, 60, .4);
+
+
+
+
+    // match load third corner
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-10, 75, .7);
+    intake.move_voltage(0);
+    intake_lift.set_value(false);
+    
+    intake.move_voltage(12000);
+    indexer.move_voltage(12000);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.turn_to_point(9, 69, false, .7);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 127, 90);
+    drive.move_to_point(9, 69, false, false, .9);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(48, 92, true, false, 1.7, false);
+
+    match_loader.set_value(true);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(48, 110, false, .7);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(17, 75, .7);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Right);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    pros::delay(700);
+
+    r_pid.set_r_constants(3, 0, 30);
+    r_pid.rotation_pid(-5, 90, .4);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.turn_to_point(62, 74, true, .6);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 127);
+    drive.move_to_point(62, 74, false, true, .9, false);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Right);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    match_loader.set_value(false);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(62, 17, false, true, 1.5, false);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Right);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+
+    std::cout << "last corner ";
+    // match load fourth corner
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.turn_to_point(49, 3, true, .6);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(49, 3, false, true, .7, false);
+
+    match_loader.set_value(true);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(49, -20, false, .7, false);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(15, 60, .7);
+
+    pros::delay(700);
+
+    r_pid.set_r_constants(5, 0, 28);
+    r_pid.rotation_pid(170, 90, .4);
+
+    r_pid.set_r_constants(5, 0, 28);
+    r_pid.rotation_pid(190, 90, .4);
+
+    r_pid.set_r_constants(5, 0, 28);
+    r_pid.rotation_pid(180, 90, .4);
+
+    t_pid.set_t_constants(10, 0, 30, 100);
+    t_pid.translation_pid(10, 90, .3);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+
+    // score
+    drive.set_constants(3, 0, 30, 5, 0, 28, 75, 90);
+    drive.move_to_point(48, 23, false, true, 1.2);
+
+    trapdoor.set_value(true);
+    intake.move_voltage(-12000);
+    indexer.move_voltage(12000);
+    pros::delay(50);
+    intake.move_voltage(12000);
+
+    odom.distance_sensor_reset(10, true, Odom::Front);
+    odom.distance_sensor_reset(10, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    pros::delay(750);
+
+    intake.move_voltage(-12000);
+    indexer.move_voltage(-12000);
+    pros::delay(100);
+    intake.move_voltage(12000);
+    indexer.move_voltage(12000);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(5, 90, .4);
+
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(-7, 90, .4);
+
+    pros::delay(1750);
+
+    match_loader.set_value(false);
 
     // go park
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    drive.move_to_point(5, 15, false, true, .9, false);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 127, 127);
+    drive.move_to_point(35, -7, false, false, .7);
 
-    drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 127);
-    drive.move_to_point(5, -5, true, false, .9, false);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 127, 127);
+    drive.move_to_point(10, -15, true, false, 1);
 
-    r_pid.set_r_constants(2, 0, 11);
-    r_pid.rotation_pid(-94, 90, .7);
+    odom_lift.set_value(true);
 
-    match_loader.set_value(true);
-    pros::delay(250);
-    
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(20, 75, 2.5);
-
-    match_loader.set_value(false);
-    pros::delay(250);
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(-7.5, 50, .4);
-
-    t_pid.set_t_constants(5.5, 0, 11, 600);
-    t_pid.translation_pid(20, 90, 1.5);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(13, 127, .9);
 }
 
 void Eclipse::Autonomous_Paths::test(){
-    // util.set_robot_position(0, 0, -14);
+    odom_lift.set_value(false);
+    odom.set_robot_position(16, 0);
 
-    // intake.move_voltage(12000);
-    // indexer.move_voltage(12000);
+    intake.move_voltage(12000);
+    indexer.move_voltage(12000);
 
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    // drive.move_to_point(-3, 15, false, false, .7);
-    // match_loader.set_value(true);
-    // pros::delay(50);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(47, 5, false, true, .7, false);
 
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
-    // drive.move_to_point(-6, 24, false, false, .5);
-    // // match_loader.set_value(false);
+    match_loader.set_value(true);
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(45, -20, false, .7, false);
 
-    // // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 75);
-    // // drive.move_to_point(-22, 33, false, false, .5);
+    t_pid.set_t_constants(3, 0, 30, 100);
+    t_pid.translation_pid(13, 75, .7);
 
-    // // drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    // // drive.turn_to_point(-28, 40, false, .7);
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+    pros::delay(600);
 
-    // // t_pid.set_t_constants(5.5, 0, 11, 100);
-    // // t_pid.translation_pid(12, 45, .5);
-
-    // // match_loader.set_value(true);
-    // // pros::delay(100);
-
-    // // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    // // drive.move_to_point(-5, 30, false, true, 1.2);
-
-    // // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    // // drive.turn_to_point(6, 39, true, .7);
-
-    // // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 60);
-    // // drive.move_to_point(6, 39, false, true, .7);
-
-    // // indexer.move_voltage(-11000);
-    // // pros::delay(750);
-    // // indexer.move_voltage(12000);
-    // // match_loader.set_value(true);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    // drive.move_to_point(-31, 5, false, false, .9);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    // drive.turn_to_point(-29, -15, false, .4);
-    // r_pid.set_r_constants(2, 0, 11);
-    // r_pid.rotation_pid(-180, 90, .7);
-
-    // t_pid.set_t_constants(5.5, 0, 11, 600);
-    // t_pid.translation_pid(15, 90, .7);
-    // // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    // // drive.move_to_point(-33, -7, false, false, .5);
-    // pros::delay(350);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 60, 90);
-    // drive.turn_to_point(-30, 30, true, .4);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-    // drive.move_to_point(-31, 30, false, true, 1.2);
-
-    // trapdoor.set_value(true);
-    // pros::delay(1500);
-    // t_pid.set_t_constants(5.5, 0, 11, 600);
-    // t_pid.translation_pid(-10, 90, .2);
-    // indexer.move_voltage(0);
-
-    // t_pid.set_t_constants(9, 0, 11, 600);
-    // t_pid.translation_pid(3, 90, .2);
-
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-    // drive.move_to_point(-21, 12, true, false, .7);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(48, 23, false, true, .8, false);
+    
+    trapdoor.set_value(true);
+    match_loader.set_value(false);
+    // pros::delay(500);
+    util.score_until_opp_block(1.75);
     // trapdoor.set_value(false);
+
+    odom.distance_sensor_reset(5, true, Odom::Front);
+    odom.distance_sensor_reset(5, false, Odom::Left);
+    std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 127);
+    drive.turn_to_point(20, 26, false, .9);
+
+    trapdoor.set_value(true);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(20, 26, false, false, .7);
+    indexer.move_voltage(0);
+    intake.move_voltage(10000);
+    trapdoor.set_value(false);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(10, 39, true, false, 1.2, false);
+    
+
+    intake_lift.set_value(true);
+    intake.move_voltage(-10000);
+    pros::delay(1500);
+    intake.move_voltage(0);
+    intake_lift.set_value(false);
+
+    drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    drive.move_to_point(64, 6, false, true, 1.9, false);
+
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(62, 38, true, .9);
+
+    intake.move_voltage(12000);
+    indexer.move_voltage(12000);
+    drive.set_constants(3, 0, 30, 5, 0, 28, 75, 90);
+    drive.move_to_point(62, 36.7, false, true, 1.2, false);
+
+    drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    drive.turn_to_point(0, 0, false, .9, true);
+    // match_loader.set_value(true);
+
+    // odom.distance_sensor_reset(5, false, Odom::Right);
+    // std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.move_to_point(50, 37, true, false, .3);
+
+    // match_loader.set_value(false);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    // drive.turn_to_point(0, 93, false, .9);
+
     // wing.set_value(true);
 
-    // drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-    // drive.turn_to_point(-20, 34, true, .5);
+    // drive.set_constants(3, 0, 30, 5, 0, 35, 90, 90);
+    // drive.turn_to_point(0, 24, false, .9);
 
-    // drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-    // drive.move_to_point(-20, 37, false, true, .9);
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.move_to_point(-11, 24, false, false, 1.1);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.move_to_point(-40, 40, false, false, 1.1, false);
+    // indexer.move_voltage(0);
+
+    // pros::delay(250);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.move_to_point(-17, 27, true, true, .8);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.turn_to_point(0, 46, true, .7);
+
+    // intake.move_voltage(12000);
+    // mid_goal.set_value(true);
+    
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 60, 60);
+    // drive.move_to_point(-8, 34, true, true, .9, false);
+
+    // indexer.move_voltage(12000);
+
     // match_loader.set_value(false);
+    // indexer.move_voltage(0);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 35, 90, 127);
+    // drive.turn_to_point(-17, 21, false, .9);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 90);
+    // drive.move_to_point(-17, 21, false, false, 1.2);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 90, 127);
+    // drive.turn_to_point(0, 46, true, .9);
+    // mid_goal.set_value(true);
+
+    // drive.set_constants(3, 0, 30, 5, 0, 28, 60, 60);
+    // drive.move_to_point(-10, 35, true, true, .9, false);
+
+    // indexer.move_voltage(9000);
 }
-
-// 9 ball right
-// util.set_robot_position(0, 0, 14);
-// intake.move_voltage(12000);
-// indexer.move_voltage(12000);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-// drive.move_to_point(4, 15, false, false, .6);
-// match_loader.set_value(true);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 8, 45, 45);
-// drive.move_to_point(6, 24, false, false, .5);
-// match_loader.set_value(false);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 75);
-// drive.move_to_point(24, 32, false, false, .5);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 0, 90, 90);
-// drive.turn_to_point(28, 40, false, .7);
-
-// t_pid.set_t_constants(5.5, 0, 11, 100);
-// t_pid.translation_pid(10, 45, .5);
-
-// match_loader.set_value(true);
-// pros::delay(200);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 8, 60, 60);
-// drive.move_to_point(10, 5, false, true, 1.2);
-// pros::delay(100);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 60);
-// drive.turn_to_point(30, 2, false, .4);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-// drive.move_to_point(30, 2, false, false, 1.2);
-// pros::delay(100);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 60);
-// drive.turn_to_point(32, -10, false, .7);
-
-// t_pid.set_t_constants(5.5, 0, 11, 100);
-// t_pid.translation_pid(14, 90, .7);
-// // drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-// // drive.move_to_point(-33, -7, false, false, .5);
-// pros::delay(450);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 11, 60, 90);
-// drive.turn_to_point(31, 30, true, .4);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 0, 75, 90);
-// drive.move_to_point(31, 25, false, true, .9);
-
-// trapdoor.set_value(true);
-// match_loader.set_value(false);
-// pros::delay(2000);
-// indexer.move_voltage(0);
-
-// t_pid.set_t_constants(9, 0, 11, 600);
-// t_pid.translation_pid(3, 90, .2);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 8, 90, 90);
-// drive.move_to_point(43, 12, true, false, .7);
-// trapdoor.set_value(false);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 11, 90, 90);
-// drive.turn_to_point(43, 34, true, .5);
-
-// drive.set_constants(5.5, 0, 11, 2, 0, 8, 75, 75);
-// drive.move_to_point(42, 37, false, true, .9);
-// match_loader.set_value(false);

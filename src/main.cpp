@@ -3,14 +3,17 @@
 void initialize() {
 	gui.initialize_styles();
 	gui.initialize_objects();
-	gui.display_home();
+	// gui.load_auton_selection();
+	// gui.apply_auton_selection_ui();
+	// gui.display_auton_selector();
+	gui.display_sensors();
 	// initialize_particles();
 	
 	util.set_drive_constants(2.75, 0.75, 600);
 	util.set_tpi();
 
-	odom.set_horizontal_tracker_specs(2, 0.2);
-	odom.set_vertical_tracker_specs(2.75, 0);
+	odom.set_horizontal_tracker_specs(2.00, 0.0);
+	odom.set_vertical_tracker_specs(2.00, 0.0);
 
 	imu1.reset();
 
@@ -25,45 +28,53 @@ void initialize() {
 	
 	pros::delay(3000);
 	controller.rumble("..");
-	util.set_robot_position(0.0, 0.0, 0.0);
-	
-	update_telemetry = new pros::Task(Eclipse::Utility::update_telemetry_fn);
 
-	pros::Task color_sorting([]{
-		std::cout << "intake: " << intake.get_voltage() << std::endl;
-		util.run_sort();
-	});
+	odom.set_robot_heading(180);
+
+	update_telemetry = new pros::Task(Eclipse::Odom::update_telemetry_fn);
+
+	odom.set_robot_position(0.0, 0.0);
+
+	// pros::Task color_sorting([]{
+		// std::cout << "intake: " << intake.get_voltage() << std::endl;
+	// 	util.run_sort();
+	// });
 }
 
 void disabled() {
-	wing.set_value(true);
 }
 
 void competition_initialize() {
-	wing.set_value(true);
 }
 
 char buffer[300];
 void autonomous(){
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
-
+	int start_time = pros::millis();
 	// Run auton selector or skills
-	driver.skills ? auton.skills() : gui.run_selected_auton();
+	// driver.skills ? auton.skills() : gui.run_selected_auton();
 	// auton.solo_awp();
+	auton.test();
 	// auton.left_half_awp();
-	// auton.right_7();
+	// auton.right_9();
+	// auton.left_7();
 	// auton.right_half_awp();
 	// auton.skills();
+	
+	std::cout << "time elapsed: " << (pros::millis() - start_time) / 1000.0 << std::endl;
 }
 
 void opcontrol() {
+	// odom_lift.set_value(true);
 	left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	bool tuning = false;
-	
+
 	while(true){
-		controller.print(0, 0, "DT: %0.1f", util.get_drive_temp());
+		controller.print(0, 0, "%s: %s	 DT: %0.1f", (gui.selected_color == 0 ? "R" : (gui.selected_color == 1 ? "B" : "0")), 
+			(gui.selected_path == 0 ? "AWP" : (gui.selected_path == -1 ? "E" : "S")) ,util.get_drive_temp());
+		gui.update_sensors();
 		if(tuning){
 			tuner.driver_tuner();
 		}

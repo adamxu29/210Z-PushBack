@@ -35,20 +35,43 @@ float Odom::get_vertical_displacement(){
     return  (((float)vertical_tracking_wheel.get_position() / 100) * odom.vertical_wheel_diameter * M_PI / 360);
 }
 
-double prev_horizontal_displacement = 0;
-double prev_vertical_displacement = 0;
-double prev_heading = 0;
+void Odom::update_telemetry_fn(void* param){
+    while(true){
+        odom.update_position();
+        pros::delay(10);
+    }
+}
+
+double Odom::get_robot_x(){ 
+    return robot_x;
+}
+double Odom::get_robot_y(){
+    return robot_y;
+}
+void Odom::set_robot_position(double x, double y){
+    robot_x = x;
+    robot_y = y;
+
+    odom.x = odom.get_robot_x();
+    odom.y = odom.get_robot_y();
+}
+
+void Odom::set_robot_heading(double heading){
+    imu1.set_rotation(heading);
+}
+
 
 // Pilons odom implementation: https://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf
 void Odom::update_position(){
     double horizontal_pos = get_horizontal_displacement();
-    double vertical_pos = get_right_displacement();
+    double vertical_pos = get_vertical_displacement();
 
     double delta_horizontal = horizontal_pos - prev_horizontal_displacement;
     double delta_vertical = vertical_pos - prev_vertical_displacement;
 
     double heading = util.get_min_angle((90 - util.get_heading())) * M_PI / 180.0; // convert to radians
     double delta_heading = heading - prev_heading;
+    double prev_heading_snapshot = prev_heading;
 
     prev_horizontal_displacement = horizontal_pos;
     prev_vertical_displacement = vertical_pos;
@@ -66,17 +89,17 @@ void Odom::update_position(){
         local_y = (2 * sin(delta_heading / 2) * ((delta_vertical / delta_heading) + vertical_wheel_offset));
     }
 
-    double avg_heading = prev_heading + (delta_heading / 2);
+    double avg_heading = prev_heading_snapshot + (delta_heading / 2);
 
     odom.x += local_y * cos(avg_heading) + local_x * sin(avg_heading);
     odom.y += local_y * sin(avg_heading) - local_x * cos(avg_heading);
 
-    util.set_robot_position(odom.x, odom.y, util.get_heading());
+    odom.set_robot_position(odom.x, odom.y);
     robot_theta = heading;
 
-    gui.update_sensors();
-    gui.update_temps();
-    gui.update_match_checklist();
+    // gui.update_sensors();
+    // gui.update_temps();
+    // gui.update_match_checklist();
 }
 
 void Odom::update_position_single_vertical(){
@@ -91,123 +114,117 @@ void Odom::update_position_single_vertical(){
     odom.x += delta_vertical * sin(heading);
     odom.y += delta_vertical * cos(heading);
 
-    util.set_robot_position(odom.x, odom.y, util.get_heading());
+    odom.set_robot_position(odom.x, odom.y);
     
-    gui.update_sensors();
-    gui.update_temps();
-    gui.update_match_checklist();
+    // gui.update_sensors();
+    // gui.update_temps();
+    // gui.update_match_checklist();
 }
 
-std::pair<int, int> Eclipse::Odom::get_wall(double heading) {
+int Eclipse::Odom::get_wall(double heading) {
     // Normalize heading to [0, 360)
     while (heading < 0) heading += 360;
     while (heading >= 360) heading -= 360;
 
     if(heading >= 315 || heading < 45){
         // facing 0°
-        return {1, 2}; // right wall, back wall
+        return 1;
     }
     else if((heading >= 45 && heading < 135)){
         // facing 90°
-        return {2, 3}; // back wall, left wall
+        return 2;
     }  
     else if((heading >= 135 && heading < 225)){
         // facing 180°
-        return {3, 4}; // left wall, front wall
+        return 3;
     }
     else if((heading >= 225 && heading < 315)){
         // facing 270°
-        return {4, 1}; // front wall, right wall
+        return 4;
     }
-    return {0, 0};
+    return 0;
 }
 
-
-void Odom::distance_sensor_reset(int readings, bool create_task){
+void Odom::distance_sensor_reset(int readings, bool create_task, SensorIndex sensor){
+    update_telemetry->suspend();
     if(create_task){
-        pros::Task task([&]() {distance_sensor_reset(readings, false);});
+        pros::Task task([=]() {distance_sensor_reset(readings, false, sensor);});
         pros::delay(10);
+        update_telemetry->resume();
         return;
     }
 
-    right_weightings = 0;
-    back_weightings = 0;
-    right_weighted_distance = 0;
-    back_weighted_distance = 0;
+    pros::Distance* sensors[3] = {&front_sensor, &left_sensor, &right_sensor};
+    double offsets[3] = {front_offset, left_offset, right_offset};
+    double heading_offsets[3] = {0.0, -90.0, 90.0};
+
+    int sensor_index = static_cast<int>(sensor);
+    double sensor_weightings = 0;
+    double sensor_weighted_distance = 0;
 
     while(readings--){
-        double distance_1 = (right_sensor.get() - right_offset) * mm_to_inches;
-        double distance_2 = (back_sensor.get() - back_offset) * mm_to_inches;
+        int raw_distance = sensors[sensor_index]->get();
+        if(raw_distance > 9999){
+            pros::delay(10);
+            continue;
+        }
 
-        double confidence_1 = right_sensor.get_confidence();
-        double confidence_2 = back_sensor.get_confidence();
+        double distance = (raw_distance - offsets[sensor_index]) * mm_to_inches;
+        double confidence = sensors[sensor_index]->get_confidence();
 
-        right_weightings += confidence_1;
-        right_weighted_distance += distance_1 * confidence_1;
-
-        back_weightings += confidence_2;
-        back_weighted_distance += distance_2 * confidence_2;
+        sensor_weightings += confidence;
+        sensor_weighted_distance += distance * confidence;
 
         pros::delay(10);
     }
 
-    double avg_right_distance = right_weighted_distance / right_weightings;
-    double avg_back_distance = back_weighted_distance / back_weightings;
+    // No valid samples: keep current pose and skip reset.
+    if(sensor_weightings <= 0){
+        update_telemetry->resume();
+        return;
+    }
 
-    char buffer[300];
-    sprintf(buffer, "Prev X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
-    lv_label_set_text(gui.debug_line_5, buffer);
+    double avg_distance = sensor_weighted_distance / sensor_weightings;
 
-    auto [wall_1, wall_2] = get_wall(util.get_heading());
+    // std::cout << "avg distance: " << avg_distance << std::endl;
+    // char buffer[300];
+    // sprintf(buffer, "Prev X: %.2f Y: %.2f", odom.get_robot_x(), odom.get_robot_y());
+    // lv_label_set_text(gui.debug_line_5, buffer);
 
-    switch(wall_1){
+    double heading = util.get_heading();
+
+    double corrected_heading = heading + heading_offsets[sensor_index];
+    if (corrected_heading < 0) { corrected_heading += 360; }
+    else if (corrected_heading > 360) { corrected_heading -= 360; }
+    int wall = get_wall(corrected_heading);
+    switch(wall){
         case 1:
-            // right wall
-            util.set_robot_position(max_x - avg_right_distance, util.get_robot_y(), util.get_heading());
+            avg_distance = avg_distance * cos(corrected_heading * M_PI / 180);
+            odom.set_robot_position(odom.get_robot_x(), max_y - avg_distance);
             break;
         case 2:
-            // back wall
-            util.set_robot_position(util.get_robot_x(), min_y + avg_right_distance, util.get_heading());
+            avg_distance = avg_distance * cos((corrected_heading - 90) * M_PI / 180);
+            odom.set_robot_position(max_x - avg_distance, odom.get_robot_y());
             break;
         case 3:
-            // left wall
-            util.set_robot_position(min_x + avg_right_distance, util.get_robot_y(), util.get_heading());
+            avg_distance = avg_distance * cos((corrected_heading - 180) * M_PI / 180);
+            odom.set_robot_position(odom.get_robot_x(), min_y + avg_distance);
             break;
         case 4:
-            // front wall
-            util.set_robot_position(util.get_robot_x(), max_y - avg_right_distance, util.get_heading());
+            avg_distance = avg_distance * cos((corrected_heading - 270) * M_PI / 180);
+            odom.set_robot_position(min_x + avg_distance, odom.get_robot_y());
             break;
         default:
             break;
     }
 
-    switch(wall_2){
-        case 1:
-            // right wall
-            util.set_robot_position(max_x - avg_back_distance, util.get_robot_y(), util.get_heading());
-            break;
-        case 2:
-            // back wall
-            util.set_robot_position(util.get_robot_x(), min_y + avg_back_distance, util.get_heading());
-            break;
-        case 3:
-            // left wall
-            util.set_robot_position(min_x + avg_back_distance, util.get_robot_y(), util.get_heading());
-            break;
-        case 4:
-            // front wall
-            util.set_robot_position(util.get_robot_x(), max_y - avg_back_distance, util.get_heading());
-            break;
-        default:
-            break;
-    }
+    // sprintf(buffer, "New X: %.2f Y: %.2f", odom.get_robot_x(), odom.get_robot_y());
+    // lv_label_set_text(gui.debug_line_6, buffer);
+    // gui.display_debug_terminal();
 
-    sprintf(buffer, "New X: %.2f Y: %.2f", util.get_robot_x(), util.get_robot_y());
-    lv_label_set_text(gui.debug_line_6, buffer);
+    odom.x = odom.get_robot_x();
+    odom.y = odom.get_robot_y();
 
-    odom.x = util.get_robot_x();
-    odom.y = util.get_robot_y();
-    prev_horizontal_displacement = get_horizontal_displacement();
-    prev_vertical_displacement = get_vertical_displacement();
-    prev_heading = util.get_min_angle(util.get_heading()) * M_PI / 180.0;
- }
+    update_telemetry->resume();
+    // std::cout << "inside reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
+}

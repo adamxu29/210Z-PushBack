@@ -1,5 +1,7 @@
 #include "main.h"
 #include "cmath"
+#include <cstdio>
+#include "pros/misc.hpp"
 // #include "210Z-logo.c"
 
 using namespace Eclipse;
@@ -136,6 +138,7 @@ lv_res_t GUI::alliance_color_callback(lv_obj_t *btn) {
     else{
         gui.selected_color = -1;
     }
+    // gui.save_auton_selection();
     return LV_RES_OK;
 }
 
@@ -152,28 +155,24 @@ lv_res_t GUI::autonomous_path_callback(lv_obj_t *btn) {
     
     if (gui.current_selected_path == gui.solo_awp){
         gui.selected_path = 0;
-        util.set_robot_position(0, 0, -14);
     }
     else if(gui.current_selected_path == gui.left_half_awp){
         gui.selected_path = 1;
-        util.set_robot_position(0, 0, -14);
     }
     else if(gui.current_selected_path == gui.right_half_awp){
         gui.selected_path = 2;
-        util.set_robot_position(0, 0, 14);
     }
     else if(gui.current_selected_path == gui.right_elims){
         gui.selected_path = 3;
-        util.set_robot_position(0, 0, 14);
         
     }
     else if(gui.current_selected_path == gui.left_elims){
         gui.selected_path = 4;
-        util.set_robot_position(0, 0, -14);
     }
     else{
         gui.selected_path = -1;
     }
+    // gui.save_auton_selection();
     return LV_RES_OK;
 }
 
@@ -186,6 +185,7 @@ lv_res_t GUI::skills_toggle_callback(lv_obj_t *btn) {
         lv_btn_set_state(btn, LV_BTN_STATE_PR);
         driver.skills = true;
     }
+    // gui.save_auton_selection();
     return LV_RES_OK;
 }
 
@@ -409,11 +409,11 @@ void GUI::initialize_objects() {
     gui.radio_status = lv_label_create(gui.match_screen, NULL);
         lv_label_set_style(gui.radio_status, &gui.style_text);
         lv_obj_align(gui.radio_status, NULL, LV_ALIGN_IN_TOP_LEFT, 30, 118);
-        lv_label_set_text(gui.radio_status, "Radio Status: Hawk Tuah");
+        lv_label_set_text(gui.radio_status, "Radio Status:");
     gui.competition_status = lv_label_create(gui.match_screen, NULL);
         lv_label_set_style(gui.competition_status, &gui.style_text);
         lv_obj_align(gui.competition_status, NULL, LV_ALIGN_IN_TOP_LEFT, 30, 135);
-        lv_label_set_text(gui.competition_status, "Competition Status: Hawk Tuah");
+        lv_label_set_text(gui.competition_status, "Competition Status:");
     gui.skills_toggle = lv_btn_create(gui.match_screen, NULL);
         lv_btn_set_toggle(gui.blue_btn, true);
         lv_btn_set_style(gui.skills_toggle, LV_BTN_STYLE_REL, &gui.style_purple_btn);
@@ -497,6 +497,72 @@ void GUI::initialize_objects() {
         lv_label_set_text(lv_label_create(gui.debug_return_home, NULL), SYMBOL_HOME);
 }
 
+// void GUI::save_auton_selection() {
+//     if (!pros::usd::is_installed()) {
+//         return;
+//     }
+//     static const char* kAutonFile = "/usd/auton.cfg";
+//     FILE* file = fopen(kAutonFile, "w");
+//     if (!file) {
+//         return;
+//     }
+//     fprintf(file, "%d %d %d\n", selected_path, selected_color, static_cast<int>(driver.skills));
+//     fclose(file);
+// }
+
+// void GUI::load_auton_selection() {
+//     if (!pros::usd::is_installed()) {
+//         return;
+//     }
+//     static const char* kAutonFile = "/usd/auton.cfg";
+//     FILE* file = fopen(kAutonFile, "r");
+//     if (!file) {
+//         return;
+//     }
+//     int path = -1;
+//     int color = -1;
+//     int skills = 0;
+//     if (fscanf(file, "%d %d %d", &path, &color, &skills) == 3) {
+//         selected_path = path;
+//         selected_color = color;
+//         driver.skills = (skills != 0);
+//     }
+//     fclose(file);
+// }
+
+// void GUI::apply_auton_selection_ui() {
+//     current_selected_color = nullptr;
+//     current_selected_path = nullptr;
+
+//     if (selected_color == 0) {
+//         current_selected_color = red_btn;
+//         lv_btn_set_state(red_btn, LV_BTN_STATE_TGL_REL);
+//     } else if (selected_color == 1) {
+//         current_selected_color = blue_btn;
+//         lv_btn_set_state(blue_btn, LV_BTN_STATE_TGL_REL);
+//     }
+
+//     if (selected_path == 0) {
+//         current_selected_path = solo_awp;
+//     } else if (selected_path == 1) {
+//         current_selected_path = left_half_awp;
+//     } else if (selected_path == 2) {
+//         current_selected_path = right_half_awp;
+//     } else if (selected_path == 3) {
+//         current_selected_path = right_elims;
+//     } else if (selected_path == 4) {
+//         current_selected_path = left_elims;
+//     }
+
+//     if (current_selected_path) {
+//         lv_btn_set_state(current_selected_path, LV_BTN_STATE_TGL_REL);
+//     }
+
+//     if (driver.skills) {
+//         lv_btn_set_state(skills_toggle, LV_BTN_STATE_TGL_REL);
+//     }
+// }
+
 void GUI::run_selected_auton(){
     switch(gui.selected_path){
         case 0:
@@ -523,7 +589,7 @@ void GUI::run_selected_auton(){
 void GUI::update_sensors(){
     char buffer[300];
     
-    sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", util.get_robot_x(), util.get_robot_y(), util.get_heading());
+    sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", odom.get_robot_x(), odom.get_robot_y(), util.get_heading());
     lv_label_set_text(gui.position_readings, buffer);
     lv_label_set_text(gui.match_position_readings, buffer);
     lv_label_set_text(gui.debug_line_9, buffer);
@@ -534,7 +600,7 @@ void GUI::update_sensors(){
     sprintf(buffer, "FR: %.2f MR: %.2f BR: %.2f", right_drive.get_positions()[0], right_drive.get_positions()[1], right_drive.get_positions()[2]);
     lv_label_set_text(gui.right_drivetrain_encoders, buffer);
 
-    sprintf(buffer, "Right: %.2fcm Back: %.2fcm", (float)right_sensor.get() / 10.0, (float)back_sensor.get() / 10.0);
+    sprintf(buffer, "Left: %.2fcm Front: %.2fcm Right: %.2fcm", (float)left_sensor.get() / 10.0, (float)front_sensor.get() / 10.0, (float)right_sensor.get() / 10.0);
     lv_label_set_text(gui.misc_sensors, buffer);
 }
 

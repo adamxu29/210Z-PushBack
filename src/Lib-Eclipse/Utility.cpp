@@ -65,26 +65,6 @@ using namespace Eclipse;
 // }
 
 // sensing
-
-double Utility::get_robot_x(){ 
-    return robot_x;
-}
-double Utility::get_robot_y(){
-    return robot_y;
-}
-void Utility::set_robot_position(double x, double y, double heading){
-    robot_x = x;
-    robot_y = y;
-    imu1.set_rotation(heading);
-}
-
-void Utility::update_telemetry_fn(void* param){
-    while(true){
-        odom.update_position_single_vertical();
-        pros::delay(10);
-    }
-}
-
 void Eclipse::Utility::set_drive_constants(const double dt_wheel_diameter, const double dt_gear_ratio, const double dt_motor_cartridge)
 {
     this->wheel_diameter = dt_wheel_diameter;
@@ -95,8 +75,8 @@ void Eclipse::Utility::set_drive_constants(const double dt_wheel_diameter, const
 double Utility::get_angular_error(double x, double y, bool backwards)
 {   
     // angular error relative to robot
-    double delta_x = x - util.get_robot_x();
-    double delta_y = y - util.get_robot_y();
+    double delta_x = x - odom.get_robot_x();
+    double delta_y = y - odom.get_robot_y();
 
     double delta_theta = atan2(delta_y, delta_x);
 
@@ -112,8 +92,8 @@ double Utility::get_angular_error(double x, double y, bool backwards)
 
 double Utility::get_lateral_error(double x, double y)
 {
-    double delta_x = x - util.get_robot_x();
-    double delta_y = y - util.get_robot_y();
+    double delta_x = x - odom.get_robot_x();
+    double delta_y = y - odom.get_robot_y();
 
     return sqrt(pow(delta_x, 2) + pow(delta_y, 2));
 }
@@ -178,7 +158,7 @@ bool Utility::detect_ball(){
 }
 
 bool Utility::detect_upper_ball(){
-    return (color.get_proximity() > 250);
+    return (color.get_proximity() > 100);
 }
 
 bool Utility::is_red(){
@@ -190,7 +170,7 @@ bool Utility::is_blue(){
 }
 
 void Utility::sort(){
-    int voltage = indexer.get_voltage();
+    float voltage = intake.get_voltage();
 
     char buffer[300];
     sprintf(buffer, "Opp Ball Detected at: %d:%02d, Hue: %.1f", gui.minutes, gui.seconds, color.get_hue());
@@ -240,6 +220,64 @@ void Utility::run_sort(){
         pros::delay(10);
     }
 }
+
+void Utility::score_until_opp_block(int time_out){
+    bool in_match = pros::competition::get_status() == 4;
+
+    trapdoor.set_value(true);
+    color.set_led_pwm(100);
+    int local_timer = 0;
+    while(true){
+        if(gui.selected_color == 0){
+            if((in_match ? is_red() : is_blue()) && detect_upper_ball()){
+                trapdoor.set_value(false);
+                std::cout << "stopping on " << in_match ? "red" : "blue";
+                break;
+            }
+        }
+        else if(gui.selected_color == 1){
+            if((in_match ? is_blue() : is_red()) && detect_upper_ball()){
+                trapdoor.set_value(false);
+                std::cout << "stopping on " << in_match ? "blue" : "red";
+                break;
+            }
+        }
+
+        if(time_out > 0){
+            local_timer++;
+        }
+        if(local_timer > (time_out * 100)){
+            break;
+        }
+
+        pros::delay(10);
+    }
+    color.set_led_pwm(0);
+}
+
+// trapdoor.set_value(true);
+// color.set_led_pwm(100);
+// while(true){
+//     intake.move_voltage(12000);
+//     indexer.move_voltage(12000);
+
+//     if(gui.selected_color == 0){
+//         if((is_blue() && detect_upper_ball())){
+//             break;
+//             std::cout << "stopping on blue";
+//         }
+//     }
+//     else if(gui.selected_color == 1){
+//         if((is_red() && detect_upper_ball())){
+//             break;
+//             std::cout << "stopping on red";
+//         }
+//     }
+
+//     pros::delay(10);
+// }
+// color.set_led_pwm(0);
+// trapdoor.set_value(false);
 
 // misc
 bool Eclipse::Utility::is_reversed(int port)

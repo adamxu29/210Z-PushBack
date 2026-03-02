@@ -47,9 +47,9 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
     r_pid.r_max_speed = this->max_rotation_speed;
     
     while(true){
-        odom.update_position_single_vertical();
+        odom.update_position();
         double current_position = util.get_heading();
-        double theta = util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI;
+        double theta = util.get_min_angle((util.get_angular_error(x, y, backwards)) * 180 / M_PI);
 
         double voltage = r_pid.compute_r(current_position, theta);
 
@@ -95,7 +95,7 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
         }
         pros::delay(10);
     }
-    std::cout << "x: " << util.get_robot_x() << "y: " << util.get_robot_y() << std::endl;
+    std::cout << "x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
 }
 
 
@@ -104,7 +104,7 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
     double local_timer = 0;
 
     while(true){
-        odom.update_position_single_vertical();
+        odom.update_position();
         
         double r_current_position = util.get_heading();
         r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI);
@@ -175,6 +175,7 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
             left_drive.move_voltage(0);
             right_drive.move_voltage(0);
             local_timer = 0;
+            std::cout << "target reached ";
             break;
         }
 
@@ -196,5 +197,5 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
 
         pros::delay(10);
     }
-    std::cout << "x: " << util.get_robot_x() << "y: " << util.get_robot_y() << std::endl;
+    std::cout << "x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
 }

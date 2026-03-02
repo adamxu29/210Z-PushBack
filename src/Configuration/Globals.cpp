@@ -6,30 +6,38 @@ using namespace Eclipse;
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-pros::Motor_Group left_drive({3, -2, -12});
-pros::Motor_Group right_drive({-6, 8, 19});
+pros::Motor front_left(-1, pros::E_MOTOR_GEARSET_06);
+pros::Motor mid_left(-3, pros::E_MOTOR_GEARSET_06);
+pros::Motor back_left(2, pros::E_MOTOR_GEARSET_06);
+pros::Motor front_right(8, pros::E_MOTOR_GEARSET_06);
+pros::Motor mid_right(9, pros::E_MOTOR_GEARSET_06);
+pros::Motor back_right(-10, pros::E_MOTOR_GEARSET_06);
 
-pros::Motor intake(-9);
-pros::Motor indexer(5);
+pros::Motor_Group left_drive({front_left, mid_left, back_left});
+pros::Motor_Group right_drive({front_right, mid_right, back_right});
 
-pros::Rotation vertical_tracking_wheel(4, true);
-pros::Rotation horizontal_tracking_wheel(14, true);
+pros::Motor intake(7);
+pros::Motor indexer(4);
 
-pros::ADIDigitalOut match_loader('c');
-pros::ADIDigitalOut park('b');
-pros::ADIDigitalOut trapdoor('a');
-pros::ADIDigitalOut wing('d');
+pros::Rotation vertical_tracking_wheel(20, true);
+pros::Rotation horizontal_tracking_wheel(6, false);
 
-pros::IMU imu1(20);
-pros::IMU imu2(21);
+pros::ADIDigitalOut match_loader('g');
+pros::ADIDigitalOut mid_goal('c');
+pros::ADIDigitalOut trapdoor('f');
+pros::ADIDigitalOut wing('a');
+pros::ADIDigitalOut intake_lift('b');
+pros::ADIDigitalOut odom_lift('h');
 
-pros::Optical color(1);
+pros::IMU imu1(18);
+// pros::IMU imu2(19);
 
-pros::Distance park_sensor(11);
-// pros::Distance front_sensor(5);
-// pros::Distance left_sensor(6);
-pros::Distance right_sensor(7);
-pros::Distance back_sensor(13);
+pros::Optical color(17);
+
+pros::Distance front_sensor(5);
+pros::Distance left_sensor(11);
+pros::Distance right_sensor(21);
+// pros::Distance back_sensor(13);
 
 Utility util;
 OPControl driver;
@@ -47,4 +55,3 @@ Autonomous_Paths auton;
 
 GUI gui;
 pros::Task* update_telemetry = nullptr;
-pros::Mutex odom_mutex;
