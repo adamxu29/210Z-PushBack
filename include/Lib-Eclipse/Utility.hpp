@@ -25,6 +25,7 @@ namespace Eclipse
             // PID helpers
             double get_angular_error(double x, double y, bool backwards);
             double get_lateral_error(double x, double y);
+            bool is_line_settled(double target_x, double current_x, double target_y, double current_y, double target_heading);
 
             // sensors
             double get_position();

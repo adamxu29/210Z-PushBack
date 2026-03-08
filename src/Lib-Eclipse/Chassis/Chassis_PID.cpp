@@ -31,20 +31,20 @@ void Eclipse::Curve_PID::set_c_constants(const double kp, const double ki, const
 
 Eclipse::Translation_PID::Translation_PID()
 {
-    t_pid.t_tolerance = 4;
-    t_pid.t_error_threshold = 3;
+    t_pid.t_tolerance = 3;
+    t_pid.t_error_threshold = 1.5;
 }
 
 Eclipse::Rotation_PID::Rotation_PID()
 {
-    r_pid.r_tolerance = 4;
-    r_pid.r_error_threshold = 3;
+    r_pid.r_tolerance = 5;
+    r_pid.r_error_threshold = .9;
 }
 
 Eclipse::Curve_PID::Curve_PID()
 {
-    c_pid.c_tolerance = 4;
-    c_pid.c_error_threshold = 7;
+    c_pid.c_tolerance = 3;
+    c_pid.c_error_threshold = 1;
 }
 
 void Eclipse::Translation_PID::reset_t_variables()
@@ -152,7 +152,7 @@ double Eclipse::Curve_PID::compute_c(double current_pos, double theta)
     return power;
 }
 
-void Eclipse::Translation_PID::translation_pid(double target, double max_speed, double time_out)
+void Eclipse::Translation_PID::translation_pid(double target, double max_speed, double time_out, bool motion_chain)
 {
     util.reset_position();
     t_pid.reset_t_variables();
@@ -163,6 +163,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
     target = target * 3;
 
     double starting_position = odom.get_vertical_displacement();
+    if(motion_chain) { t_pid.t_kd /= 2; }
     while (true)
     {
         odom.update_position();
@@ -197,20 +198,18 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
 
         if (t_pid.t_counter >= t_pid.t_tolerance)
         { 
-            left_drive.move_voltage(0);
-            right_drive.move_voltage(0);
+            std::cout << "target reached" << std::endl;
             break;
         }
 
-        if (fabs(t_pid.t_derivative) < 5 && time_out == -1)
+        if (fabs(t_pid.t_derivative) < 5 && time_out == 0)
         {
             t_pid.t_failsafe++;
         }
 
         if (t_pid.t_failsafe > 50)
         {
-            left_drive.move_voltage(0);
-            right_drive.move_voltage(0);
+            std::cout << "failsafe" << std::endl;
             break;
         }
 
@@ -219,10 +218,9 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
             local_timer++;
         }
 
-        if (local_timer > (time_out * 100))
+        if (local_timer > (time_out * 100) && time_out != 0)
         {
-            left_drive.move_voltage(0);
-            right_drive.move_voltage(0);
+            std::cout << "time out" << std::endl;
             break;
         }
 
@@ -230,15 +228,20 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
 
         pros::delay(10);
     }
+    if(!motion_chain){
+        left_drive.move_voltage(0);
+        right_drive.move_voltage(0);
+    }
     std::cout << "x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
 }
 
-void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double time_out)
+void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double time_out, bool motion_chain)
 {
     r_pid.reset_r_variables();
 
     double local_timer = 0;
     r_pid.r_max_speed = max_speed;
+    if(motion_chain) { r_pid.r_kd /= 2; }
 
     while (true)
     {
@@ -287,7 +290,7 @@ void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double 
             local_timer++;
         }
 
-        if (local_timer > (time_out * 100))
+        if (local_timer > (time_out * 100) && time_out != 0)
         {
             left_drive.move_voltage(0);
             right_drive.move_voltage(0);
@@ -297,13 +300,14 @@ void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double 
     }
 }
 
-void Eclipse::Curve_PID::curve_pid(double theta, double max_speed, double time_out, double curve_damper, bool backwards)
+void Eclipse::Curve_PID::curve_pid(double theta, double max_speed, double time_out, double curve_damper, bool backwards, bool motion_chain)
 {
     c_pid.reset_c_variables();
 
     double local_timer = 0;
     c_pid.c_max_speed = max_speed;
     c_turn_right = false;
+    if(motion_chain) { c_pid.c_kd /= 2; }
 
     while (true)
     {
@@ -364,7 +368,7 @@ void Eclipse::Curve_PID::curve_pid(double theta, double max_speed, double time_o
             local_timer++;
         }
 
-        if (local_timer > (time_out * 100))
+        if (local_timer > (time_out * 100) && time_out != 0)
         {
             left_drive.move_voltage(0);
             right_drive.move_voltage(0);

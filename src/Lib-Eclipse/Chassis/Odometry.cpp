@@ -60,7 +60,6 @@ void Odom::set_robot_heading(double heading){
     imu1.set_rotation(heading);
 }
 
-
 // Pilons odom implementation: https://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf
 void Odom::update_position(){
     double horizontal_pos = get_horizontal_displacement();
@@ -69,7 +68,7 @@ void Odom::update_position(){
     double delta_horizontal = horizontal_pos - prev_horizontal_displacement;
     double delta_vertical = vertical_pos - prev_vertical_displacement;
 
-    double heading = util.get_min_angle((90 - util.get_heading())) * M_PI / 180.0; // convert to radians
+    double heading = util.get_min_angle((90 - util.get_heading())) * M_PI / 180.0; // convert to radians in trignometric plane
     double delta_heading = heading - prev_heading;
     double prev_heading_snapshot = prev_heading;
 
@@ -91,6 +90,7 @@ void Odom::update_position(){
 
     double avg_heading = prev_heading_snapshot + (delta_heading / 2);
 
+    // convert back to standard plane
     odom.x += local_y * cos(avg_heading) + local_x * sin(avg_heading);
     odom.y += local_y * sin(avg_heading) - local_x * cos(avg_heading);
 

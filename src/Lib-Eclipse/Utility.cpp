@@ -98,6 +98,10 @@ double Utility::get_lateral_error(double x, double y)
     return sqrt(pow(delta_x, 2) + pow(delta_y, 2));
 }
 
+bool Utility::is_line_settled(double target_x, double current_x, double target_y, double current_y, double target_heading){
+    return((target_y - current_y) * cos(target_heading) <= -(target_x - current_x) * sin(target_heading));
+}
+
 double Utility::get_position()
 {
     // use motors that disconnect the least

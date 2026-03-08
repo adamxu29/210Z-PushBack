@@ -24,7 +24,7 @@ namespace Eclipse{
             void reset_t_variables();
 
             double compute_t(double current_pos, double target);
-            void translation_pid(double target, double maxSpeed, double timeOut);
+            void translation_pid(double target, double maxSpeed, double time_out, bool motion_chain = true);
     };
 
     class Rotation_PID{
@@ -47,7 +47,7 @@ namespace Eclipse{
             void reset_r_variables();
 
             double compute_r(double current_pos, double theta);
-            void rotation_pid(double theta, double maxSpeed, double timeOut);
+            void rotation_pid(double theta, double maxSpeed, double time_out, bool motion_chain = true);
     };
 
     class Curve_PID{
@@ -71,7 +71,7 @@ namespace Eclipse{
             void reset_c_variables();
 
             double compute_c(double current_pos, double theta);
-            void curve_pid(double theta, double maxSpeed, double timeOut, double curve_damper, bool backwards);
+            void curve_pid(double theta, double maxSpeed, double time_out, double curve_damper, bool backwards, bool motion_chain = true);
     };
 }
 

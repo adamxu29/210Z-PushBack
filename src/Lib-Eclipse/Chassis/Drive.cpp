@@ -15,10 +15,10 @@ void Eclipse::Drive::set_constants(const double t_kp, const double t_ki, const d
 }
 
 Eclipse::Drive::Drive(){
-    this->t_error_threshold = 3;
-    this->t_tolerance = 4;
-    this->r_error_threshold = 3;
-    this->r_tolerance = 3;
+    this->t_error_threshold = 1.5;
+    this->t_tolerance = 3;
+    this->r_error_threshold = .9;
+    this->r_tolerance = 5;
 }
 
 void Eclipse::Drive::reset_variables(){
@@ -45,7 +45,8 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
 
     double local_timer = 0;
     r_pid.r_max_speed = this->max_rotation_speed;
-    
+    if(motion_chain) { r_pid.r_kd /= 2; }
+
     while(true){
         odom.update_position();
         double current_position = util.get_heading();
@@ -55,8 +56,6 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
 
         left_drive.move_voltage(voltage * (12000.0 / 127.0));
         right_drive.move_voltage(-voltage * (12000.0 / 127.0));
-        
-        if(motion_chain && (fabs(r_pid.r_error) < 3 * r_pid.r_error_threshold)){ break; }
 
         if (fabs(r_pid.r_error) < r_pid.r_error_threshold){
             r_pid.r_counter++;
@@ -67,19 +66,17 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
         
         if (r_pid.r_counter >= r_pid.r_tolerance)
         {
-            left_drive.move_voltage(0);
-            right_drive.move_voltage(0);
+            std::cout << "target reached" << std::endl;
             break;
         }
 
-        if (fabs(r_pid.r_error - r_pid.r_prev_error) < 3)
+        if (fabs(r_pid.r_derivative) < 3)
         {
             r_pid.r_failsafe++;
         }
         if (r_pid.r_failsafe > 100)
         {
-            left_drive.move_voltage(0);
-            right_drive.move_voltage(0);
+            std::cout << "failsafe" << std::endl;
         }
 
         if (time_out > 0)
@@ -89,34 +86,36 @@ void Eclipse::Drive::turn_to_point(double x, double y, bool backwards, double ti
 
         if (local_timer > (time_out * 100))
         {
-            left_drive.move_voltage(0);
-            right_drive.move_voltage(0);
+            std::cout << "time out" << std::endl; 
             break;
         }
         pros::delay(10);
     }
-    std::cout << "x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
+    if(!motion_chain){
+        left_drive.move_voltage(0);
+        right_drive.move_voltage(0);
+    }
+    std::cout << "end   -   x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
 }
 
 
 void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool backwards, double time_out, bool motion_chain){
     this->reset_variables();
     double local_timer = 0;
+    double target_heading = util.get_min_error(util.get_heading(), util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI);
+    bool line_settled = false;
+    bool prev_line_settled = util.is_line_settled(x, odom.get_robot_x(), y, odom.get_robot_y(), target_heading);
+    if(motion_chain) { t_kd /= 2; }
 
     while(true){
         odom.update_position();
+        line_settled = util.is_line_settled(x, odom.get_robot_x(), y, odom.get_robot_y(), target_heading);
+        if(line_settled & prev_line_settled){ break; }
+        prev_line_settled = line_settled;
         
         double r_current_position = util.get_heading();
         r_error = util.get_min_error(r_current_position, util.get_min_angle(util.get_angular_error(x, y, backwards)) * 180 / M_PI);
-        // std::cout << "r_error: " << r_error << std::endl;
         t_error = (backwards ? -util.get_lateral_error(x, y) : util.get_lateral_error(x, y)) * 3;
-        // std::cout << "t_error: " << t_error << std::endl;
-
-        if(fabs(t_error) < 5){
-            t_counter++;
-        } else {
-            t_counter = 0;
-        }
         
         r_derivative = r_error - r_prev_error;
         t_derivative = t_error - t_prev_error;
@@ -126,8 +125,6 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
 
         if(util.sign(r_error) != util.sign(r_prev_error)){ r_integral = 0; }
         if(util.sign(t_error) != util.sign(t_prev_error)){ t_integral = 0; }
-
-        if(motion_chain) { t_kd /= 1.5; }
 
         double r_power = (r_error * r_kp) + (r_integral * r_ki) + (r_derivative * r_kd);
         double t_power = (t_error * t_kp) + (t_integral * t_ki) + (t_derivative * t_kd);
@@ -162,8 +159,6 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
         left_drive.move_voltage(left_voltage * (12000.0 / 127.0));
         right_drive.move_voltage(right_voltage * (12000.0 / 127.0));
 
-        if(motion_chain && (fabs(t_error) < 3 * t_error_threshold)){ break; }
-
         if(fabs(t_error) < t_error_threshold){
             t_counter++;
         } else {
@@ -172,10 +167,8 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
 
         if(t_counter >= t_tolerance){
             r_power = 0;
-            left_drive.move_voltage(0);
-            right_drive.move_voltage(0);
             local_timer = 0;
-            std::cout << "target reached ";
+            std::cout << "target reached" << std::endl;
             break;
         }
 
@@ -184,9 +177,8 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
             local_timer++;
         }
 
-        if(local_timer > time_out * 100){
-            left_drive.move_voltage(0);
-            right_drive.move_voltage(0);
+        if(local_timer > time_out * 100 && time_out != 0){
+            std::cout << "time out" << std::endl;
             local_timer = 0;
             break;
         }
@@ -197,5 +189,9 @@ void Eclipse::Drive::move_to_point(double x, double y, bool turn_first, bool bac
 
         pros::delay(10);
     }
-    std::cout << "x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
+    if(!motion_chain){
+        left_drive.move_voltage(0);
+        right_drive.move_voltage(0);
+    }
+    std::cout << "end   -   x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
 }

@@ -193,8 +193,8 @@ void Eclipse::OPControl::driver_control(bool disabled){
     }
 
     // dsr test
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-        odom.distance_sensor_reset(10, false, Odom::Front);
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+        odom.distance_sensor_reset(10, true, Odom::Front);
         odom.distance_sensor_reset(10, false, Odom::Left);
         std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
     }
@@ -204,9 +204,12 @@ void Eclipse::OPControl::driver_control(bool disabled){
     else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){ 
         odom_lift.set_value(true);
     }
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+        disabled = false;
+    }
 
     // mid goal macro
-    // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+    // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
     //     disabled = true;
     //     intake.move_voltage(0);
     //     indexer.move_voltage(0);
@@ -226,7 +229,7 @@ void Eclipse::OPControl::driver_control(bool disabled){
     // }
 
     // color select
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
         if(gui.selected_color == 0){
             gui.selected_color = 1;
         }

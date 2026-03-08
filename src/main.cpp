@@ -9,7 +9,7 @@ void initialize() {
 	gui.display_sensors();
 	// initialize_particles();
 	
-	util.set_drive_constants(2.75, 0.75, 600);
+	util.set_drive_constants(4.00, 0.5714285714, 600);
 	util.set_tpi();
 
 	odom.set_horizontal_tracker_specs(2.00, 0.0);
@@ -72,8 +72,9 @@ void opcontrol() {
 	bool tuning = false;
 
 	while(true){
-		controller.print(0, 0, "%s: %s	 DT: %0.1f", (gui.selected_color == 0 ? "R" : (gui.selected_color == 1 ? "B" : "0")), 
-			(gui.selected_path == 0 ? "AWP" : (gui.selected_path == -1 ? "E" : "S")) ,util.get_drive_temp());
+		// controller.print(0, 0, "%s: %s	 DT: %0.1f", (gui.selected_color == 0 ? "R" : (gui.selected_color == 1 ? "B" : "0")), 
+		// 	(gui.selected_path == 0 ? "AWP" : (gui.selected_path == -1 ? "E" : "S")) ,util.get_drive_temp());
+		controller.print(0, 0, "X: %.5f Y:%.5f H: %0.2f", odom.get_robot_x(), odom.get_robot_y(), util.get_heading());
 		gui.update_sensors();
 		if(tuning){
 			tuner.driver_tuner();

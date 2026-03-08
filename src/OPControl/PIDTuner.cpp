@@ -95,55 +95,55 @@ void Eclipse::PID_Tuner::move(){
     if(tuner.current_movement == 0){
         if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
             t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 100);
-            t_pid.translation_pid(24, 90, 2);
+            t_pid.translation_pid(24, 90, 2, false);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
             t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 100);
-            t_pid.translation_pid(12, 90, 2);
+            t_pid.translation_pid(12, 90, 2, false);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
             t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 100);
-            t_pid.translation_pid(48, 90, 2);
+            t_pid.translation_pid(48, 90, 2, false);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
             t_pid.set_t_constants(tuner.kp, tuner.ki, tuner.kd, 100);
-            t_pid.translation_pid(36, 90, 2);
+            t_pid.translation_pid(36, 90, 2, false);
         }
     }
     else if(tuner.current_movement == 1){
         if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
             r_pid.set_r_constants(tuner.kp, tuner.ki, tuner.kd);
-            r_pid.rotation_pid(-90, 90, 2);
+            r_pid.rotation_pid(-90, 90, 2, false);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
             r_pid.set_r_constants(tuner.kp, tuner.ki, tuner.kd);
-            r_pid.rotation_pid(-20, 90, 2);
+            r_pid.rotation_pid(-20, 90, 2, false);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
             r_pid.set_r_constants(tuner.kp, tuner.ki, tuner.kd);
-            r_pid.rotation_pid(-45, 90, 2);
+            r_pid.rotation_pid(-45, 90, 2), false;
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
             r_pid.set_r_constants(tuner.kp, tuner.ki, tuner.kd);
-            r_pid.rotation_pid(360, 90, 2);
+            r_pid.rotation_pid(360, 90, 2, false);
         }
     }
     else if(tuner.current_movement == 2){
         if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
             c_pid.set_c_constants(tuner.kp, tuner.ki, tuner.kd);
-            c_pid.curve_pid(90, 90, 3, 0.5, false);
+            c_pid.curve_pid(90, 90, 3, 0.5, false, false);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
             c_pid.set_c_constants(tuner.kp, tuner.ki, tuner.kd);
-            c_pid.curve_pid(90, 90, 3, 0.5, true);
+            c_pid.curve_pid(90, 90, 3, 0.5, true, false);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
             c_pid.set_c_constants(tuner.kp, tuner.ki, tuner.kd);
-            c_pid.curve_pid(-90, 90, 3, 0.5, false);
+            c_pid.curve_pid(-90, 90, 3, 0.5, false, false);
         }
         else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
             c_pid.set_c_constants(tuner.kp, tuner.ki, tuner.kd);
-            c_pid.curve_pid(-90, 90, 3, 0.5, true);
+            c_pid.curve_pid(-90, 90, 3, 0.5, true, false);
         }
     }
 }
