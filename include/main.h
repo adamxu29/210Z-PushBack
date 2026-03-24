@@ -93,6 +93,7 @@ extern "C"
 
 // driver
 #include "OPControl/OPControlSystems.hpp"
+#include "Lib-Eclipse/Intake.hpp"
 #include "OPControl/PIDTuner.hpp"
 
 // configuration

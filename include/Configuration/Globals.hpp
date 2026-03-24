@@ -31,6 +31,7 @@ extern pros::Distance back_sensor;
 
 extern Eclipse::Utility util;
 extern Eclipse::OPControl driver;
+extern Eclipse::Intake scoring;
 extern Eclipse::PID_Tuner tuner;
 
 extern Eclipse::Translation_PID t_pid;
@@ -45,3 +46,4 @@ extern Eclipse::Autonomous_Paths auton;
 extern Eclipse::GUI gui;
 
 extern pros::Task* update_telemetry;
+// extern pros::Task* run_intake;

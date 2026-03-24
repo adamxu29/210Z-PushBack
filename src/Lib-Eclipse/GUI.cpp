@@ -130,13 +130,13 @@ lv_res_t GUI::alliance_color_callback(lv_obj_t *btn) {
         lv_btn_set_state(btn, LV_BTN_STATE_TGL_REL);
     }
     if (gui.current_selected_color == gui.red_btn){
-        gui.selected_color = 0;
+        scoring.set_color(scoring.Color::Red);
     }
     else if (gui.current_selected_color == gui.blue_btn){
-        gui.selected_color = 1;
+        scoring.set_color(scoring.Color::Blue);
     }
     else{
-        gui.selected_color = -1;
+        scoring.set_color(scoring.Color::None);
     }
     // gui.save_auton_selection();
     return LV_RES_OK;
@@ -591,7 +591,7 @@ void GUI::update_sensors(){
     
     sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", odom.get_robot_x(), odom.get_robot_y(), util.get_heading());
     lv_label_set_text(gui.position_readings, buffer);
-    lv_label_set_text(gui.match_position_readings, buffer);
+    // lv_label_set_text(gui.match_position_readings, buffer);
     lv_label_set_text(gui.debug_line_9, buffer);
     
     sprintf(buffer, "FL: %.2f ML: %.2f BL: %.2f", left_drive.get_positions()[0], left_drive.get_positions()[1], left_drive.get_positions()[2]);
@@ -618,10 +618,13 @@ void GUI::update_match_checklist(){
     sprintf(buffer, "Battery: %.1f%", pros::battery::get_capacity());
     lv_label_set_text(gui.battery_level, buffer);
 
-    const char* selected_color_str = driver.skills ? "Skills" : ((gui.selected_color == 0) ? "Red:" : (gui.selected_color == 1) ? "Blue:" : "None:");
+    const char* selected_color_str = driver.skills ? "Skills" : ((scoring.selected_color == scoring.Color::Red) ? "Red:" : (scoring.selected_color == scoring.Color::Blue) ? "Blue:" : "None:");
     const char* selected_path_str = driver.skills ? " " : ((gui.selected_path == 0) ? "Solo AWP" : (gui.selected_path == 1) ? "Left Half AWP" : (gui.selected_path == 2) ? "Right Half AWP" : (gui.selected_path == 3) ? "Goal Side Rush" : (gui.selected_path == 4) ? "Ring Side Rush" : "Test");
     sprintf(buffer, "Selected Path: %s Colur: %s", selected_path_str, selected_color_str);
     lv_label_set_text(gui.selected_auton, buffer);
+
+    sprintf(buffer, "Top V: %d C: %d Bottom V: %d C %d", intake.get_voltage(), intake.get_current_draw(), indexer.get_voltage(), indexer.get_current_draw());
+    lv_label_set_text(gui.match_position_readings, buffer);
 
     total_seconds = pros::millis() / 1000;
     minutes = total_seconds / 60;

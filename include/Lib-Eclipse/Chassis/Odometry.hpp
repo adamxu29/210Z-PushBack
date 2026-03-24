@@ -16,22 +16,22 @@ namespace Eclipse{
             // reset variables
             const double mm_to_inches = 0.0393701;
 
-            const double front_offset = 54;
-            const double left_offset = 46;
-            const double right_offset = 52;
+            // Distance from robot CENTER to each sensor, in inches (positive = toward the wall that sensor faces)
+            const double front_offset = 0;  // TODO: measure center-to-front-sensor in inches
+            const double left_offset = 0;   // TODO: measure center-to-left-sensor in inches
+            const double right_offset = 0;  // TODO: measure center-to-right-sensor in inches
+            const double back_offset = 0;   // TODO: measure center-to-back-sensor in inches
 
-            // retune values for skills
-            const double max_x = 65.4332062;
-            const double max_y = 108.6344109;
-            const double min_x = -64.566964;
-            const double min_y = -14.960638;
+            // Half the field dimension: distance from field center to any wall (inches)
+            const double field_half_size = 72.0;
 
             int get_wall(double heading);
         public:
             enum SensorIndex {
                 Front = 0,
                 Left = 1,
-                Right = 2
+                Right = 2,
+                Back = 3
             };
 
             float horizontal_wheel_diameter;

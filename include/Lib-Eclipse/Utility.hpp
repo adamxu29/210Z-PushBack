@@ -12,12 +12,6 @@ namespace Eclipse
             // 900 ticks/rev with 18:1 gears
             // 300 ticks/rev with 6:1 gears
             double tpi = 0; // ticks per inch
-
-            int red_max = 360;
-            int red_min = 330;
-            int blue_max = 230;
-            int blue_min = 200;
-            int sort_delay = 0;
         public:
             // odometry
             void set_drive_constants(const double dt_wheel_diameter, const double dt_gear_ratio, const double dt_motor_cartridge);
@@ -32,6 +26,12 @@ namespace Eclipse
             void reset_position();
 
             // color sort
+            int red_max = 360;
+            int red_min = 330;
+            int blue_max = 230;
+            int blue_min = 200;
+            int sort_delay = 0;
+
             bool sorting = true;
             bool detect_ball();
             bool detect_upper_ball();

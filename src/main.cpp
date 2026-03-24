@@ -6,7 +6,7 @@ void initialize() {
 	// gui.load_auton_selection();
 	// gui.apply_auton_selection_ui();
 	// gui.display_auton_selector();
-	gui.display_sensors();
+	gui.display_match_checklist();
 	// initialize_particles();
 	
 	util.set_drive_constants(4.00, 0.5714285714, 600);
@@ -32,13 +32,22 @@ void initialize() {
 	odom.set_robot_heading(180);
 
 	update_telemetry = new pros::Task(Eclipse::Odom::update_telemetry_fn);
+	// run_intake = new pros::Task(Eclipse::Intake::intake_task);
 
 	odom.set_robot_position(0.0, 0.0);
 
-	// pros::Task color_sorting([]{
-		// std::cout << "intake: " << intake.get_voltage() << std::endl;
-	// 	util.run_sort();
-	// });
+	m_pid.set_constants(20, 5, 0, 3, 1, 1, 5, 127);
+
+	pros::Task run_intake([]{
+		while(true){
+			scoring.intake_task();
+			pros::delay(10);
+		}
+	});
+
+	pros::Task update_telemetry([]{
+		gui.update_match_checklist();
+	});
 }
 
 void disabled() {
@@ -54,8 +63,8 @@ void autonomous(){
 	int start_time = pros::millis();
 	// Run auton selector or skills
 	// driver.skills ? auton.skills() : gui.run_selected_auton();
-	// auton.solo_awp();
-	auton.test();
+	auton.solo_awp();
+	// auton.test();
 	// auton.left_half_awp();
 	// auton.right_9();
 	// auton.left_7();
@@ -72,14 +81,16 @@ void opcontrol() {
 	bool tuning = false;
 
 	while(true){
-		// controller.print(0, 0, "%s: %s	 DT: %0.1f", (gui.selected_color == 0 ? "R" : (gui.selected_color == 1 ? "B" : "0")), 
-		// 	(gui.selected_path == 0 ? "AWP" : (gui.selected_path == -1 ? "E" : "S")) ,util.get_drive_temp());
-		controller.print(0, 0, "X: %.5f Y:%.5f H: %0.2f", odom.get_robot_x(), odom.get_robot_y(), util.get_heading());
+		controller.print(0, 0, "%s: %s	 DT: %0.1f", (scoring.selected_color == scoring.Color::Red ? "R" : (scoring.selected_color == scoring.Color::Blue ? "B" : "0")), 
+			(gui.selected_path == 0 ? "AWP" : (gui.selected_path == -1 ? "E" : "S")) ,util.get_drive_temp());
+		// controller.print(0, 0, "X: %.5f Y:%.5f H: %0.2f", odom.get_robot_x(), odom.get_robot_y(), util.get_heading());
+		// std::cout << "Bottom - V: " << intake.get_voltage() << " C: " << intake.get_current_draw() << "Top - V: " << indexer.get_voltage() << " C: " <<  indexer.get_current_draw() << std::endl;
 		gui.update_sensors();
 		if(tuning){
 			tuner.driver_tuner();
 		}
 		else{
+			gui.update_match_checklist();
 			driver.driver_control(driver.driver_disabled);
 		}
 		pros::delay(10);

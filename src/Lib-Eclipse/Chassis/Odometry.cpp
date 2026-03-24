@@ -154,9 +154,9 @@ void Odom::distance_sensor_reset(int readings, bool create_task, SensorIndex sen
         return;
     }
 
-    pros::Distance* sensors[3] = {&front_sensor, &left_sensor, &right_sensor};
-    double offsets[3] = {front_offset, left_offset, right_offset};
-    double heading_offsets[3] = {0.0, -90.0, 90.0};
+    pros::Distance* sensors[4] = {&front_sensor, &left_sensor, &right_sensor, &back_sensor};
+    double offsets[4] = {front_offset, left_offset, right_offset, back_offset};
+    double heading_offsets[4] = {0.0, -90.0, 90.0, 180.0};
 
     int sensor_index = static_cast<int>(sensor);
     double sensor_weightings = 0;
@@ -169,7 +169,7 @@ void Odom::distance_sensor_reset(int readings, bool create_task, SensorIndex sen
             continue;
         }
 
-        double distance = (raw_distance - offsets[sensor_index]) * mm_to_inches;
+        double distance = raw_distance * mm_to_inches; // sensor-to-wall in inches (offset applied later)
         double confidence = sensors[sensor_index]->get_confidence();
 
         sensor_weightings += confidence;
@@ -197,22 +197,30 @@ void Odom::distance_sensor_reset(int readings, bool create_task, SensorIndex sen
     if (corrected_heading < 0) { corrected_heading += 360; }
     else if (corrected_heading > 360) { corrected_heading -= 360; }
     int wall = get_wall(corrected_heading);
+    // For each wall, project the sensor offset onto the perpendicular-to-wall axis,
+    // then: wallToCenter = sensorReading + sensor_offset * cos(angle_error)
+    // position = wallSign * (field_half_size - wallToCenter)
+    double angle_err, wall_to_center;
     switch(wall){
-        case 1:
-            avg_distance = avg_distance * cos(corrected_heading * M_PI / 180);
-            odom.set_robot_position(odom.get_robot_x(), max_y - avg_distance);
+        case 1: // top wall — resets Y, positive direction
+            angle_err = corrected_heading;
+            wall_to_center = avg_distance + offsets[sensor_index] * cos(angle_err * M_PI / 180);
+            odom.set_robot_position(odom.get_robot_x(), field_half_size - wall_to_center);
             break;
-        case 2:
-            avg_distance = avg_distance * cos((corrected_heading - 90) * M_PI / 180);
-            odom.set_robot_position(max_x - avg_distance, odom.get_robot_y());
+        case 2: // right wall — resets X, positive direction
+            angle_err = corrected_heading - 90;
+            wall_to_center = avg_distance + offsets[sensor_index] * cos(angle_err * M_PI / 180);
+            odom.set_robot_position(field_half_size - wall_to_center, odom.get_robot_y());
             break;
-        case 3:
-            avg_distance = avg_distance * cos((corrected_heading - 180) * M_PI / 180);
-            odom.set_robot_position(odom.get_robot_x(), min_y + avg_distance);
+        case 3: // bottom wall — resets Y, negative direction
+            angle_err = corrected_heading - 180;
+            wall_to_center = avg_distance + offsets[sensor_index] * cos(angle_err * M_PI / 180);
+            odom.set_robot_position(odom.get_robot_x(), -(field_half_size - wall_to_center));
             break;
-        case 4:
-            avg_distance = avg_distance * cos((corrected_heading - 270) * M_PI / 180);
-            odom.set_robot_position(min_x + avg_distance, odom.get_robot_y());
+        case 4: // left wall — resets X, negative direction
+            angle_err = corrected_heading - 270;
+            wall_to_center = avg_distance + offsets[sensor_index] * cos(angle_err * M_PI / 180);
+            odom.set_robot_position(-(field_half_size - wall_to_center), odom.get_robot_y());
             break;
         default:
             break;

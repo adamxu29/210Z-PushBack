@@ -44,99 +44,23 @@ void Eclipse::OPControl::drivetrain_control(){
     right_drive.move_voltage(right_power * (12000.0 / 127));
 }
 
-void Eclipse::OPControl::power_intake(float speed){
+void Eclipse::OPControl::power_intake(){
     // scoring
     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-        // mid goal scoring 
-        intake_lift.set_value(false);
-        intake_lift_delay_active = false;
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            trapdoor_delay_active = false;
-            mid_goal.set_value(true);
-            intake.move_voltage(12000 * (speed / 127));
-            indexer.move_voltage(12000 * (speed / 127));
-        }
-        // long goal scoring
-        else{
-            if(!trapdoor_delay_active){
-                trapdoor_delay_active = true;
-                trapdoor_delay_counter = 0;
-                trapdoor.set_value(false);
-            }
-            if(trapdoor_delay_active){
-                if(trapdoor_delay_counter >= 8){
-                    trapdoor.set_value(true);
-                    trapdoor_down = true;
-                }
-                else{
-                    trapdoor_delay_counter++;
-                }
-            }
-            mid_goal.set_value(false);
-            intake.move_voltage(12000 * (speed / 127));
-            indexer.move_voltage(12000 * (speed / 127));
-        }
+        // mid + long scoring
+        controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2) ? scoring.set_scoring_mode(scoring.ScoringMode::Middle, 600, 430) : scoring.set_scoring_mode(scoring.ScoringMode::Top);
     }
     // intaking
     else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-        trapdoor_delay_active = false;
-        intake_lift.set_value(false);
-        intake_lift_delay_active = false;
         // match load
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            color.set_led_pwm(100);
-            indexer.set_current_limit(2000);
-            intake_lift.set_value(false);
-            match_loader.set_value(true);
-            intake.move_voltage(12000 * (speed / 127));
-            indexer.move_voltage(12000 * (speed / 127));
-            if((gui.selected_color != -1) && util.detect_upper_ball()){
-                if(util.is_red()){
-                    trapdoor.set_value(gui.selected_color == 1 ? true : false);
-                }
-                else if(util.is_blue()){
-                    trapdoor.set_value(gui.selected_color == 0 ? true : false);
-                }
-            }
-        }
-        else{
-            color.set_led_pwm(0);
-            trapdoor.set_value(false);
-            trapdoor_down = false;
-            indexer.set_current_limit(2000);
-            intake.move_voltage(12000 * (speed / 127));
-            indexer.move_voltage(12000 * (speed / 127));
-        }
+        controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2) ? scoring.set_scoring_mode(scoring.ScoringMode::MatchLoad) : scoring.set_scoring_mode(scoring.ScoringMode::Intake);
     }
     // bottom goal
     else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-        trapdoor_delay_active = false;
-        if(intake_lift_active){
-            if(!intake_lift_delay_active){
-                intake_lift_delay_active = true;
-                intake_lift_delay_counter = 0;
-                intake_lift.set_value(false);
-            }
-            if(intake_lift_delay_active){
-                if(intake_lift_delay_counter >= 5){
-                    intake_lift.set_value(true);
-                }
-                else{
-                    intake_lift_delay_counter++;
-                }
-            }
-        }
-        intake.move_voltage(-12000 * (speed / 127));
-        indexer.move_voltage(-12000 * (speed / 127));
+        intake_lift_active ? scoring.set_scoring_mode(scoring.ScoringMode::Bottom) : scoring.set_scoring_mode(scoring.ScoringMode::Outtake);
     }
     else{
-        color.set_led_pwm(0);
-        intake_lift.set_value(false);
-        indexer.set_current_limit(2500);
-        mid_goal.set_value(false);
-        match_loader.set_value(false);
-        intake.move_voltage(0);
-        indexer.move_voltage(0);
+        scoring.set_scoring_mode(scoring.ScoringMode::None);
     }
 }
 
@@ -154,37 +78,28 @@ void Eclipse::OPControl::activate_wing(){
         wing.set_value(false);
     }
 }
+/*
+    L1: Intake
+    L2: Wing
+    R1: Score
+    R2: Outtake
 
-void Eclipse::OPControl::change_intake_speed(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-        if(this->shooter_speed == max_speed){
-            this->shooter_speed = slow_speed;
-        }
-        else if(this->shooter_speed == slow_speed){
-            this->shooter_speed = max_speed;
-        }
-        else{
-            this->shooter_speed = max_speed;
-        }
+    X: Odom Lift
+    A: Mid Goal Macro
+    B: Undisable??
+    Y: Intake Lift Toggle
 
-        if(this->intake_speed == max_speed){
-            this->intake_speed = slow_speed;
-        }
-        else if(this->intake_speed == slow_speed){
-            this->intake_speed = max_speed;
-        }
-        else{
-            this->intake_speed = max_speed;
-        }
-    }
-}
-
+    Right: 
+    Down:
+    Left: DSR
+    Up: Color Select
+*/
 void Eclipse::OPControl::driver_control(bool disabled){
     if(!disabled){
         driver.drivetrain_control();
         // driver.exponential_curve_accelerator();
-        driver.power_intake(intake_speed);
-        driver.change_intake_speed();
+        driver.power_intake();
+        // scoring.change_intake_speed();
         driver.intake_lift_control();
         driver.activate_wing();
 
@@ -204,37 +119,72 @@ void Eclipse::OPControl::driver_control(bool disabled){
     else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){ 
         odom_lift.set_value(true);
     }
+
+    // low goal macro
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+        disabled = true;
+        intake_lift.set_value(true);
+        pros::delay(250);
+        scoring.set_scoring_mode(scoring.ScoringMode::Bottom, 600, 600);
+        t_pid.set_t_constants(3, 0, 30, 100);
+        t_pid.translation_pid(-2.5, 70, .4, false);
+        scoring.set_scoring_mode(scoring.ScoringMode::Bottom, 200, 400);
+        pros::delay(1000);
+        std::cout << "i: " << pros::millis();
+        while(true){
+            if((intake.get_current_draw() < 320) && (intake.get_voltage() < -4350)){
+                break;
+            }
+            std::cout << "c: " << intake.get_current_draw() << "v: " << intake.get_voltage() << std::endl;
+            pros::delay(100);
+        }
+        pros::delay(500);
+		std::cout << "c: " << intake.get_current_draw() << "v: " << intake.get_voltage() << std::endl;
+        std::cout << "f: " << pros::millis();
+        t_pid.set_t_constants(3, 0, 30, 100);
+        t_pid.translation_pid(-5, 70, .4, false);
+        scoring.set_scoring_mode(scoring.ScoringMode::None);
+        disabled = false;
+    }
+    // mid goal macro
+    else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+        disabled = true;
+        
+        mid_goal.set_value(true);
+        pros::delay(500);
+        scoring.set_scoring_mode(scoring.ScoringMode::Middle, 600, 430);
+        t_pid.set_t_constants(3, 0, 30, 100);
+        t_pid.translation_pid(2, 70, .3, false);
+        scoring.set_scoring_mode(scoring.ScoringMode::Middle, 600, 202.5);
+        pros::delay(1000);
+        std::cout << "c: " << indexer.get_current_draw() << "v: " << indexer.get_voltage() << std::endl;
+        while(true){
+            if((indexer.get_current_draw() < 500) && (indexer.get_voltage() > 4400)){
+                break;
+            }
+            std::cout << "c: " << indexer.get_current_draw() << "v: " << indexer.get_voltage() << std::endl;
+            pros::delay(10);
+        }
+        pros::delay(100);
+        std::cout << "c: " << indexer.get_current_draw() << "v: " << indexer.get_voltage() << std::endl;
+        std::cout << "f: " << pros::millis();
+        t_pid.set_t_constants(3, 0, 30, 100);
+        t_pid.translation_pid(2, 70, .4, false);
+        scoring.set_scoring_mode(scoring.ScoringMode::None);
+
         disabled = false;
     }
 
-    // mid goal macro
-    // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-    //     disabled = true;
-    //     intake.move_voltage(0);
-    //     indexer.move_voltage(0);
-    //     mid_goal.set_value(true);
-    //     pros::delay(250);
-    //     intake.move_voltage(12000);
-    //     indexer.move_voltage(10000);
-    //     pros::delay(200);
-    //     indexer.move_voltage(9000);
-    //     t_pid.set_t_constants(3, 0, 30, 100);
-    //     t_pid.translation_pid(2, 70, .4);
-    //     indexer.move_voltage(4500);
-    //     pros::delay(1000);
-    //     indexer.move_voltage(4000);
-    //     pros::delay(1250);
-    //     disabled = false;
-    // }
-
     // color select
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-        if(gui.selected_color == 0){
-            gui.selected_color = 1;
+        if(scoring.selected_color == scoring.Color::None){
+            scoring.set_color(scoring.Color::Red);
+        }
+        else if(scoring.selected_color == scoring.Color::Red){
+            scoring.set_color(scoring.Color::Blue);
         }
         else{
-            gui.selected_color = 0;
+            scoring.set_color(scoring.Color::None);
         }
     }
 

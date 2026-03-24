@@ -81,7 +81,6 @@ double Utility::get_angular_error(double x, double y, bool backwards)
     double delta_theta = atan2(delta_y, delta_x);
 
     if(backwards){ delta_theta = atan2(-delta_y, -delta_x); }
-
     // normalize angle to be between -pi and pi
     while(fabs(delta_theta) > M_PI){
         (delta_theta > 0) ? delta_theta -= 2 * M_PI : delta_theta += 2 * M_PI;
@@ -207,10 +206,10 @@ void Utility::run_sort(){
     int stop_delay_counter = 0;
     while(true){
         if(util.sorting){
-            if(gui.selected_color == 0){
+            if(scoring.selected_color == scoring.Color::Red){
                 util.sort_red();
             }
-            else if(gui.selected_color == 1){
+            else if(scoring.selected_color == scoring.Color::Blue){
                 util.sort_blue();
             }
         }
@@ -228,20 +227,20 @@ void Utility::run_sort(){
 void Utility::score_until_opp_block(int time_out){
     bool in_match = pros::competition::get_status() == 4;
 
-    trapdoor.set_value(true);
+    scoring.set_scoring_mode(scoring.ScoringMode::Top);
     color.set_led_pwm(100);
     int local_timer = 0;
     while(true){
-        if(gui.selected_color == 0){
+        if(scoring.selected_color == scoring.Color::Red){
             if((in_match ? is_red() : is_blue()) && detect_upper_ball()){
-                trapdoor.set_value(false);
+                scoring.set_scoring_mode(scoring.ScoringMode::Intake);
                 std::cout << "stopping on " << in_match ? "red" : "blue";
                 break;
             }
         }
-        else if(gui.selected_color == 1){
+        else if(scoring.selected_color == scoring.Color::Blue){
             if((in_match ? is_blue() : is_red()) && detect_upper_ball()){
-                trapdoor.set_value(false);
+                scoring.set_scoring_mode(scoring.ScoringMode::Intake);
                 std::cout << "stopping on " << in_match ? "blue" : "red";
                 break;
             }

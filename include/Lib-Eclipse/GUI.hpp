@@ -50,7 +50,6 @@ namespace Eclipse{
 
             static lv_res_t skills_toggle_callback(lv_obj_t *btn);
 
-            int selected_color = -1;
             int selected_path = -1;
 
             // void save_auton_selection();
