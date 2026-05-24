@@ -24,7 +24,8 @@ namespace Eclipse{
             void activate_match_load();
             void activate_double_park();
             void activate_trapdoor();
-            void activate_wing();
+            void activate_front_wing();
+            void activate_back_wing();
 
             void driver_control(bool disabled);
     };

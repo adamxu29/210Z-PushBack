@@ -156,20 +156,20 @@ void Utility::reset_position()
     right_drive.set_zero_position(0);
 }
 
-bool Utility::detect_ball(){
-    return ((park_sensor.get() < 70) && (park_sensor.get() > 60));
+bool Utility::detect_lower_ball(){
+    return (bottom_color.get_proximity() > 100);
 }
 
 bool Utility::detect_upper_ball(){
     return (color.get_proximity() > 100);
 }
 
-bool Utility::is_red(){
-    return (color.get_hue() > this->red_min && color.get_hue() < this->red_max);
+bool Utility::is_red(pros::Optical& sensor){
+    return (sensor.get_hue() > this->red_min && sensor.get_hue() < this->red_max);
 }
 
-bool Utility::is_blue(){
-    return (color.get_hue() > this->blue_min && color.get_hue() < this->blue_max);
+bool Utility::is_blue(pros::Optical& sensor){
+    return (sensor.get_hue() > this->blue_min && sensor.get_hue() < this->blue_max);
 }
 
 void Utility::sort(){
@@ -191,13 +191,13 @@ void Utility::sort(){
 }
 
 void Utility::sort_red(){
-    if(is_blue() && detect_upper_ball()){
+    if(is_blue(color) && detect_upper_ball()){
         sort();
     }
 }
 
 void Utility::sort_blue(){
-    if(is_red() && detect_upper_ball()){
+    if(is_red(color) && detect_upper_ball()){
         sort();
     }
 }
@@ -224,39 +224,6 @@ void Utility::run_sort(){
     }
 }
 
-void Utility::score_until_opp_block(int time_out){
-    bool in_match = pros::competition::get_status() == 4;
-
-    scoring.set_scoring_mode(scoring.ScoringMode::Top);
-    color.set_led_pwm(100);
-    int local_timer = 0;
-    while(true){
-        if(scoring.selected_color == scoring.Color::Red){
-            if((in_match ? is_red() : is_blue()) && detect_upper_ball()){
-                scoring.set_scoring_mode(scoring.ScoringMode::Intake);
-                std::cout << "stopping on " << in_match ? "red" : "blue";
-                break;
-            }
-        }
-        else if(scoring.selected_color == scoring.Color::Blue){
-            if((in_match ? is_blue() : is_red()) && detect_upper_ball()){
-                scoring.set_scoring_mode(scoring.ScoringMode::Intake);
-                std::cout << "stopping on " << in_match ? "blue" : "red";
-                break;
-            }
-        }
-
-        if(time_out > 0){
-            local_timer++;
-        }
-        if(local_timer > (time_out * 100)){
-            break;
-        }
-
-        pros::delay(10);
-    }
-    color.set_led_pwm(0);
-}
 
 // trapdoor.set_value(true);
 // color.set_led_pwm(100);

@@ -5,6 +5,8 @@ namespace Eclipse{
         void anti_solo_awp();
         void left_half_awp();
         void right_half_awp();
+        void left_63();
+        void right_63();
         void left_9();
         void left_7();
         void right_9();

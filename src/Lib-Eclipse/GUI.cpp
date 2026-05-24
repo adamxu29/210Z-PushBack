@@ -162,12 +162,17 @@ lv_res_t GUI::autonomous_path_callback(lv_obj_t *btn) {
     else if(gui.current_selected_path == gui.right_half_awp){
         gui.selected_path = 2;
     }
-    else if(gui.current_selected_path == gui.right_elims){
+    else if(gui.current_selected_path == gui.right_7){
         gui.selected_path = 3;
-        
     }
-    else if(gui.current_selected_path == gui.left_elims){
+    else if(gui.current_selected_path == gui.left_7){
         gui.selected_path = 4;
+    }
+    else if(gui.current_selected_path == gui.right_9){
+        gui.selected_path = 5;
+    }
+    else if(gui.current_selected_path == gui.left_9){
+        gui.selected_path = 6;
     }
     else{
         gui.selected_path = -1;
@@ -268,7 +273,7 @@ void GUI::initialize_objects() {
     
     gui.autonomous_path = lv_label_create(gui.auton_screen, NULL);
         lv_label_set_style(gui.autonomous_path, &gui.style_text);
-        lv_obj_align(gui.autonomous_path, NULL, LV_ALIGN_IN_TOP_LEFT, 156, 96);
+        lv_obj_align(gui.autonomous_path, NULL, LV_ALIGN_IN_TOP_LEFT, 156, 95);
         lv_label_set_text(gui.autonomous_path, "Autonomous Path");
     
     gui.solo_awp = lv_btn_create(gui.auton_screen, NULL);
@@ -279,9 +284,9 @@ void GUI::initialize_objects() {
         lv_btn_set_style(gui.solo_awp, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
         lv_btn_set_action(gui.solo_awp, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
         lv_obj_set_size(gui.solo_awp, 140, 30);
-        lv_obj_align(gui.solo_awp, NULL, LV_ALIGN_IN_TOP_LEFT, 170, 121);
+        lv_obj_align(gui.solo_awp, NULL, LV_ALIGN_IN_TOP_LEFT, 170, 120);
         lv_label_set_text(lv_label_create(gui.solo_awp, NULL), "Solo AWP");
-    
+
     gui.left_half_awp = lv_btn_create(gui.auton_screen, NULL);
         lv_btn_set_toggle(gui.left_half_awp, true);
         lv_btn_set_style(gui.left_half_awp, LV_BTN_STYLE_REL, &gui.style_purple_btn);
@@ -290,9 +295,9 @@ void GUI::initialize_objects() {
         lv_btn_set_style(gui.left_half_awp, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
         lv_btn_set_action(gui.left_half_awp, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
         lv_obj_set_size(gui.left_half_awp, 140, 30);
-        lv_obj_align(gui.left_half_awp, NULL, LV_ALIGN_IN_TOP_LEFT, 76, 161);
+        lv_obj_align(gui.left_half_awp, NULL, LV_ALIGN_IN_TOP_LEFT, 76, 150);
         lv_label_set_text(lv_label_create(gui.left_half_awp, NULL), "Left Half AWP");
-    
+
     gui.right_half_awp = lv_btn_create(gui.auton_screen, NULL);
         lv_btn_set_toggle(gui.right_half_awp, true);
         lv_btn_set_style(gui.right_half_awp, LV_BTN_STYLE_REL, &gui.style_purple_btn);
@@ -301,30 +306,52 @@ void GUI::initialize_objects() {
         lv_btn_set_style(gui.right_half_awp, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
         lv_btn_set_action(gui.right_half_awp, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
         lv_obj_set_size(gui.right_half_awp, 140, 30);
-        lv_obj_align(gui.right_half_awp, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 161);
+        lv_obj_align(gui.right_half_awp, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 150);
         lv_label_set_text(lv_label_create(gui.right_half_awp, NULL), "Right Half AWP");
 
-    gui.right_elims = lv_btn_create(gui.auton_screen, NULL);
-        lv_btn_set_toggle(gui.right_elims, true);
-        lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_REL, &gui.style_purple_btn);
-        lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
-        lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
-        lv_btn_set_style(gui.right_elims, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
-        lv_btn_set_action(gui.right_elims, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
-        lv_obj_set_size(gui.right_elims, 140, 30);
-        lv_obj_align(gui.right_elims, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 201);        
-        lv_label_set_text(lv_label_create(gui.right_elims, NULL), "Right Elims");
+    gui.right_7 = lv_btn_create(gui.auton_screen, NULL);
+        lv_btn_set_toggle(gui.right_7, true);
+        lv_btn_set_style(gui.right_7, LV_BTN_STYLE_REL, &gui.style_purple_btn);
+        lv_btn_set_style(gui.right_7, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.right_7, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.right_7, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
+        lv_btn_set_action(gui.right_7, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
+        lv_obj_set_size(gui.right_7, 140, 30);
+        lv_obj_align(gui.right_7, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 180);
+        lv_label_set_text(lv_label_create(gui.right_7, NULL), "Right 7");
 
-    gui.left_elims = lv_btn_create(gui.auton_screen, NULL);
-        lv_btn_set_toggle(gui.left_elims, true);
-        lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_REL, &gui.style_purple_btn);
-        lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
-        lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
-        lv_btn_set_style(gui.left_elims, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
-        lv_btn_set_action(gui.left_elims, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
-        lv_obj_set_size(gui.left_elims, 140, 30);
-        lv_obj_align(gui.left_elims, NULL, LV_ALIGN_IN_TOP_LEFT, 71, 201);
-        lv_label_set_text(lv_label_create(gui.left_elims, NULL), "Left Elims");
+    gui.left_7 = lv_btn_create(gui.auton_screen, NULL);
+        lv_btn_set_toggle(gui.left_7, true);
+        lv_btn_set_style(gui.left_7, LV_BTN_STYLE_REL, &gui.style_purple_btn);
+        lv_btn_set_style(gui.left_7, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.left_7, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.left_7, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
+        lv_btn_set_action(gui.left_7, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
+        lv_obj_set_size(gui.left_7, 140, 30);
+        lv_obj_align(gui.left_7, NULL, LV_ALIGN_IN_TOP_LEFT, 76, 180);
+        lv_label_set_text(lv_label_create(gui.left_7, NULL), "Left 7");
+
+    gui.right_9 = lv_btn_create(gui.auton_screen, NULL);
+        lv_btn_set_toggle(gui.right_9, true);
+        lv_btn_set_style(gui.right_9, LV_BTN_STYLE_REL, &gui.style_purple_btn);
+        lv_btn_set_style(gui.right_9, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.right_9, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.right_9, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
+        lv_btn_set_action(gui.right_9, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
+        lv_obj_set_size(gui.right_9, 140, 30);
+        lv_obj_align(gui.right_9, NULL, LV_ALIGN_IN_TOP_LEFT, 263, 210);
+        lv_label_set_text(lv_label_create(gui.right_9, NULL), "Right 9");
+
+    gui.left_9 = lv_btn_create(gui.auton_screen, NULL);
+        lv_btn_set_toggle(gui.left_9, true);
+        lv_btn_set_style(gui.left_9, LV_BTN_STYLE_REL, &gui.style_purple_btn);
+        lv_btn_set_style(gui.left_9, LV_BTN_STYLE_PR, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.left_9, LV_BTN_STYLE_TGL_REL, &gui.style_pressed_purple_btn);
+        lv_btn_set_style(gui.left_9, LV_BTN_STYLE_TGL_PR, &gui.style_purple_btn);
+        lv_btn_set_action(gui.left_9, LV_BTN_ACTION_CLICK, gui.autonomous_path_callback);
+        lv_obj_set_size(gui.left_9, 140, 30);
+        lv_obj_align(gui.left_9, NULL, LV_ALIGN_IN_TOP_LEFT, 76, 210);
+        lv_label_set_text(lv_label_create(gui.left_9, NULL), "Left 9");
 
     gui.auton_return_home = lv_btn_create(gui.auton_screen, NULL);
         lv_btn_set_style(gui.auton_return_home, LV_BTN_STYLE_REL, &gui.style_purple_btn);
@@ -497,72 +524,6 @@ void GUI::initialize_objects() {
         lv_label_set_text(lv_label_create(gui.debug_return_home, NULL), SYMBOL_HOME);
 }
 
-// void GUI::save_auton_selection() {
-//     if (!pros::usd::is_installed()) {
-//         return;
-//     }
-//     static const char* kAutonFile = "/usd/auton.cfg";
-//     FILE* file = fopen(kAutonFile, "w");
-//     if (!file) {
-//         return;
-//     }
-//     fprintf(file, "%d %d %d\n", selected_path, selected_color, static_cast<int>(driver.skills));
-//     fclose(file);
-// }
-
-// void GUI::load_auton_selection() {
-//     if (!pros::usd::is_installed()) {
-//         return;
-//     }
-//     static const char* kAutonFile = "/usd/auton.cfg";
-//     FILE* file = fopen(kAutonFile, "r");
-//     if (!file) {
-//         return;
-//     }
-//     int path = -1;
-//     int color = -1;
-//     int skills = 0;
-//     if (fscanf(file, "%d %d %d", &path, &color, &skills) == 3) {
-//         selected_path = path;
-//         selected_color = color;
-//         driver.skills = (skills != 0);
-//     }
-//     fclose(file);
-// }
-
-// void GUI::apply_auton_selection_ui() {
-//     current_selected_color = nullptr;
-//     current_selected_path = nullptr;
-
-//     if (selected_color == 0) {
-//         current_selected_color = red_btn;
-//         lv_btn_set_state(red_btn, LV_BTN_STATE_TGL_REL);
-//     } else if (selected_color == 1) {
-//         current_selected_color = blue_btn;
-//         lv_btn_set_state(blue_btn, LV_BTN_STATE_TGL_REL);
-//     }
-
-//     if (selected_path == 0) {
-//         current_selected_path = solo_awp;
-//     } else if (selected_path == 1) {
-//         current_selected_path = left_half_awp;
-//     } else if (selected_path == 2) {
-//         current_selected_path = right_half_awp;
-//     } else if (selected_path == 3) {
-//         current_selected_path = right_elims;
-//     } else if (selected_path == 4) {
-//         current_selected_path = left_elims;
-//     }
-
-//     if (current_selected_path) {
-//         lv_btn_set_state(current_selected_path, LV_BTN_STATE_TGL_REL);
-//     }
-
-//     if (driver.skills) {
-//         lv_btn_set_state(skills_toggle, LV_BTN_STATE_TGL_REL);
-//     }
-// }
-
 void GUI::run_selected_auton(){
     switch(gui.selected_path){
         case 0:
@@ -580,6 +541,12 @@ void GUI::run_selected_auton(){
         case 3:
             auton.right_7();
             break;
+        case 5:
+            auton.right_9();
+            break;
+        case 6:
+            auton.left_9();
+            break;
         default:
             auton.test();
             break;
@@ -591,7 +558,7 @@ void GUI::update_sensors(){
     
     sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", odom.get_robot_x(), odom.get_robot_y(), util.get_heading());
     lv_label_set_text(gui.position_readings, buffer);
-    // lv_label_set_text(gui.match_position_readings, buffer);
+    lv_label_set_text(gui.match_position_readings, buffer);
     lv_label_set_text(gui.debug_line_9, buffer);
     
     sprintf(buffer, "FL: %.2f ML: %.2f BL: %.2f", left_drive.get_positions()[0], left_drive.get_positions()[1], left_drive.get_positions()[2]);
@@ -619,12 +586,12 @@ void GUI::update_match_checklist(){
     lv_label_set_text(gui.battery_level, buffer);
 
     const char* selected_color_str = driver.skills ? "Skills" : ((scoring.selected_color == scoring.Color::Red) ? "Red:" : (scoring.selected_color == scoring.Color::Blue) ? "Blue:" : "None:");
-    const char* selected_path_str = driver.skills ? " " : ((gui.selected_path == 0) ? "Solo AWP" : (gui.selected_path == 1) ? "Left Half AWP" : (gui.selected_path == 2) ? "Right Half AWP" : (gui.selected_path == 3) ? "Goal Side Rush" : (gui.selected_path == 4) ? "Ring Side Rush" : "Test");
+    const char* selected_path_str = driver.skills ? " " : ((gui.selected_path == 0) ? "Solo AWP" : (gui.selected_path == 1) ? "Left Half AWP" : (gui.selected_path == 2) ? "Right Half AWP" : (gui.selected_path == 3) ? "Right 7" : (gui.selected_path == 4) ? "Left 7" : (gui.selected_path == 5) ? "Right 9" : (gui.selected_path == 6) ? "Left 9" : "Test");
     sprintf(buffer, "Selected Path: %s Colur: %s", selected_path_str, selected_color_str);
     lv_label_set_text(gui.selected_auton, buffer);
 
     sprintf(buffer, "Top V: %d C: %d Bottom V: %d C %d", intake.get_voltage(), intake.get_current_draw(), indexer.get_voltage(), indexer.get_current_draw());
-    lv_label_set_text(gui.match_position_readings, buffer);
+    lv_label_set_text(gui.debug_line_7, buffer);
 
     total_seconds = pros::millis() / 1000;
     minutes = total_seconds / 60;

@@ -1,166 +1,341 @@
 #include "main.h"
-#include "pros/distance.hpp"
-#include "pros/imu.hpp"
-#include <vector>
-#include <random>
-#include <cmath>
+#include "Lib-Eclipse/Chassis/MonteCarloLocalization.hpp"
 
-#define NUM_PARTICLES 500
-#define FIELD_SIZE_IN 144
-#define LADDER_CENTER_X 72
-#define LADDER_CENTER_Y 72
-#define LADDER_MIN_X 60
-#define LADDER_MAX_X 84
-#define LADDER_MIN_Y 60
-#define LADDER_MAX_Y 84
-#define SENSOR_REFRESH_INTERVAL 1
-#define MCL_UPDATE_INTERVAL 1
-#define SENSOR_JUMP_THRESHOLD 10
+using namespace Eclipse;
 
-std::vector<Particle> particles(NUM_PARTICLES);
-std::random_device rd;
-std::mt19937 gen(rd());
+// ============================================================
+// RAYCASTER — slab method
+// Returns distance along ray to nearest surface, or -1 if no hit.
+// For the field boundary (robot inside): returns exit face distance.
+// For obstacles (robot outside): returns entry face distance.
+// ============================================================
 
-std::uniform_real_distribution<double> rand_x(-6, 6);
-std::uniform_real_distribution<double> rand_y(-6, 6);
-std::uniform_real_distribution<double> rand_theta(-5, 5);
-std::normal_distribution<double> noise_x(0, 0.2);
-std::normal_distribution<double> noise_y(0, 0.2);
-std::normal_distribution<double> noise_theta(0, 1.5);
+struct AABB { float centre_x, centre_y, half_width, half_height; };
 
-uint32_t last_update_time = 0;
-uint32_t last_sensor_refresh = 0;
+static float ray_vs_aabb(Eigen::Vector2f origin, Eigen::Vector2f dir, const AABB& box) {
+    Eigen::Vector2f rel = origin - Eigen::Vector2f(box.centre_x, box.centre_y);
 
-double last_front, last_back, last_left, last_right;
-double cached_front, cached_back, cached_left, cached_right;
+    float t_near = -std::numeric_limits<float>::infinity();
+    float t_far  =  std::numeric_limits<float>::infinity();
 
-double clamp_sensor(double mm) {
-    return std::min(mm / 25.4, (double)FIELD_SIZE_IN);
-}
-
-bool in_ladder(double x, double y) {
-    return x >= LADDER_MIN_X && x <= LADDER_MAX_X &&
-           y >= LADDER_MIN_Y && y <= LADDER_MAX_Y;
-}
-
-bool ray_hits_ladder_from_sensor(double heading_deg, double sensor_offset_angle_deg, double distance_in) {
-    double total_angle = heading_deg + sensor_offset_angle_deg;
-    double rad = total_angle * M_PI / 180.0;
-
-    double x = LADDER_CENTER_X + distance_in * cos(rad);
-    double y = LADDER_CENTER_Y + distance_in * sin(rad);
-
-    return in_ladder(x, y);
-}
-
-void initialize_particles() {
-    for (auto& p : particles) {
-        p.x = LADDER_CENTER_X + rand_x(gen);
-        p.y = LADDER_CENTER_Y + rand_y(gen);
-        p.theta = rand_theta(gen);
-        p.weight = 1.0 / NUM_PARTICLES;
+    // x slab
+    if (fabsf(dir.x()) > 1e-6f) {
+        float t1 = (-box.half_width - rel.x()) / dir.x();
+        float t2 = ( box.half_width - rel.x()) / dir.x();
+        if (t1 > t2) std::swap(t1, t2);
+        t_near = std::max(t_near, t1);
+        t_far  = std::min(t_far,  t2);
+    } else if (fabsf(rel.x()) > box.half_width) {
+        return -1.0f;
     }
 
-    last_front = clamp_sensor(front_sensor.get());
-    last_back  = clamp_sensor(back_sensor.get());
-    last_left  = clamp_sensor(left_sensor.get());
-    last_right = clamp_sensor(right_sensor.get());
-
-    cached_front = last_front;
-    cached_back  = last_back;
-    cached_left  = last_left;
-    cached_right = last_right;
-}
-
-void refresh_sensors() {
-    double heading = util.get_heading();
-
-    double f = clamp_sensor(front_sensor.get());
-    if (!ray_hits_ladder_from_sensor(heading, 180, f) && fabs(f - last_front) < SENSOR_JUMP_THRESHOLD)
-        cached_front = f;
-
-    double b = clamp_sensor(back_sensor.get());
-    if (!ray_hits_ladder_from_sensor(heading, 0, b) && fabs(b - last_back) < SENSOR_JUMP_THRESHOLD)
-        cached_back = b;
-
-    double l = clamp_sensor(left_sensor.get());
-    if (!ray_hits_ladder_from_sensor(heading, 270, l) && fabs(l - last_left) < SENSOR_JUMP_THRESHOLD)
-        cached_left = l;
-
-    double r = clamp_sensor(right_sensor.get());
-    if (!ray_hits_ladder_from_sensor(heading, 90, r) && fabs(r - last_right) < SENSOR_JUMP_THRESHOLD)
-        cached_right = r;
-
-    last_front = f;
-    last_back = b;
-    last_left = l;
-    last_right = r;
-}
-
-void update_particles_from_heading() {
-    double heading = util.get_heading();  // degrees
-    double dx = (cached_right - cached_left) / 2.0;
-    double dy = (cached_back - cached_front) / 2.0;
-
-    double rad = heading * M_PI / 180.0;
-    double rotated_x = dx * cos(rad) - dy * sin(rad);
-    double rotated_y = dx * sin(rad) + dy * cos(rad);
-
-    // Flip the Y-axis based on 90 and 270 degree turns
-    if (fmod(heading, 360) == 90 || fmod(heading, 360) == 270) {
-        rotated_y = -rotated_y;
+    // y slab
+    if (fabsf(dir.y()) > 1e-6f) {
+        float t1 = (-box.half_height - rel.y()) / dir.y();
+        float t2 = ( box.half_height - rel.y()) / dir.y();
+        if (t1 > t2) std::swap(t1, t2);
+        t_near = std::max(t_near, t1);
+        t_far  = std::min(t_far,  t2);
+    } else if (fabsf(rel.y()) > box.half_height) {
+        return -1.0f;
     }
 
-    // When rotating, don't update the X and Y unless moving forward/backward
-    for (auto& p : particles) {
-        if (fabs(dx) > 0.5 || fabs(dy) > 0.5) {
-            p.x = LADDER_CENTER_X + rotated_x + noise_x(gen);
-            p.y = LADDER_CENTER_Y + rotated_y + noise_y(gen);
+    if (t_near > t_far || t_far < 0.0f) return -1.0f;
+
+    return (t_near >= 0.0f) ? t_near : t_far;
+}
+
+// ============================================================
+// OBSTACLE MAP
+// ============================================================
+
+static const AABB OBSTACLES[] = {
+    { 0.0f,      0.0f,       HALF_FIELD,          HALF_FIELD          },  // field boundary
+    { 0.0f,      0.0f,       CENTER_WIDTH * 0.5f, CENTER_LENGTH * 0.5f},  // centre barrier
+    { -LOADER_X, -LOADER_CY, LOADER_WIDTH * 0.5f, LOADER_LENGTH * 0.5f},  // loader BL
+    { -LOADER_X,  LOADER_CY, LOADER_WIDTH * 0.5f, LOADER_LENGTH * 0.5f},  // loader TL
+    {  LOADER_X,  LOADER_CY, LOADER_WIDTH * 0.5f, LOADER_LENGTH * 0.5f},  // loader TR
+    {  LOADER_X, -LOADER_CY, LOADER_WIDTH * 0.5f, LOADER_LENGTH * 0.5f},  // loader BR
+    { -GOAL_X,   -GOAL_Y,    GOAL_WIDTH * 0.5f,   GOAL_LENGTH * 0.5f  },  // goal BL
+    { -GOAL_X,    GOAL_Y,    GOAL_WIDTH * 0.5f,   GOAL_LENGTH * 0.5f  },  // goal TL
+    {  GOAL_X,    GOAL_Y,    GOAL_WIDTH * 0.5f,   GOAL_LENGTH * 0.5f  },  // goal TR
+    {  GOAL_X,   -GOAL_Y,    GOAL_WIDTH * 0.5f,   GOAL_LENGTH * 0.5f  },  // goal BR
+};
+static constexpr int NUM_OBSTACLES = sizeof(OBSTACLES) / sizeof(OBSTACLES[0]);
+
+// ============================================================
+// DISTANCE SENSOR
+// ============================================================
+
+void MCL::DistanceSensor::update() {
+    int raw_mm = sensor->get();
+    int conf   = sensor->get_confidence();
+
+    if (raw_mm >= 9999 || conf < 1) { healthy = false; return; }
+
+    float inches = raw_mm * 0.0393701f;
+    if (inches > max_range) { healthy = false; return; }
+
+    healthy  = true;
+    measured = inches;
+}
+
+float MCL::DistanceSensor::likelihood(float px, float py, float p_theta) const {
+    if (!healthy) return 1.0f;  // unhealthy sensor contributes no information
+
+    // Body frame: +X = right, +Y = forward.
+    // Rotation2Df assumes +X = forward, +Y = left (math convention), so we
+    // must remap: forward_component = offset_y, left_component = -offset_x.
+    Eigen::Vector2f sensor_pos =
+        Eigen::Rotation2Df(p_theta) * Eigen::Vector2f(offset_y, -offset_x)
+        + Eigen::Vector2f(px, py);
+
+    // offset_theta uses CW-positive (compass) convention; math angles are CCW,
+    // so subtract rather than add.
+    float ray_theta = p_theta - offset_theta;
+    Eigen::Vector2f ray_dir(cosf(ray_theta), sinf(ray_theta));
+
+    // Find nearest obstacle along sensor ray
+    float predicted = std::numeric_limits<float>::infinity();
+    for (int k = 0; k < NUM_OBSTACLES; ++k) {
+        float d = ray_vs_aabb(sensor_pos, ray_dir, OBSTACLES[k]);
+        if (d >= 0.0f && d < predicted) predicted = d;
+    }
+
+    if (predicted == std::numeric_limits<float>::infinity()) return 0.0f;
+
+    float e = measured - predicted;
+    return expf(-0.5f * (e / sigma) * (e / sigma));
+}
+
+// ============================================================
+// MCL
+// ============================================================
+
+MCL::MCL() : rng(pros::micros()) {
+    std::fill(particle_x,        particle_x        + N, 0.0f);
+    std::fill(particle_y,        particle_y        + N, 0.0f);
+    std::fill(particle_theta,    particle_theta    + N, 0.0f);
+    std::fill(particle_weights,  particle_weights  + N, 1.0f / N);
+    std::fill(temp_x,            temp_x            + N, 0.0f);
+    std::fill(temp_y,            temp_y            + N, 0.0f);
+    std::fill(temp_theta,        temp_theta        + N, 0.0f);
+    std::fill(temp_weights,      temp_weights      + N, 0.0f);
+    std::fill(presample_x,       presample_x       + N, 0.0f);
+    std::fill(presample_y,       presample_y       + N, 0.0f);
+    std::fill(presample_theta,   presample_theta   + N, 0.0f);
+    std::fill(presample_weights, presample_weights + N, 0.0f);
+}
+
+// Scatter particles uniformly across the whole field — use when position is unknown.
+void MCL::init_uniform() {
+    rng = XorShift32(pros::micros());
+    for (int i = 0; i < N; i++) {
+        particle_x[i]       = rng.range_f32(MIN_FIELD, MAX_FIELD);
+        particle_y[i]       = rng.range_f32(MIN_FIELD, MAX_FIELD);
+        particle_theta[i]   = rng.range_f32(0.0f, 360.0f);
+        particle_weights[i] = 1.0f / N;
+    }
+    distance_traveled = update_distance_threshold;  // force update on first step
+}
+
+// Concentrate particles around a known starting pose ± pos_variance inches.
+void MCL::init(float x, float y, float theta, float pos_variance) {
+    rng = XorShift32(pros::micros());
+    for (int i = 0; i < N; i++) {
+        particle_x[i]       = std::clamp(x + rng.range_f32(-pos_variance, pos_variance), MIN_FIELD, MAX_FIELD);
+        particle_y[i]       = std::clamp(y + rng.range_f32(-pos_variance, pos_variance), MIN_FIELD, MAX_FIELD);
+        particle_theta[i]   = theta;
+        particle_weights[i] = 1.0f / N;
+    }
+    distance_traveled = update_distance_threshold;  // force update on first step
+}
+
+// Call once per odometry tick with the delta since the last tick.
+// heading is the raw compass heading from the IMU (degrees, 0=North, CW+).
+// pos_std is the odometry noise std-dev for this tick (inches).
+void MCL::step(float dx, float dy, float heading, float pos_std) {
+    predict(dx, dy, heading, pos_std);
+
+    distance_traveled += std::hypot(dx, dy);
+    if (distance_traveled < update_distance_threshold) return;
+    distance_traveled = 0.0f;
+
+    update();
+    resample();
+}
+
+// Propagate every particle by the measured odometry delta plus Gaussian noise.
+// Heading is stamped directly from the IMU — particles share the same theta.
+void MCL::predict(float dx, float dy, float heading, float pos_std) {
+    for (int i = 0; i < N; i++) {
+        particle_x[i]     += dx + rng.gaussian(pos_std);
+        particle_y[i]     += dy + rng.gaussian(pos_std);
+        particle_theta[i]  = heading;
+
+        // Respawn out-of-bounds particles uniformly rather than clamping,
+        // which would pile particles on the wall and corrupt the estimate.
+        if (particle_x[i] < MIN_FIELD || particle_x[i] > MAX_FIELD ||
+            particle_y[i] < MIN_FIELD || particle_y[i] > MAX_FIELD) {
+            particle_x[i] = rng.range_f32(MIN_FIELD, MAX_FIELD);
+            particle_y[i] = rng.range_f32(MIN_FIELD, MAX_FIELD);
+        }
+    }
+}
+
+// Weight every particle by the joint sensor likelihood.
+void MCL::update() {
+    bool any_healthy = false;
+    for (auto& s : sensors) { s.update(); if (s.healthy) any_healthy = true; }
+    if (!any_healthy) return;
+
+    for (int i = 0; i < N; i++) {
+        // compass → mathematical radians for Rotation2Df / trig
+        float math_theta = (90.0f - particle_theta[i]) * (float)M_PI / 180.0f;
+        float w = 1.0f;
+        for (const auto& s : sensors) {
+            w *= s.likelihood(particle_x[i], particle_y[i], math_theta);
+            if (w == 0.0f) break;
+        }
+        particle_weights[i] = w;
+    }
+
+    // Two-pass normalisation: divide by max first to keep floats away from zero
+    float max_w = *std::max_element(particle_weights, particle_weights + N);
+    if (max_w <= 0.0f) {
+        std::fill(particle_weights, particle_weights + N, 1.0f / N);
+        return;
+    }
+    float sum = 0.0f;
+    for (int i = 0; i < N; i++) { particle_weights[i] /= max_w; sum += particle_weights[i]; }
+    float inv_sum = 1.0f / sum;
+    for (int i = 0; i < N; i++) particle_weights[i] *= inv_sum;
+}
+
+// Systematic (low-variance) resampling.
+void MCL::resample() {
+    // Snapshot current particles so we can draw from them while overwriting
+    for (int i = 0; i < N; i++) {
+        presample_x[i]       = particle_x[i];
+        presample_y[i]       = particle_y[i];
+        presample_theta[i]   = particle_theta[i];
+        presample_weights[i] = particle_weights[i];
+    }
+
+    const float inv_n  = 1.0f / N;
+    const float offset = rng.next_f32() * inv_n;
+    float cum = presample_weights[0];
+    int   j   = 0;
+
+    for (int i = 0; i < N; i++) {
+        float pin = offset + i * inv_n;
+        while (pin > cum && j < N - 1) { j++; cum += presample_weights[j]; }
+        temp_x[i]      = presample_x[j];
+        temp_y[i]      = presample_y[j];
+        temp_theta[i]  = presample_theta[j];
+        temp_weights[i] = inv_n;
+    }
+
+    for (int i = 0; i < N; i++) {
+        particle_x[i]       = temp_x[i];
+        particle_y[i]       = temp_y[i];
+        particle_theta[i]   = temp_theta[i];
+        particle_weights[i] = temp_weights[i];
+    }
+}
+
+// Weighted mean position; circular mean for heading to handle 0/360 wrap.
+MCL::Estimate MCL::estimate() const {
+    float ex = 0.0f, ey = 0.0f;
+    float sin_sum = 0.0f, cos_sum = 0.0f;
+    for (int i = 0; i < N; i++) {
+        float w = particle_weights[i];
+        ex += w * particle_x[i];
+        ey += w * particle_y[i];
+        float rad = particle_theta[i] * (float)M_PI / 180.0f;
+        sin_sum += w * sinf(rad);
+        cos_sum += w * cosf(rad);
+    }
+    float et = atan2f(sin_sum, cos_sum) * 180.0f / (float)M_PI;
+    if (et < 0.0f) et += 360.0f;
+    return {ex, ey, et};
+}
+
+// ============================================================
+// DEBUG HELPERS
+// ============================================================
+
+// Print raw sensor readings, confidence, and health.
+// Call before enabling the filter to verify sensors are alive.
+void MCL::debug_sensors() {
+    std::cout << "=== sensor health ===" << std::endl;
+    for (int i = 0; i < (int)sensors.size(); i++) {
+        auto& s = sensors[i];
+        int raw_mm = s.sensor->get();
+        int conf   = s.sensor->get_confidence();
+        s.update();
+        std::cout << "[" << i << "] raw=" << raw_mm << "mm"
+                  << "  conf=" << conf
+                  << "  healthy=" << s.healthy
+                  << "  measured=" << s.measured << "\""
+                  << "  sigma=" << s.sigma << "\""
+                  << "  max_range=" << s.max_range << "\"" << std::endl;
+    }
+}
+
+// Print measured vs. raycaster-predicted distance for each sensor at a given pose.
+// The key diagnostic: if measured ≠ predicted at the true pose, fix geometry offsets.
+// theta_deg is compass heading (same convention as the IMU).
+void MCL::debug_likelihood(float x, float y, float theta_deg) const {
+    float math_theta = (90.0f - theta_deg) * (float)M_PI / 180.0f;
+    std::cout << "=== likelihood at (" << x << ", " << y << ", " << theta_deg << "deg) ===" << std::endl;
+    float joint = 1.0f;
+    for (int i = 0; i < (int)sensors.size(); i++) {
+        const auto& s = sensors[i];
+
+        Eigen::Vector2f sensor_pos =
+            Eigen::Rotation2Df(math_theta) * Eigen::Vector2f(s.offset_y, -s.offset_x)
+            + Eigen::Vector2f(x, y);
+        float ray_theta = math_theta - s.offset_theta;
+        Eigen::Vector2f ray_dir(cosf(ray_theta), sinf(ray_theta));
+        float predicted = std::numeric_limits<float>::infinity();
+        for (int k = 0; k < NUM_OBSTACLES; ++k) {
+            float d = ray_vs_aabb(sensor_pos, ray_dir, OBSTACLES[k]);
+            if (d >= 0.0f && d < predicted) predicted = d;
         }
 
-        p.theta = heading + noise_theta(gen);
-        p.weight = in_ladder(p.x, p.y) ? 0.1 : 1.0;
-    }
+        // Convert math ray angle back to compass degrees for readability
+        float ray_compass = 90.0f - ray_theta * 180.0f / (float)M_PI;
+        if (ray_compass < 0.0f)   ray_compass += 360.0f;
+        if (ray_compass >= 360.0f) ray_compass -= 360.0f;
 
-    // Normalize weights
-    double total = 0;
-    for (const auto& p : particles) total += p.weight;
-    for (auto& p : particles) p.weight /= total;
+        float l = s.likelihood(x, y, math_theta);
+        float pred_print = (predicted == std::numeric_limits<float>::infinity()) ? -1.0f : predicted;
+        std::cout << "[" << i << "]"
+                  << "  pos=(" << sensor_pos.x() << ", " << sensor_pos.y() << ")\""
+                  << "  heading=" << ray_compass << "deg"
+                  << "  measured=" << s.measured << "\""
+                  << "  predicted=" << pred_print << "\""
+                  << "  error=" << (s.healthy ? s.measured - pred_print : 0.0f) << "\""
+                  << "  likelihood=" << l
+                  << "  healthy=" << s.healthy << std::endl;
+        joint *= l;
+    }
+    std::cout << "joint=" << joint << std::endl;
 }
 
-Particle get_estimate() {
-    double sx = 0, sy = 0, st = 0, tw = 0;
-    for (const auto& p : particles) {
-        sx += p.x * p.weight;
-        sy += p.y * p.weight;
-        st += p.theta * p.weight;
-        tw += p.weight;
+void MCL::debug_print(int count) const {
+    count = std::min(count, N);
+    std::cout << "=== MCL particles (" << count << ") ===" << std::endl;
+    for (int i = 0; i < count; i++) {
+        std::cout << "[" << i << "] x=" << particle_x[i]
+                  << " y=" << particle_y[i]
+                  << " t=" << particle_theta[i]
+                  << " w=" << particle_weights[i] << std::endl;
     }
-
-    return {
-        round((sx - LADDER_CENTER_X) * 10) / 10.0,
-        round((sy - LADDER_CENTER_Y) * 10) / 10.0,
-        round(st / tw),
-        1.0
-    };
 }
 
-void run_localization_step() {
-    uint32_t now = pros::millis();
-    if (now - last_sensor_refresh >= SENSOR_REFRESH_INTERVAL) {
-        refresh_sensors();
-        last_sensor_refresh = now;
-    }
-
-    if (now - last_update_time < MCL_UPDATE_INTERVAL) return;
-
-    update_particles_from_heading();
-    Particle est = get_estimate();
-
-    pros::lcd::print(0, "X: %.1f in", est.x);
-    pros::lcd::print(1, "Y: %.1f in", est.y);
-    pros::lcd::print(2, "Heading: %.0f", est.theta);
-    pros::lcd::print(3, "In Ladder: %s", in_ladder(est.x + LADDER_CENTER_X, est.y + LADDER_CENTER_Y) ? "Yes" : "No");
-
-    last_update_time = now;
+void MCL::simulate(float dx, float dy, float heading, float pos_std) {
+    predict(dx, dy, heading, pos_std);
+    debug_print();
 }

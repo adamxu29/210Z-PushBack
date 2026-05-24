@@ -2,6 +2,9 @@ extern double robot_x;
 extern double robot_y;
 extern double robot_theta;
 
+extern double ex;
+extern double ey;
+
 namespace Eclipse{
     class Odom{
         private:
@@ -17,13 +20,13 @@ namespace Eclipse{
             const double mm_to_inches = 0.0393701;
 
             // Distance from robot CENTER to each sensor, in inches (positive = toward the wall that sensor faces)
-            const double front_offset = 0;  // TODO: measure center-to-front-sensor in inches
-            const double left_offset = 0;   // TODO: measure center-to-left-sensor in inches
-            const double right_offset = 0;  // TODO: measure center-to-right-sensor in inches
-            const double back_offset = 0;   // TODO: measure center-to-back-sensor in inches
+            const double front_offset = 7.903273329;  // TODO: measure center-to-front-sensor in inches
+            const double left_offset = 4.686594488;   // TODO: measure center-to-left-sensor in inches
+            const double right_offset = 4.686594488;  // TODO: measure center-to-right-sensor in inches
+            const double back_offset = 6.194094488;   // TODO: measure center-to-back-sensor in inches
 
             // Half the field dimension: distance from field center to any wall (inches)
-            const double field_half_size = 72.0;
+            const double field_half_size = 140.42 * 0.5;
 
             int get_wall(double heading);
         public:

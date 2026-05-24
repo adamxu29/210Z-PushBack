@@ -42,6 +42,12 @@ namespace Eclipse {
     // Intake — same structure as original
     // ============================================================================
     class Intake {
+        public:
+            enum class RunMode {
+                Scoring,  // upper sensor — opens trapdoor, stops on opponent ball
+                Intake    // lower sensor — runs intake, stops on opponent ball
+            };
+
         private:
             bool trapdoor_delay_active = false;
             int  trapdoor_delay_counter = 0;
@@ -95,8 +101,7 @@ namespace Eclipse {
             ScoringMode prev_mode = ScoringMode::None;
 
             bool antijam = true;
-            int  counter = 0;
-            int skills_mid_start = 0;
+            int counter = 0;
 
             double target_intake_rpm  = 600.0;
             double target_indexer_rpm = 600.0;
@@ -115,6 +120,7 @@ namespace Eclipse {
             void set_motor_voltage(ScoringMode mode);
 
             void set_scoring_mode(ScoringMode new_mode, double intake_rpm = 600.0, double indexer_rpm = 600.0);
+            void score_until_opp_block(RunMode run_mode = RunMode::Scoring, int time_out = 0, double intake_rpm = 600.0, double indexer_rpm = 600.0);
             void intake_task();
     };
 

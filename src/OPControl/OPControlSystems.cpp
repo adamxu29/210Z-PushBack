@@ -34,7 +34,7 @@ void Eclipse::OPControl::exponential_curve_accelerator(){
 }
 
 void Eclipse::OPControl::drivetrain_control(){
-    int32_t rightXjoystick = (controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
+    int32_t rightXjoystick = (controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X)) * 0.95;
     int32_t leftYjoystick  = (controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y));
 
     int32_t left_power = (leftYjoystick + (rightXjoystick));
@@ -48,7 +48,7 @@ void Eclipse::OPControl::power_intake(){
     // scoring
     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
         // mid + long scoring
-        controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2) ? scoring.set_scoring_mode(scoring.ScoringMode::Middle, 600, 430) : scoring.set_scoring_mode(scoring.ScoringMode::Top);
+        controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2) ? scoring.set_scoring_mode(scoring.ScoringMode::Middle, 600, driver.skills ? 230 : 600) : scoring.set_scoring_mode(scoring.ScoringMode::Top);
     }
     // intaking
     else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
@@ -57,7 +57,7 @@ void Eclipse::OPControl::power_intake(){
     }
     // bottom goal
     else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-        intake_lift_active ? scoring.set_scoring_mode(scoring.ScoringMode::Bottom) : scoring.set_scoring_mode(scoring.ScoringMode::Outtake);
+        intake_lift_active ? scoring.set_scoring_mode(scoring.ScoringMode::Bottom, driver.skills ? 200 : 600, 600) : scoring.set_scoring_mode(scoring.ScoringMode::Outtake);
     }
     else{
         scoring.set_scoring_mode(scoring.ScoringMode::None);
@@ -65,17 +65,26 @@ void Eclipse::OPControl::power_intake(){
 }
 
 void Eclipse::OPControl::intake_lift_control(){
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
         intake_lift_active = !intake_lift_active;
     }
 }
 
-void Eclipse::OPControl::activate_wing(){
+void Eclipse::OPControl::activate_back_wing(){
     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-        wing.set_value(true);
+        back_wing.set_value(true);
     }
     else{
-        wing.set_value(false);
+        back_wing.set_value(false);
+    }
+}
+
+void Eclipse::OPControl::activate_front_wing(){
+    if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
+        front_wing.set_value(true);
+    }
+    else{
+        front_wing.set_value(false);
     }
 }
 /*
@@ -84,14 +93,14 @@ void Eclipse::OPControl::activate_wing(){
     R1: Score
     R2: Outtake
 
-    X: Odom Lift
+    X: Run Auton
     A: Mid Goal Macro
-    B: Undisable??
+    B: Low Goal Macro
     Y: Intake Lift Toggle
 
-    Right: 
-    Down:
-    Left: DSR
+    Right: DSR
+    Down: Odom Lift
+    Left: 
     Up: Color Select
 */
 void Eclipse::OPControl::driver_control(bool disabled){
@@ -101,79 +110,43 @@ void Eclipse::OPControl::driver_control(bool disabled){
         driver.power_intake();
         // scoring.change_intake_speed();
         driver.intake_lift_control();
-        driver.activate_wing();
+        driver.activate_front_wing();
+        driver.activate_back_wing();
 
         // driver.activate_match_load();
         // driver.activate_trapdoor();
     }
 
     // dsr test
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         odom.distance_sensor_reset(10, true, Odom::Front);
-        odom.distance_sensor_reset(10, false, Odom::Left);
+        odom.distance_sensor_reset(10, false, Odom::Right);
         std::cout << "reset" << std::endl << "x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << "h: " << util.get_heading() << std::endl;
     }
     
     // odom lift
     if(pros::competition::get_status() == 4){ odom_lift.set_value(true);}
-    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){ 
+    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){ 
         odom_lift.set_value(true);
     }
 
-    // low goal macro
-    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+    // run auton
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
         disabled = true;
-        intake_lift.set_value(true);
-        pros::delay(250);
-        scoring.set_scoring_mode(scoring.ScoringMode::Bottom, 600, 600);
-        t_pid.set_t_constants(3, 0, 30, 100);
-        t_pid.translation_pid(-2.5, 70, .4, false);
-        scoring.set_scoring_mode(scoring.ScoringMode::Bottom, 200, 400);
-        pros::delay(1000);
-        std::cout << "i: " << pros::millis();
-        while(true){
-            if((intake.get_current_draw() < 320) && (intake.get_voltage() < -4350)){
-                break;
-            }
-            std::cout << "c: " << intake.get_current_draw() << "v: " << intake.get_voltage() << std::endl;
-            pros::delay(100);
-        }
-        pros::delay(500);
-		std::cout << "c: " << intake.get_current_draw() << "v: " << intake.get_voltage() << std::endl;
-        std::cout << "f: " << pros::millis();
-        t_pid.set_t_constants(3, 0, 30, 100);
-        t_pid.translation_pid(-5, 70, .4, false);
-        scoring.set_scoring_mode(scoring.ScoringMode::None);
+        autonomous();
         disabled = false;
+        left_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
+	    right_drive.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
     }
-    // mid goal macro
-    else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-        disabled = true;
-        
-        mid_goal.set_value(true);
-        pros::delay(500);
-        scoring.set_scoring_mode(scoring.ScoringMode::Middle, 600, 430);
-        t_pid.set_t_constants(3, 0, 30, 100);
-        t_pid.translation_pid(2, 70, .3, false);
-        scoring.set_scoring_mode(scoring.ScoringMode::Middle, 600, 202.5);
-        pros::delay(1000);
-        std::cout << "c: " << indexer.get_current_draw() << "v: " << indexer.get_voltage() << std::endl;
-        while(true){
-            if((indexer.get_current_draw() < 500) && (indexer.get_voltage() > 4400)){
-                break;
-            }
-            std::cout << "c: " << indexer.get_current_draw() << "v: " << indexer.get_voltage() << std::endl;
-            pros::delay(10);
-        }
-        pros::delay(100);
-        std::cout << "c: " << indexer.get_current_draw() << "v: " << indexer.get_voltage() << std::endl;
-        std::cout << "f: " << pros::millis();
-        t_pid.set_t_constants(3, 0, 30, 100);
-        t_pid.translation_pid(2, 70, .4, false);
-        scoring.set_scoring_mode(scoring.ScoringMode::None);
 
-        disabled = false;
-    }
+    // low goal macro
+    // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+        
+    // }
+    // mid goal macro
+    // else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+        
+    // }
 
     // color select
     if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
@@ -189,10 +162,12 @@ void Eclipse::OPControl::driver_control(bool disabled){
     }
 
     // auto select
-    // if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-    //     gui.selected
-    // }
-
+    if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+        if((gui.selected_path > 5)){
+            gui.selected_path = -1;
+        }
+        else{ gui.selected_path++; }
+    }
 }
 
 // void Eclipse::OPControl::power_indexer(float speed){

@@ -20,24 +20,26 @@ pros::Motor intake(7);
 pros::Motor indexer(4);
 
 pros::Rotation vertical_tracking_wheel(12, true);
-pros::Rotation horizontal_tracking_wheel(5, false);
+pros::Rotation horizontal_tracking_wheel(20, false); // not using
 
 pros::ADIDigitalOut match_loader('h');
 pros::ADIDigitalOut mid_goal('d');
 pros::ADIDigitalOut trapdoor('g');
-pros::ADIDigitalOut wing('b');
+pros::ADIDigitalOut front_wing('c');
+pros::ADIDigitalOut back_wing('e');
 pros::ADIDigitalOut intake_lift('a');
-pros::ADIDigitalOut odom_lift('c');
+pros::ADIDigitalOut odom_lift('b');
 
 pros::IMU imu1(17);
 // pros::IMU imu2(19);
 
 pros::Optical color(18);
+pros::Optical bottom_color(13);
 
 pros::Distance front_sensor(6);
 pros::Distance left_sensor(11);
 pros::Distance right_sensor(21);
-pros::Distance back_sensor(20);
+pros::Distance back_sensor(5);
 
 Utility util;
 OPControl driver;
@@ -50,10 +52,10 @@ Curve_PID c_pid;
 PID m_pid;
 Odom odom;
 Drive drive;
-// MonteCarloLocalization mcl;
+MCL mcl;
 
 Autonomous_Paths auton;
 
 GUI gui;
 pros::Task* update_telemetry = nullptr;
-// pros::Task* run_intake = nullptr;
+pros::Task* run_intake = nullptr;

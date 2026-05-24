@@ -60,22 +60,22 @@ int VelocityController::compute(double target_rpm, double actual_rpm) {
 void Intake::set_motor_voltage(ScoringMode mode) {
     switch (mode) {
         case ScoringMode::Intake: {
-            indexer.set_current_limit(2100);
-            intake.move_voltage(intake_ctrl.compute(target_intake_rpm, intake.get_actual_velocity()));
-            indexer.move_voltage(indexer_ctrl.compute(target_indexer_rpm, indexer.get_actual_velocity()));
             trapdoor.set_value(false);
             match_loader.set_value(false);
             intake_lift.set_value(false);
+            indexer.set_current_limit(2100);
+            intake.move_voltage(intake_ctrl.compute(target_intake_rpm, intake.get_actual_velocity()));
+            indexer.move_voltage(indexer_ctrl.compute(target_indexer_rpm, indexer.get_actual_velocity()));
             break;
         }
 
         case ScoringMode::MatchLoad: {
             indexer.set_current_limit(2100);
-            intake.move_voltage(intake_ctrl.compute(target_intake_rpm, intake.get_actual_velocity()));
-            indexer.move_voltage(indexer_ctrl.compute(target_indexer_rpm, indexer.get_actual_velocity()));
             trapdoor.set_value(false);
             match_loader.set_value(true);
             color.set_led_pwm(100);
+            intake.move_voltage(intake_ctrl.compute(target_intake_rpm, intake.get_actual_velocity()));
+            indexer.move_voltage(indexer_ctrl.compute(target_indexer_rpm, indexer.get_actual_velocity()));
             break;
         }
 
@@ -85,24 +85,24 @@ void Intake::set_motor_voltage(ScoringMode mode) {
             break;
 
         case ScoringMode::Top: {
-            intake.move_voltage(intake_ctrl.compute(target_intake_rpm, intake.get_actual_velocity()));
-            indexer.move_voltage(indexer_ctrl.compute(target_indexer_rpm, indexer.get_actual_velocity()));
             trapdoor.set_value(true);
             mid_goal.set_value(false);
+            intake.move_voltage(intake_ctrl.compute(target_intake_rpm, intake.get_actual_velocity()));
+            indexer.move_voltage(indexer_ctrl.compute(target_indexer_rpm, indexer.get_actual_velocity()));
             break;
         }
 
         case ScoringMode::Middle:
-            intake.move_voltage(intake_ctrl.compute(target_intake_rpm, intake.get_actual_velocity()));
-            indexer.move_voltage(indexer_ctrl.compute(target_indexer_rpm, indexer.get_actual_velocity()));
             mid_goal.set_value(true);
             match_loader.set_value(false);
+            intake.move_voltage(intake_ctrl.compute(target_intake_rpm, intake.get_actual_velocity()));
+            indexer.move_voltage(indexer_ctrl.compute(target_indexer_rpm, indexer.get_actual_velocity()));
             break;
 
         case ScoringMode::Bottom:
+            intake_lift.set_value(true);
             intake.move_voltage(intake_ctrl.compute(-target_intake_rpm, intake.get_actual_velocity()));
             indexer.move_voltage(indexer_ctrl.compute(-target_indexer_rpm, indexer.get_actual_velocity()));
-            intake_lift.set_value(true);
             break;
 
         case ScoringMode::None:
@@ -131,6 +131,47 @@ void Intake::set_scoring_mode(ScoringMode new_mode, double intake_rpm, double in
 
 void Intake::set_color(Color new_color) {
     selected_color = new_color;
+}
+
+void Intake::score_until_opp_block(RunMode run_mode, int time_out, double intake_rpm, double indexer_rpm) {
+    set_scoring_mode(run_mode == RunMode::Scoring ? ScoringMode::Top : ScoringMode::Intake, intake_rpm, indexer_rpm);
+    color.set_led_pwm(100);
+    bottom_color.set_led_pwm(100);
+    int local_timer = 0;
+    int detect_count = 0;
+
+    while (true) {
+        if (run_mode == RunMode::Intake) {
+            bool opp_detected = (selected_color == Color::Red  ? util.is_blue(bottom_color) :
+                                  selected_color == Color::Blue ? util.is_red(bottom_color)  : false)
+                                 && util.detect_lower_ball();
+            detect_count = opp_detected ? detect_count + 1 : 0;
+            if (detect_count >= 2) {
+                set_scoring_mode(ScoringMode::None, intake_rpm, indexer_rpm);
+                break;
+            }
+        } else if (selected_color == Color::Red) {
+            if (util.is_blue(color) && util.detect_upper_ball()) {
+                set_scoring_mode(ScoringMode::Intake, intake_rpm, indexer_rpm);
+                break;
+            }
+        } else if (selected_color == Color::Blue) {
+            if (util.is_red(color) && util.detect_upper_ball()) {
+                set_scoring_mode(ScoringMode::Intake, intake_rpm, indexer_rpm);
+                break;
+            }
+        }
+
+        if (time_out > 0) { local_timer++; }
+        if (local_timer > (time_out * 100)) { 
+            set_scoring_mode(ScoringMode::None, intake_rpm, indexer_rpm);
+            break; 
+        }
+
+        pros::delay(10);
+    }
+    color.set_led_pwm(0);
+    bottom_color.set_led_pwm(0);
 }
 
 // ============================================================================
@@ -176,7 +217,8 @@ void Intake::intake_task() {
                         trapdoor_delay_counter++;
                     }
                 }
-            } else if (current_mode == ScoringMode::Bottom) {
+            } 
+            else if (current_mode == ScoringMode::Bottom) {
                 if (!intake_lift_delay_active) {
                     intake_lift_delay_active  = true;
                     intake_lift_delay_counter = 0;
@@ -191,9 +233,9 @@ void Intake::intake_task() {
             } else if (current_mode == ScoringMode::MatchLoad) {
                 // Color sort (unchanged)
                 if ((scoring.selected_color != Color::None) && util.detect_upper_ball()) {
-                    if (util.is_red()) {
+                    if (util.is_red(color)) {
                         trapdoor.set_value(scoring.selected_color == Color::Blue ? true : false);
-                    } else if (util.is_blue()) {
+                    } else if (util.is_blue(color)) {
                         trapdoor.set_value(scoring.selected_color == Color::Red ? true : false);
                     }
                 }

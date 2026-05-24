@@ -26,23 +26,21 @@ namespace Eclipse
             void reset_position();
 
             // color sort
-            int red_max = 360;
-            int red_min = 330;
+            int red_max = 20;
+            int red_min = 0;
             int blue_max = 230;
             int blue_min = 200;
             int sort_delay = 0;
 
             bool sorting = true;
-            bool detect_ball();
+            bool detect_lower_ball();
             bool detect_upper_ball();
-            bool is_red();
-            bool is_blue();
+            bool is_red(pros::Optical& sensor);
+            bool is_blue(pros::Optical& sensor);
             void sort();
             void sort_red();
             void sort_blue();
             void run_sort();
-            void score_until_opp_block(int time_out = 0);
-
             void set_tpi();
             double get_tpi(){ return tpi; }
 

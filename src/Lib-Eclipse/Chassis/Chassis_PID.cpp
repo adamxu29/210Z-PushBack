@@ -166,7 +166,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
     if(motion_chain) { t_pid.t_kd /= 2; }
     while (true)
     {
-        odom.update_position();
+        odom.update_position_single_vertical();
         // motor encoder:
         // double current_position = util.get_position() * 3 / util.get_tpi();
 
@@ -232,7 +232,7 @@ void Eclipse::Translation_PID::translation_pid(double target, double max_speed, 
         left_drive.move_voltage(0);
         right_drive.move_voltage(0);
     }
-    std::cout << "x: " << odom.get_robot_x() << "y: " << odom.get_robot_y() << std::endl;
+    std::cout << "end   -   x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << " h: " << util.get_heading() << "   time: " << local_timer / 100.0 << "s" << std::endl;
 }
 
 void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double time_out, bool motion_chain)
@@ -245,7 +245,7 @@ void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double 
 
     while (true)
     {
-        odom.update_position();
+        odom.update_position_single_vertical();
         double current_position = util.get_heading();
         double voltage = r_pid.compute_r(current_position, theta);
 
@@ -298,6 +298,7 @@ void Eclipse::Rotation_PID::rotation_pid(double theta, double max_speed, double 
         }
         pros::delay(10);
     }
+    std::cout << "end   -   x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << " h: " << util.get_heading() << "   time: " << local_timer / 100.0 << "s" << std::endl;
 }
 
 void Eclipse::Curve_PID::curve_pid(double theta, double max_speed, double time_out, double curve_damper, bool backwards, bool motion_chain)
@@ -311,7 +312,7 @@ void Eclipse::Curve_PID::curve_pid(double theta, double max_speed, double time_o
 
     while (true)
     {
-        odom.update_position();
+        odom.update_position_single_vertical();
         double current_position = util.get_heading();
         double voltage = c_pid.compute_c(current_position, theta);
 
@@ -377,4 +378,5 @@ void Eclipse::Curve_PID::curve_pid(double theta, double max_speed, double time_o
 
         pros::delay(10);
     }
+    std::cout << "end   -   x: " << odom.get_robot_x() << " y: " << odom.get_robot_y() << " h: " << util.get_heading() << "   time: " << local_timer / 100.0 << "s" << std::endl;
 }

@@ -15,7 +15,8 @@ extern pros::Rotation horizontal_tracking_wheel;
 extern pros::ADIDigitalOut match_loader;
 extern pros::ADIDigitalOut mid_goal;
 extern pros::ADIDigitalOut trapdoor;
-extern pros::ADIDigitalOut wing;
+extern pros::ADIDigitalOut front_wing;
+extern pros::ADIDigitalOut back_wing;
 extern pros::ADIDigitalOut intake_lift;
 extern pros::ADIDigitalOut odom_lift;
 
@@ -23,7 +24,7 @@ extern pros::IMU imu1;
 extern pros::IMU imu2;
 
 extern pros::Optical color;
-extern pros::Distance park_sensor;
+extern pros::Optical bottom_color;
 extern pros::Distance front_sensor;
 extern pros::Distance left_sensor;
 extern pros::Distance right_sensor;
@@ -40,10 +41,12 @@ extern Eclipse::Curve_PID c_pid;
 extern Eclipse::PID m_pid;
 extern Eclipse::Odom odom;
 extern Eclipse::Drive drive;
+extern Eclipse::MCL mcl;
 
 extern Eclipse::Autonomous_Paths auton;
 
 extern Eclipse::GUI gui;
 
 extern pros::Task* update_telemetry;
-// extern pros::Task* run_intake;
+extern pros::Task* run_intake;
+extern void autonomous();

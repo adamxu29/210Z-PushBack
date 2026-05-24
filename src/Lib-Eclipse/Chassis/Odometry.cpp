@@ -8,6 +8,8 @@ double robot_x = 0;
 double robot_y = 0;
 double robot_theta;
 
+double ex, ey;
+
 // helper functions
 void Odom::set_horizontal_tracker_specs(double diameter, double offset){
     odom.horizontal_wheel_diameter = diameter;
@@ -36,8 +38,35 @@ float Odom::get_vertical_displacement(){
 }
 
 void Odom::update_telemetry_fn(void* param){
+    static bool first_run = true;
+    static float prev_x, prev_y, prev_theta;
+
     while(true){
-        odom.update_position();
+        odom.update_position_single_vertical();
+
+        float cx = odom.get_robot_x(), cy = odom.get_robot_y(), ct = util.get_heading();
+
+        if (first_run) {
+            prev_x = cx; prev_y = cy; prev_theta = ct;
+            first_run = false;
+        }
+
+        float dx = cx - prev_x;
+        float dy = cy - prev_y;
+
+        if (mcl.enabled)
+            mcl.step(dx, dy, ct, std::hypot(dx, dy) / 4.0f);
+
+        prev_x = cx; prev_y = cy; prev_theta = ct;
+
+        MCL::Estimate est = mcl.estimate();
+        char buffer[300];
+
+        ex = est.x;
+        ey = est.y;
+    
+        sprintf(buffer, "X: %.2f Y: %.2f Heading: %.3f°", est.x, est.y, est.theta);
+        lv_label_set_text(gui.debug_line_1, buffer);
         pros::delay(10);
     }
 }
